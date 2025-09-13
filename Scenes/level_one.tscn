@@ -1,0 +1,67 @@
+[gd_scene load_steps=5 format=4 uid="uid://2hq430ox7fub"]
+
+[ext_resource type="PackedScene" uid="uid://6bwtmnfhpxbs" path="res://Scenes/player/player.tscn" id="1_lvfns"]
+[ext_resource type="Texture2D" uid="uid://m0o51eht3trb" path="res://Assets/Tiles/rocky-tileset.png" id="2_sojq8"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_hi7j2"]
+texture = ExtResource("2_sojq8")
+0:0/0 = 0
+0:1/0 = 0
+2:1/0 = 0
+3:1/0 = 0
+4:1/0 = 0
+5:1/0 = 0
+7:1/0 = 0
+8:1/0 = 0
+9:1/0 = 0
+10:1/0 = 0
+0:2/0 = 0
+2:2/0 = 0
+2:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+3:2/0 = 0
+3:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+4:2/0 = 0
+4:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+5:2/0 = 0
+5:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+7:2/0 = 0
+7:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+8:2/0 = 0
+8:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+9:2/0 = 0
+9:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+10:2/0 = 0
+10:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+0:3/0 = 0
+2:3/0 = 0
+2:3/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+3:3/0 = 0
+3:3/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+4:3/0 = 0
+4:3/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+5:3/0 = 0
+5:3/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+0:4/0 = 0
+0:5/0 = 0
+2:5/0 = 0
+4:5/0 = 0
+6:5/0 = 0
+7:5/0 = 0
+0:6/0 = 0
+6:6/0 = 0
+7:6/0 = 0
+0:7/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_ik1yt"]
+physics_layer_0/collision_layer = 1
+sources/1 = SubResource("TileSetAtlasSource_hi7j2")
+
+[node name="LevelOne" type="Node2D"]
+
+[node name="Player" parent="." instance=ExtResource("1_lvfns")]
+z_index = 1
+position = Vector2(8, 43)
+
+[node name="TileMapLayer" type="TileMapLayer" parent="."]
+tile_map_data = PackedByteArray("AAD5/wQAAQACAAEAAAD5/wUAAQACAAIAAAD5/wYAAQACAAMAAAD6/wQAAQADAAEAAAD6/wUAAQADAAIAAAD6/wYAAQADAAMAAAD7/wQAAQADAAEAAAD7/wUAAQADAAIAAAD7/wYAAQADAAMAAAD8/wQAAQADAAEAAAD8/wUAAQADAAIAAAD8/wYAAQADAAMAAAD9/wQAAQAEAAEAAAD9/wUAAQAEAAIAAAD9/wYAAQAEAAMAAAD+/wQAAQADAAEAAAD+/wUAAQADAAIAAAD+/wYAAQADAAMAAAD//wQAAQAEAAEAAAD//wUAAQAEAAIAAAD//wYAAQAEAAMAAAAAAAQAAQADAAEAAAAAAAUAAQADAAIAAAAAAAYAAQADAAMAAAABAAQAAQAEAAEAAAABAAUAAQAEAAIAAAABAAYAAQAEAAMAAAACAAQAAQAHAAEAAAACAAUAAQAHAAIAAAACAAYAAQAEAAMAAAADAAQAAQAIAAEAAAADAAUAAQAIAAIAAAADAAYAAQADAAMAAAAEAAQAAQAJAAEAAAAEAAUAAQAJAAIAAAAEAAYAAQADAAMAAAAFAAQAAQAKAAEAAAAFAAUAAQAKAAIAAAAFAAYAAQAEAAMAAAAGAAQAAQADAAEAAAAGAAUAAQADAAIAAAAGAAYAAQADAAMAAAAHAAQAAQADAAEAAAAHAAUAAQADAAIAAAAHAAYAAQADAAMAAAAIAAQAAQAEAAEAAAAIAAUAAQAEAAIAAAAIAAYAAQAEAAMAAAAJAAQAAQADAAEAAAAJAAUAAQADAAIAAAAJAAYAAQADAAMAAAAKAAQAAQAEAAEAAAAKAAUAAQAEAAIAAAAKAAYAAQAEAAMAAAALAAQAAQADAAEAAAALAAUAAQADAAIAAAALAAYAAQADAAMAAAAMAAQAAQAEAAEAAAAMAAUAAQAEAAIAAAAMAAYAAQAEAAMAAAANAAQAAQADAAEAAAANAAUAAQADAAIAAAANAAYAAQADAAMAAAAOAAQAAQAEAAEAAAAOAAUAAQAEAAIAAAAOAAYAAQAEAAMAAAAPAAQAAQADAAEAAAAPAAUAAQADAAIAAAAPAAYAAQADAAMAAAAQAAQAAQAEAAEAAAAQAAUAAQAEAAIAAAAQAAYAAQAEAAMAAAARAAQAAQADAAEAAAARAAUAAQADAAIAAAARAAYAAQADAAMAAAASAAQAAQAEAAEAAAASAAUAAQAEAAIAAAASAAYAAQAEAAMAAAATAAQAAQADAAEAAAATAAUAAQADAAIAAAATAAYAAQADAAMAAAAUAAQAAQAEAAEAAAAUAAUAAQAEAAIAAAAUAAYAAQAEAAMAAAAVAAQAAQAFAAEAAAAVAAUAAQAFAAIAAAAVAAYAAQAFAAMAAAA=")
+tile_set = SubResource("TileSet_ik1yt")
