@@ -12,6 +12,7 @@ extends CharacterBody2D
 @onready var dash_state = $LimboHSM/Dash
 
 @onready var sprite: Sprite2D = $Sprite2D
+@onready var hitbox: Area2D = $Hitbox
 
 
 const SPEED = 200.0
@@ -27,6 +28,7 @@ var dash_cooldown_timer: float = 0.0
 var can_dash: bool = true
 
 func _ready() -> void:
+	add_to_group("player")
 	_initialize_state_machine()
 
 func _initialize_state_machine() -> void:
@@ -47,7 +49,6 @@ func _initialize_state_machine() -> void:
 	state_machine.add_transition(dash_state, idle_state, "to_idle")
 	state_machine.add_transition(dash_state, jump_state, "to_jump")
 	
-
 	#setup state machine
 	state_machine.initial_state = idle_state
 	state_machine.initialize(self)
@@ -78,6 +79,46 @@ func update_facing():
 	if movement_input.x != 0:
 		sprite.flip_h = movement_input.x < 0
 
+func start_attack():
+	"""Called when attack animation begins"""
+	if hitbox:
+		if hitbox.has_method("set_active"):
+			hitbox.set_active(true)
+		else:
+			# Fallback: enable monitoring directly and connect signals
+			hitbox.monitoring = true
+			hitbox.monitorable = true
+			# Connect signals if not already connected
+			if not hitbox.body_entered.is_connected(_on_hitbox_body_entered):
+				hitbox.body_entered.connect(_on_hitbox_body_entered)
+			if not hitbox.area_entered.is_connected(_on_hitbox_area_entered):
+				hitbox.area_entered.connect(_on_hitbox_area_entered)
+
+func end_attack():
+	"""Called when attack animation ends"""
+	if hitbox:
+		if hitbox.has_method("set_active"):
+			hitbox.set_active(false)
+		else:
+			# Fallback: disable monitoring directly
+			hitbox.monitoring = false
+			hitbox.monitorable = false
+
+func _on_hitbox_body_entered(body):
+	"""Handle hitbox collision with bodies (like barrels)"""
+	if body.has_method("take_damage"):
+		body.take_damage()
+		print("Player hit: ", body.name)
+
+func _on_hitbox_area_entered(area):
+	"""Handle hitbox collision with areas (like enemy hurtboxes)"""
+	if area.has_method("take_damage"):
+		area.take_damage()
+		print("Player hit area: ", area.name)
+	elif area.get_parent().has_method("take_damage"):
+		area.get_parent().take_damage()
+		print("Player hit enemy: ", area.get_parent().name)
+
 func _physics_process(delta: float) -> void:
 	movement_input = Input.get_vector("Left", "Right", "Up", "Down")
 
@@ -97,4 +138,5 @@ func _physics_process(delta: float) -> void:
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 	if anim_name == "Attack":
+		end_attack()
 		state_machine.dispatch("to_idle")

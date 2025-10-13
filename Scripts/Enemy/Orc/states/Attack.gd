@@ -8,13 +8,10 @@ func _enter() -> void:
 	animation_player.play(animation)
 
 func _exit() -> void:
-	# Ensure hitbox is deactivated when leaving attack state
-	agent.end_attack()
+	pass
 
-# Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass # Replace with function body.
+	pass
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
 func _update(_delta: float) -> void:
 	agent.velocity.x = 0
