@@ -40,8 +40,12 @@ func _on_area_entered(area):
 		return
 		
 	# Check if it's an enemy hurtbox
-	if area.has_method("take_damage") or area.get_parent().has_method("take_damage"):
-		var target = area.get_parent() if area.get_parent().has_method("take_damage") else area
-		target.take_damage()
+	if area.has_method("take_damage"):
+		area.take_damage(damage)
+		hit_target.emit(area)
+		print("Player hit enemy for ", damage, " damage")
+	elif area.get_parent().has_method("take_damage"):
+		var target = area.get_parent()
+		target.take_damage(damage)
 		hit_target.emit(target)
-		print("Hit enemy: ", target.name)
+		print("Player hit target: ", target.name)

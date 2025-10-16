@@ -1,11 +1,11 @@
 extends Node
-class_name GameHealth
+class_name EnemyHealth
 
-## Simple health system for the main game
+## Health system untuk enemy
 signal death
 signal damaged(amount: int)
 
-@export var max_health: int = 100
+@export var max_health: int = 5
 var current_health: int
 
 func _ready():
@@ -19,18 +19,19 @@ func take_damage(amount: int = 1):
 	current_health = max(current_health, 0)
 	
 	damaged.emit(amount)
-	print("Took damage: ", amount, " - Health remaining: ", current_health)
+	print("Enemy took damage: ", amount, " - Health remaining: ", current_health)
 	
 	if current_health <= 0:
 		death.emit()
-		print("Died!")
+		print("Enemy died!")
 
 func heal(amount: int):
 	current_health = min(current_health + amount, max_health)
-	print("Healed: ", amount, " - Health: ", current_health)
+	print("Enemy healed: ", amount, " - Health: ", current_health)
 
 func get_current_health() -> int:
 	return current_health
 
 func is_alive() -> bool:
 	return current_health > 0
+

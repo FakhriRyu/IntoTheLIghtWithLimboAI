@@ -1,14 +1,18 @@
-[gd_scene load_steps=19 format=3 uid="uid://cje1td6efigfc"]
+[gd_scene load_steps=25 format=3 uid="uid://cje1td6efigfc"]
 
 [ext_resource type="Script" uid="uid://dews33o7m6jf6" path="res://Scripts/Enemy/Orc/orc.gd" id="1_104kq"]
 [ext_resource type="Texture2D" uid="uid://cudpyqwaurrxx" path="res://Assets/Orc/Orc-Idle.png" id="1_dmywu"]
 [ext_resource type="Texture2D" uid="uid://5kdjvi6ym2l2" path="res://Assets/Orc/Orc-Walk.png" id="2_nblag"]
 [ext_resource type="Texture2D" uid="uid://wsdf55rj5pw2" path="res://Assets/Orc/Orc-Attack02.png" id="3_rqk0w"]
+[ext_resource type="Texture2D" uid="uid://c3ividm0jx1gd" path="res://Assets/Orc/Orc-Death.png" id="4_death"]
 [ext_resource type="Script" uid="uid://ds4lyg53wylhc" path="res://Scripts/Enemy/Orc/states/Idle.gd" id="5_tymxo"]
 [ext_resource type="Script" uid="uid://jx6yp7er16kx" path="res://Scripts/Enemy/Orc/states/Patrol.gd" id="6_ixmu2"]
 [ext_resource type="Script" uid="uid://c3p7jvdicyqdh" path="res://Scripts/Enemy/Orc/states/Chase.gd" id="6_s1jv2"]
 [ext_resource type="Script" uid="uid://cf2543i1wb44v" path="res://Scripts/Enemy/Orc/states/Attack.gd" id="7_ixmu2"]
 [ext_resource type="Script" uid="uid://ce6hs5ud4tkv0" path="res://Scripts/Enemy/Orc/states/Dead.gd" id="8_n1yuq"]
+[ext_resource type="Script" uid="uid://bqvxl3nh4rw6y" path="res://Scripts/Enemy/Orc/Hitbox.gd" id="9_hitbox"]
+[ext_resource type="Script" uid="uid://dm1g7cqx3h4rp" path="res://Scripts/Enemy/Orc/Health.gd" id="10_health"]
+[ext_resource type="Script" uid="uid://cjx3y8qv2kfno" path="res://Scripts/Enemy/Orc/Hurtbox.gd" id="11_hurtbox"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_nblag"]
 radius = 7.0
@@ -52,6 +56,64 @@ tracks/2/keys = {
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
 "update": 1,
 "values": [0, 1, 2, 3, 4, 5]
+}
+tracks/3/type = "method"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath(".")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0.3, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"values": [{
+"args": [],
+"method": &"start_attack"
+}, {
+"args": [],
+"method": &"end_attack"
+}]
+}
+
+[sub_resource type="Animation" id="Animation_death"]
+resource_name = "Death"
+length = 0.4
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("4_death")]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D:hframes")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [4]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Sprite2D:frame")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
 }
 
 [sub_resource type="Animation" id="Animation_rqk0w"]
@@ -180,6 +242,7 @@ tracks/2/keys = {
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_tymxo"]
 _data = {
 &"Attack": SubResource("Animation_tymxo"),
+&"Death": SubResource("Animation_death"),
 &"Idle": SubResource("Animation_rqk0w"),
 &"RESET": SubResource("Animation_ad04g"),
 &"Walk": SubResource("Animation_104kq")
@@ -190,6 +253,8 @@ size = Vector2(14, 25)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_bh43d"]
 radius = 8.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hitbox"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_s1jv2"]
 size = Vector2(98.3334, 12.6667)
@@ -219,11 +284,22 @@ autoplay = "Idle"
 position = Vector2(17, -1.5)
 shape = SubResource("RectangleShape2D_rqk0w")
 
+[node name="Health" type="Node" parent="."]
+script = ExtResource("10_health")
+
 [node name="Hurtbox" type="Area2D" parent="."]
+script = ExtResource("11_hurtbox")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
 position = Vector2(1, 0)
 shape = SubResource("CircleShape2D_bh43d")
+
+[node name="Hitbox" type="Area2D" parent="."]
+script = ExtResource("9_hitbox")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+position = Vector2(15, -1)
+shape = SubResource("RectangleShape2D_hitbox")
 
 [node name="LimboHSM" type="LimboHSM" parent="."]
 
@@ -242,11 +318,15 @@ script = ExtResource("6_s1jv2")
 animation_player = NodePath("../../AnimationPlayer")
 animation = &"Walk"
 
-[node name="Attack" type="LimboState" parent="LimboHSM"]
+[node name="Attack" type="LimboState" parent="LimboHSM" node_paths=PackedStringArray("animation_player")]
 script = ExtResource("7_ixmu2")
+animation_player = NodePath("../../AnimationPlayer")
+animation = &"Attack"
 
-[node name="Dead" type="LimboState" parent="LimboHSM"]
+[node name="Dead" type="LimboState" parent="LimboHSM" node_paths=PackedStringArray("animation_player")]
 script = ExtResource("8_n1yuq")
+animation_player = NodePath("../../AnimationPlayer")
+animation = &"Death"
 
 [node name="DetectionArea" type="Area2D" parent="."]
 
@@ -254,5 +334,7 @@ script = ExtResource("8_n1yuq")
 position = Vector2(1.33333, 0)
 shape = SubResource("RectangleShape2D_s1jv2")
 
+[connection signal="body_entered" from="AttackArea" to="." method="_on_attack_area_body_entered"]
+[connection signal="body_exited" from="AttackArea" to="." method="_on_attack_area_body_exited"]
 [connection signal="body_entered" from="DetectionArea" to="." method="_on_detection_area_body_entered"]
 [connection signal="body_exited" from="DetectionArea" to="." method="_on_detection_area_body_exited"]

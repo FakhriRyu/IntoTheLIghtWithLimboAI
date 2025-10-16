@@ -1,0 +1,27 @@
+[gd_resource type="BehaviorTree" load_steps=8 format=3 uid="uid://c6wptyhd2hgeb"]
+
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_ygh4i"]
+
+[sub_resource type="BBNode" id="BBNode_ygh4i"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTPlayAnimation" id="BTPlayAnimation_0wjp1"]
+animation_player = SubResource("BBNode_ygh4i")
+animation_name = &"Idle"
+
+[sub_resource type="BTRandomWait" id="BTRandomWait_ygh4i"]
+
+[sub_resource type="BTSequence" id="BTSequence_pak4m"]
+custom_name = "Chill"
+children = [SubResource("BTPlayAnimation_0wjp1"), SubResource("BTRandomWait_ygh4i")]
+
+[sub_resource type="BTCooldown" id="BTCooldown_jk4bp"]
+children = [SubResource("BTSequence_pak4m")]
+
+[sub_resource type="BTSelector" id="BTSelector_0wjp1"]
+children = [SubResource("BTCooldown_jk4bp")]
+
+[resource]
+blackboard_plan = SubResource("BlackboardPlan_ygh4i")
+root_task = SubResource("BTSelector_0wjp1")

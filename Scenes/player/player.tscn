@@ -1,5 +1,7 @@
-[gd_scene load_steps=53 format=3 uid="uid://6bwtmnfhpxbs"]
+[gd_scene load_steps=68 format=3 uid="uid://6bwtmnfhpxbs"]
 
+[ext_resource type="Script" uid="uid://bwhvvmyw1y5ks" path="res://Scripts/player/Health.gd" id="1_health"]
+[ext_resource type="Script" uid="uid://bnv143y5kl4ds" path="res://Scripts/player/Hurtbox.gd" id="1_hurtbox"]
 [ext_resource type="Script" uid="uid://bjjjjmchg4o12" path="res://Scripts/player/player.gd" id="1_xxarj"]
 [ext_resource type="Texture2D" uid="uid://iukhxom43jof" path="res://Assets/Warrior/idle/Warrior_Idle_1.png" id="2_6k3cy"]
 [ext_resource type="Texture2D" uid="uid://bjns4xyhlemfy" path="res://Assets/Warrior/idle/Warrior_Idle_2.png" id="3_kd672"]
@@ -40,7 +42,19 @@
 [ext_resource type="Texture2D" uid="uid://cahy6jr6yrits" path="res://Assets/Warrior/Dash/Warrior_Dash_5.png" id="33_jdbg4"]
 [ext_resource type="Texture2D" uid="uid://c5ae26y0jf582" path="res://Assets/Warrior/Dash/Warrior_Dash_6.png" id="34_aa0hm"]
 [ext_resource type="Texture2D" uid="uid://cfe06vpyhxlcv" path="res://Assets/Warrior/Dash/Warrior_Dash_7.png" id="35_ch70o"]
+[ext_resource type="Texture2D" uid="uid://ecod0q4xb15l" path="res://Assets/Warrior/Death-Effect/Warrior_Death_1.png" id="38_4a6ih"]
+[ext_resource type="Texture2D" uid="uid://csaku4uy8bfwx" path="res://Assets/Warrior/Death-Effect/Warrior_Death_2.png" id="39_6ykii"]
+[ext_resource type="Texture2D" uid="uid://dbw0ws844c5i6" path="res://Assets/Warrior/Death-Effect/Warrior_Death_3.png" id="40_b42p4"]
+[ext_resource type="Texture2D" uid="uid://bssxvofw5rahl" path="res://Assets/Warrior/Death-Effect/Warrior_Death_4.png" id="41_p5xt2"]
 [ext_resource type="Script" uid="uid://clpsl4nc72nb8" path="res://Scripts/player/states/Dash.gd" id="41_s3lwd"]
+[ext_resource type="Texture2D" uid="uid://bwbijtb63sebv" path="res://Assets/Warrior/Death-Effect/Warrior_Death_5.png" id="42_wobeb"]
+[ext_resource type="Texture2D" uid="uid://b4n7cubpbu851" path="res://Assets/Warrior/Death-Effect/Warrior_Death_6.png" id="43_k37cg"]
+[ext_resource type="Texture2D" uid="uid://8c8ip3ni5tn" path="res://Assets/Warrior/Death-Effect/Warrior_Death_7.png" id="44_m3jr7"]
+[ext_resource type="Texture2D" uid="uid://cq6drvn4k4n7l" path="res://Assets/Warrior/Death-Effect/Warrior_Death_8.png" id="45_vicuj"]
+[ext_resource type="Texture2D" uid="uid://dchkf763ucjbl" path="res://Assets/Warrior/Death-Effect/Warrior_Death_9.png" id="46_ppgm1"]
+[ext_resource type="Texture2D" uid="uid://p12gdx4bxbgr" path="res://Assets/Warrior/Death-Effect/Warrior_Death_10.png" id="47_fxjs8"]
+[ext_resource type="Texture2D" uid="uid://c5wtle2nnmgn4" path="res://Assets/Warrior/Death-Effect/Warrior_Death_11.png" id="48_70icj"]
+[ext_resource type="Script" uid="uid://bjgsne0qgf2qh" path="res://Scripts/player/states/Dead.gd" id="50_bywm7"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_s3lwd"]
 radius = 6.0
@@ -102,6 +116,22 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
 "update": 1,
 "values": [ExtResource("29_cawuu"), ExtResource("30_s3lwd"), ExtResource("31_endsp"), ExtResource("32_rc5l1"), ExtResource("33_jdbg4"), ExtResource("34_aa0hm"), ExtResource("35_ch70o")]
+}
+
+[sub_resource type="Animation" id="Animation_2yv6k"]
+resource_name = "Dead"
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("38_4a6ih"), ExtResource("39_6ykii"), ExtResource("40_b42p4"), ExtResource("41_p5xt2"), ExtResource("42_wobeb"), ExtResource("43_k37cg"), ExtResource("44_m3jr7"), ExtResource("45_vicuj"), ExtResource("46_ppgm1"), ExtResource("47_fxjs8"), ExtResource("48_70icj")]
 }
 
 [sub_resource type="Animation" id="Animation_eges4"]
@@ -195,6 +225,7 @@ tracks/0/keys = {
 _data = {
 &"Attack": SubResource("Animation_s3lwd"),
 &"Dash": SubResource("Animation_o1e43"),
+&"Dead": SubResource("Animation_2yv6k"),
 &"Fall": SubResource("Animation_eges4"),
 &"Idle": SubResource("Animation_h0khc"),
 &"Jump": SubResource("Animation_v44ur"),
@@ -202,11 +233,16 @@ _data = {
 &"RESET": SubResource("Animation_6vj4j")
 }
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("state_machine")]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("state_machine") groups=["player"]]
 script = ExtResource("1_xxarj")
 state_machine = NodePath("LimboHSM")
 
-[node name="HurtBox" type="Area2D" parent="."]
+[node name="Health" type="Node" parent="."]
+script = ExtResource("1_health")
+
+[node name="HurtBox" type="Area2D" parent="." node_paths=PackedStringArray("health")]
+script = ExtResource("1_hurtbox")
+health = NodePath("../Health")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox"]
 position = Vector2(0, 2)
@@ -244,6 +280,10 @@ autoplay = "Idle"
 script = ExtResource("8_p8lfk")
 animation_player = NodePath("../../AnimationPlayer")
 animation = &"Idle"
+
+[node name="Dead" type="LimboState" parent="LimboHSM" node_paths=PackedStringArray("animation_player")]
+script = ExtResource("50_bywm7")
+animation_player = NodePath("../../AnimationPlayer")
 
 [node name="Move" type="LimboState" parent="LimboHSM" node_paths=PackedStringArray("animation_player")]
 script = ExtResource("9_uawwb")
