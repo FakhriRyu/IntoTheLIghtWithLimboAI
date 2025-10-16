@@ -1,27 +1,92 @@
-[gd_resource type="BehaviorTree" load_steps=8 format=3 uid="uid://c6wptyhd2hgeb"]
+[gd_resource type="BehaviorTree" load_steps=24 format=3 uid="uid://c6wptyhd2hgeb"]
+
+[ext_resource type="Script" uid="uid://dyxefr5b7rtck" path="res://ai/tasks/get_player_location.gd" id="1_jk4bp"]
+[ext_resource type="Script" uid="uid://ulvv5it00no2" path="res://ai/tasks/check_target_in_area.gd" id="2_jk4bp"]
+[ext_resource type="Script" uid="uid://dmq3kak1p7tvy" path="res://ai/tasks/pursue_target.gd" id="3_it4os"]
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_ygh4i"]
 
-[sub_resource type="BBNode" id="BBNode_ygh4i"]
+[sub_resource type="BTAction" id="BTAction_docin"]
+script = ExtResource("1_jk4bp")
+output_var = &"target"
+
+[sub_resource type="BTCondition" id="BTCondition_hciu6"]
+script = ExtResource("2_jk4bp")
+target_var = &"target"
+detection_area_path = NodePath("Hitbox")
+
+[sub_resource type="BBNode" id="BBNode_paar5"]
 saved_value = NodePath("AnimationPlayer")
 resource_name = "AnimationPlayer"
 
-[sub_resource type="BTPlayAnimation" id="BTPlayAnimation_0wjp1"]
-animation_player = SubResource("BBNode_ygh4i")
+[sub_resource type="BTPlayAnimation" id="BTPlayAnimation_xfuxh"]
+await_completion = 2.0
+animation_player = SubResource("BBNode_paar5")
+animation_name = &"Attack"
+
+[sub_resource type="BBNode" id="BBNode_coolidle"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTPlayAnimation" id="BTPlayAnimation_coolidle"]
+animation_player = SubResource("BBNode_coolidle")
 animation_name = &"Idle"
 
-[sub_resource type="BTRandomWait" id="BTRandomWait_ygh4i"]
+[sub_resource type="BTWait" id="BTWait_cooldown"]
+duration = 2.0
 
-[sub_resource type="BTSequence" id="BTSequence_pak4m"]
+[sub_resource type="BTSequence" id="BTSequence_hhnmg"]
+custom_name = "Attack"
+children = [SubResource("BTAction_docin"), SubResource("BTCondition_hciu6"), SubResource("BTPlayAnimation_xfuxh"), SubResource("BTPlayAnimation_coolidle"), SubResource("BTWait_cooldown")]
+
+[sub_resource type="BTAction" id="BTAction_lj2hg"]
+script = ExtResource("1_jk4bp")
+output_var = &"target"
+
+[sub_resource type="BTCondition" id="BTCondition_g0jh0"]
+script = ExtResource("2_jk4bp")
+target_var = &"target"
+detection_area_path = NodePath("DetectionArea")
+
+[sub_resource type="BBNode" id="BBNode_jk4bp"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTPlayAnimation" id="BTPlayAnimation_docin"]
+animation_player = SubResource("BBNode_jk4bp")
+animation_name = &"Hop"
+
+[sub_resource type="BTAction" id="BTAction_8aegp"]
+script = ExtResource("3_it4os")
+target_var = &"target"
+speed = 30.0
+approach_distance = 0.0
+max_chase_distance = 100.0
+attack_area_path = NodePath("Hitbox")
+
+[sub_resource type="BTSequence" id="BTSequence_0ll3w"]
+custom_name = "Chase"
+children = [SubResource("BTAction_lj2hg"), SubResource("BTCondition_g0jh0"), SubResource("BTPlayAnimation_docin"), SubResource("BTAction_8aegp")]
+
+[sub_resource type="BBNode" id="BBNode_eco47"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTPlayAnimation" id="BTPlayAnimation_vkafj"]
+animation_player = SubResource("BBNode_eco47")
+animation_name = &"Idle"
+
+[sub_resource type="BTRandomWait" id="BTRandomWait_ruod3"]
+min_duration = 0.2
+max_duration = 0.5
+
+[sub_resource type="BTSequence" id="BTSequence_71qke"]
 custom_name = "Chill"
-children = [SubResource("BTPlayAnimation_0wjp1"), SubResource("BTRandomWait_ygh4i")]
+children = [SubResource("BTPlayAnimation_vkafj"), SubResource("BTRandomWait_ruod3")]
 
-[sub_resource type="BTCooldown" id="BTCooldown_jk4bp"]
-children = [SubResource("BTSequence_pak4m")]
-
-[sub_resource type="BTSelector" id="BTSelector_0wjp1"]
-children = [SubResource("BTCooldown_jk4bp")]
+[sub_resource type="BTSelector" id="BTSelector_0ufm5"]
+children = [SubResource("BTSequence_hhnmg"), SubResource("BTSequence_0ll3w"), SubResource("BTSequence_71qke")]
 
 [resource]
 blackboard_plan = SubResource("BlackboardPlan_ygh4i")
-root_task = SubResource("BTSelector_0wjp1")
+root_task = SubResource("BTSelector_0ufm5")
