@@ -151,7 +151,6 @@ func _physics_process(delta: float) -> void:
 
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
-	print("Animation finished: ", anim_name)
 	if anim_name == "Attack":
 		end_attack()
 		state_machine.dispatch("to_idle")

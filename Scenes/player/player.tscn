@@ -1,10 +1,15 @@
-[gd_scene load_steps=68 format=3 uid="uid://6bwtmnfhpxbs"]
+[gd_scene load_steps=73 format=3 uid="uid://6bwtmnfhpxbs"]
 
 [ext_resource type="Script" uid="uid://bwhvvmyw1y5ks" path="res://Scripts/player/Health.gd" id="1_health"]
 [ext_resource type="Script" uid="uid://bnv143y5kl4ds" path="res://Scripts/player/Hurtbox.gd" id="1_hurtbox"]
 [ext_resource type="Script" uid="uid://bjjjjmchg4o12" path="res://Scripts/player/player.gd" id="1_xxarj"]
 [ext_resource type="Texture2D" uid="uid://iukhxom43jof" path="res://Assets/Warrior/idle/Warrior_Idle_1.png" id="2_6k3cy"]
+[ext_resource type="AudioStream" uid="uid://en8w5gawgx6r" path="res://Assets/audio/sfx/footstep.mp3" id="2_b42p4"]
+[ext_resource type="AudioStream" uid="uid://bbjtn5g0sie5u" path="res://Assets/audio/sfx/femaleBattle.mp3" id="2_p5xt2"]
+[ext_resource type="AudioStream" uid="uid://cld4fpr8whyaw" path="res://Assets/audio/sfx/whoosh.mp3" id="3_b42p4"]
+[ext_resource type="AudioStream" uid="uid://cqtox65hsi4qa" path="res://Assets/audio/sfx/femaleHurt.mp3" id="3_k37cg"]
 [ext_resource type="Texture2D" uid="uid://bjns4xyhlemfy" path="res://Assets/Warrior/idle/Warrior_Idle_2.png" id="3_kd672"]
+[ext_resource type="AudioStream" uid="uid://cfi88abiysq1m" path="res://Assets/audio/sfx/femaleJump.mp3" id="4_m3jr7"]
 [ext_resource type="Texture2D" uid="uid://blmes7b7jf7v0" path="res://Assets/Warrior/idle/Warrior_Idle_3.png" id="4_t3oqc"]
 [ext_resource type="Texture2D" uid="uid://dv5u2e787ybm2" path="res://Assets/Warrior/idle/Warrior_Idle_4.png" id="5_p8lfk"]
 [ext_resource type="Texture2D" uid="uid://b2dnbsa2h3t50" path="res://Assets/Warrior/idle/Warrior_Idle_5.png" id="6_uawwb"]
@@ -100,6 +105,18 @@ tracks/1/keys = {
 "method": &"end_attack"
 }]
 }
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("AttackSound:playing")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.3),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
 
 [sub_resource type="Animation" id="Animation_o1e43"]
 resource_name = "Dash"
@@ -173,7 +190,6 @@ tracks/0/keys = {
 [sub_resource type="Animation" id="Animation_v44ur"]
 resource_name = "Jump"
 length = 0.3
-loop_mode = 1
 step = 0.1
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -186,6 +202,18 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
 "values": [ExtResource("16_rwmec"), ExtResource("17_utcu2"), ExtResource("18_emekf")]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("JumpSound:playing")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
 }
 
 [sub_resource type="Animation" id="Animation_emekf"]
@@ -205,6 +233,18 @@ tracks/0/keys = {
 "update": 1,
 "values": [ExtResource("8_spm8d"), ExtResource("9_dpkfr"), ExtResource("10_kysaj"), ExtResource("11_egohg"), ExtResource("12_ua3np"), ExtResource("13_mnu3u"), ExtResource("14_rwmec"), ExtResource("15_utcu2")]
 }
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("StepSound:playing")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, true]
+}
 
 [sub_resource type="Animation" id="Animation_6vj4j"]
 length = 0.001
@@ -219,6 +259,42 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 1,
 "values": [ExtResource("2_6k3cy")]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AttackSound:playing")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("StepSound:playing")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("JumpSound:playing")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_nyrd7"]
@@ -236,6 +312,23 @@ _data = {
 [node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("state_machine") groups=["player"]]
 script = ExtResource("1_xxarj")
 state_machine = NodePath("LimboHSM")
+
+[node name="FemaleAttackSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("2_p5xt2")
+
+[node name="HurtSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_k37cg")
+
+[node name="JumpSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_m3jr7")
+
+[node name="StepSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("2_b42p4")
+pitch_scale = 2.09
+
+[node name="AttackSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_b42p4")
+volume_db = -8.105
 
 [node name="Health" type="Node" parent="."]
 script = ExtResource("1_health")
