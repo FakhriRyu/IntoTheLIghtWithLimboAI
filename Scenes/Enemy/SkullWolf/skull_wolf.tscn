@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://cgf2i2q3ctmeq" path="res://Scripts/Enemy/SkullWolf/Hurtbox.gd" id="6_hurtbox"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_14j7o"]
+radius = 8.98319
 height = 37.9639
 
 [sub_resource type="Animation" id="Animation_g6e8h"]
@@ -113,6 +114,7 @@ size = Vector2(244, 30)
 size = Vector2(14, 27)
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_g6e8h"]
+radius = 8.0
 height = 52.0
 
 [node name="SkullWolf" type="CharacterBody2D"]
@@ -126,7 +128,7 @@ vframes = 4
 region_rect = Rect2(5, 49, 46, 20)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -10)
+position = Vector2(0, -15)
 rotation = -1.5865
 shape = SubResource("CapsuleShape2D_14j7o")
 
@@ -154,8 +156,9 @@ position = Vector2(-19, -13.5)
 shape = SubResource("RectangleShape2D_topbx")
 debug_color = Color(0.97, 0, 0.0161664, 0.419608)
 
-[node name="HurtBox" type="Area2D" parent="."]
+[node name="HurtBox" type="Area2D" parent="." node_paths=PackedStringArray("health")]
 script = ExtResource("6_hurtbox")
+health = NodePath("../Health")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox"]
 position = Vector2(1, -10)

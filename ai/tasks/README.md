@@ -64,6 +64,39 @@ Task-task LimboAI untuk membuat behavior tree Frogo yang dapat mengejar player.
 
 ---
 
+### 5. check_low_hp.gd
+**Type:** BTCondition  
+**Fungsi:** Mengecek apakah HP agent di bawah threshold tertentu (default 30%). Juga cek cooldown agar tidak langsung flee lagi setelah selesai.
+
+**Parameters:**
+- `hp_threshold` (float): Persentase HP threshold dalam 0.0-1.0 (default: 0.3 = 30%)
+- `health_node_path` (NodePath): Path ke Health node pada agent (default: "Health")
+- `cooldown_var` (StringName): Blackboard variable untuk cek cooldown (default: "flee_cooldown_end")
+
+**Returns:**
+- `SUCCESS`: Jika HP di bawah threshold DAN tidak dalam cooldown
+- `FAILURE`: Jika HP cukup tinggi, dalam cooldown, atau health tidak ditemukan
+
+---
+
+### 6. flee_from_target.gd
+**Type:** BTAction  
+**Fungsi:** Kabur menjauhi target selama durasi tertentu. Setelah selesai, set cooldown agar tidak langsung flee lagi.
+
+**Parameters:**
+- `target_var` (StringName): Variable blackboard yang menyimpan target (default: "target")
+- `flee_speed` (float): Kecepatan kabur (default: 150.0)
+- `flee_duration` (float): Durasi flee dalam detik (default: 2.0)
+- `cooldown_duration` (float): Durasi cooldown setelah flee (default: 5.0)
+- `cooldown_var` (StringName): Blackboard variable untuk menyimpan cooldown (default: "flee_cooldown_end")
+
+**Returns:**
+- `RUNNING`: Saat sedang berlari menjauh
+- `SUCCESS`: Setelah durasi flee selesai (dan set cooldown)
+- `FAILURE`: Jika target tidak valid
+
+---
+
 ## Cara Menggunakan dalam Behavior Tree
 
 Berikut adalah contoh struktur behavior tree untuk Frogo:
@@ -230,4 +263,26 @@ Frogo terus mengejar sampai dapat:
 - `max_chase_distance`: 600
 - `speed`: 130
 - `approach_distance`: 30
+
+### Skenario 4: Smart Enemy dengan Flee
+Enemy yang kabur saat HP rendah:
+```
+BTSelector (Root)
+├── BTSequence (Flee when Low HP)
+│   ├── CheckLowHP (hp_threshold: 0.3)
+│   └── FleeFromTarget (flee_speed: 150, safe_distance: 250)
+├── BTSequence (Chase Player)
+│   ├── GetPlayer (output_var: "target")
+│   ├── CheckTargetInArea (target_var: "target")
+│   └── PursueTarget (target_var: "target", speed: 120)
+└── BTSequence (Idle)
+    └── BTRandomWait
+```
+
+**Behavior Flow:**
+1. Setiap tick, cek apakah HP < 30% DAN tidak dalam cooldown
+2. Jika HP rendah & tidak cooldown → Kabur selama 2 detik
+3. Setelah flee selesai → Set cooldown 5 detik → Kembali ke chase/idle
+4. Selama cooldown, walau HP < 30%, enemy tetap chase/idle
+5. Setelah cooldown habis & HP masih < 30% → Flee lagi
 

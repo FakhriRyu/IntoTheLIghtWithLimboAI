@@ -1,10 +1,38 @@
-[gd_resource type="BehaviorTree" load_steps=16 format=3 uid="uid://cahh62rejymgg"]
+[gd_resource type="BehaviorTree" load_steps=23 format=3 uid="uid://cahh62rejymgg"]
 
 [ext_resource type="Script" uid="uid://dyxefr5b7rtck" path="res://ai/tasks/get_player_location.gd" id="1_ivfri"]
+[ext_resource type="Script" uid="uid://bgj4cbc5ce55n" path="res://ai/tasks/check_low_hp.gd" id="1_p3hs1"]
 [ext_resource type="Script" uid="uid://ulvv5it00no2" path="res://ai/tasks/check_target_in_area.gd" id="2_b4flw"]
+[ext_resource type="Script" uid="uid://2q680t4lp651" path="res://ai/tasks/flee_from_target.gd" id="2_fbkr3"]
 [ext_resource type="Script" uid="uid://dmq3kak1p7tvy" path="res://ai/tasks/pursue_target.gd" id="3_b4flw"]
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_mjmvc"]
+
+[sub_resource type="BTCondition" id="BTCondition_r5sv8"]
+script = ExtResource("1_p3hs1")
+hp_threshold = 0.3
+health_node_path = NodePath("Health")
+cooldown_var = null
+
+[sub_resource type="BBNode" id="BBNode_xwyy8"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTPlayAnimation" id="BTPlayAnimation_p40nv"]
+animation_player = SubResource("BBNode_xwyy8")
+animation_name = &"move"
+
+[sub_resource type="BTAction" id="BTAction_l5hgd"]
+script = ExtResource("2_fbkr3")
+target_var = &"target"
+flee_speed = 80.0
+flee_duration = null
+cooldown_duration = null
+cooldown_var = null
+
+[sub_resource type="BTSequence" id="BTSequence_fo450"]
+custom_name = "Flee"
+children = [SubResource("BTCondition_r5sv8"), SubResource("BTPlayAnimation_p40nv"), SubResource("BTAction_l5hgd")]
 
 [sub_resource type="BTAction" id="BTAction_u56yi"]
 script = ExtResource("1_ivfri")
@@ -53,7 +81,7 @@ custom_name = "Chill"
 children = [SubResource("BTPlayAnimation_v6lue"), SubResource("BTRandomWait_b4flw")]
 
 [sub_resource type="BTSelector" id="BTSelector_b4flw"]
-children = [SubResource("BTSequence_l5hgd"), SubResource("BTSequence_ivfri")]
+children = [SubResource("BTSequence_fo450"), SubResource("BTSequence_l5hgd"), SubResource("BTSequence_ivfri")]
 
 [resource]
 blackboard_plan = SubResource("BlackboardPlan_mjmvc")

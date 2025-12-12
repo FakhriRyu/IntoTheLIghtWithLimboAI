@@ -1,4 +1,4 @@
-[gd_scene load_steps=88 format=3 uid="uid://6bwtmnfhpxbs"]
+[gd_scene load_steps=90 format=3 uid="uid://6bwtmnfhpxbs"]
 
 [ext_resource type="Script" uid="uid://bwhvvmyw1y5ks" path="res://Scripts/player/Health.gd" id="1_health"]
 [ext_resource type="Script" uid="uid://bnv143y5kl4ds" path="res://Scripts/player/Hurtbox.gd" id="1_hurtbox"]
@@ -9,6 +9,7 @@
 [ext_resource type="AudioStream" uid="uid://cld4fpr8whyaw" path="res://Assets/audio/sfx/whoosh.mp3" id="3_b42p4"]
 [ext_resource type="AudioStream" uid="uid://cqtox65hsi4qa" path="res://Assets/audio/sfx/femaleHurt.mp3" id="3_k37cg"]
 [ext_resource type="Texture2D" uid="uid://bjns4xyhlemfy" path="res://Assets/Warrior/idle/Warrior_Idle_2.png" id="3_kd672"]
+[ext_resource type="Script" uid="uid://bh50hax4vpetl" path="res://Scripts/player/Hitbox.gd" id="4_krql8"]
 [ext_resource type="AudioStream" uid="uid://cfi88abiysq1m" path="res://Assets/audio/sfx/femaleJump.mp3" id="4_m3jr7"]
 [ext_resource type="Texture2D" uid="uid://blmes7b7jf7v0" path="res://Assets/Warrior/idle/Warrior_Idle_3.png" id="4_t3oqc"]
 [ext_resource type="Texture2D" uid="uid://bslraqwdrb30o" path="res://Assets/button/Jump.png" id="5_a66fc"]
@@ -70,6 +71,7 @@
 [ext_resource type="Texture2D" uid="uid://p12gdx4bxbgr" path="res://Assets/Warrior/Death-Effect/Warrior_Death_10.png" id="47_fxjs8"]
 [ext_resource type="Texture2D" uid="uid://c5wtle2nnmgn4" path="res://Assets/Warrior/Death-Effect/Warrior_Death_11.png" id="48_70icj"]
 [ext_resource type="Script" uid="uid://bjgsne0qgf2qh" path="res://Scripts/player/states/Dead.gd" id="50_bywm7"]
+[ext_resource type="Script" uid="uid://ddx4gx64oq87b" path="res://Scripts/player/states/Hurt.gd" id="51_hurt"]
 [ext_resource type="Texture2D" uid="uid://dvdd1kd4bompq" path="res://Assets/Warrior/Hurt-Effect/Warrior_hurt_1.png" id="59_dxbo1"]
 [ext_resource type="Texture2D" uid="uid://dw82o5gulomtw" path="res://Assets/Warrior/Hurt-Effect/Warrior_hurt_2.png" id="60_wekdv"]
 [ext_resource type="Texture2D" uid="uid://deahc7c107tiw" path="res://Assets/Warrior/Hurt-Effect/Warrior_hurt_3.png" id="61_krql8"]
@@ -183,6 +185,23 @@ tracks/0/keys = {
 "values": [ExtResource("19_mj82b"), ExtResource("20_0rs8m"), ExtResource("21_ge7b5")]
 }
 
+[sub_resource type="Animation" id="Animation_eskcx"]
+resource_name = "Hurt"
+length = 0.4
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("59_dxbo1"), ExtResource("60_wekdv"), ExtResource("61_krql8"), ExtResource("62_v3b3r")]
+}
+
 [sub_resource type="Animation" id="Animation_h0khc"]
 resource_name = "Idle"
 length = 0.6
@@ -260,23 +279,6 @@ tracks/1/keys = {
 "values": [true, true]
 }
 
-[sub_resource type="Animation" id="Animation_eskcx"]
-resource_name = "Hurt"
-length = 0.4
-step = 0.1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite2D:texture")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2, 0.3),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 1,
-"values": [ExtResource("59_dxbo1"), ExtResource("60_wekdv"), ExtResource("61_krql8"), ExtResource("62_v3b3r")]
-}
-
 [sub_resource type="Animation" id="Animation_18m0u"]
 length = 0.001
 tracks/0/type = "value"
@@ -317,22 +319,19 @@ script = ExtResource("1_hurtbox")
 health = NodePath("../Health")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox"]
-position = Vector2(0, 2)
 shape = SubResource("CapsuleShape2D_s3lwd")
 
 [node name="Hitbox" type="Area2D" parent="."]
+script = ExtResource("4_krql8")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
 position = Vector2(23, -2)
 shape = SubResource("RectangleShape2D_s3lwd")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(-27, -25)
 texture = ExtResource("19_mj82b")
-centered = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, 2)
 shape = SubResource("CapsuleShape2D_g7b1g")
 debug_color = Color(0.265251, 0.502683, 1, 0.42)
 
@@ -416,6 +415,10 @@ animation = &"Attack"
 script = ExtResource("41_s3lwd")
 animation_player = NodePath("../../AnimationPlayer")
 animation = &"Dash"
+
+[node name="Hurt" type="LimboState" parent="LimboHSM" node_paths=PackedStringArray("animation_player")]
+script = ExtResource("51_hurt")
+animation_player = NodePath("../../AnimationPlayer")
 
 [node name="SFX" type="Node" parent="."]
 

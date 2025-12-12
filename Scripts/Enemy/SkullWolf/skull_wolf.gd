@@ -3,7 +3,7 @@ extends CharacterBody2D
 
 const SPEED = 300.0
 const JUMP_VELOCITY = -400.0
-const KNOCKBACK_FORCE = 150.0  # Kekuatan knockback
+const KNOCKBACK_FORCE = 100.0  # Kekuatan knockback
 
 @onready var health = $Health
 @onready var animation_player = $AnimationPlayer
@@ -14,6 +14,7 @@ var is_dead: bool = false
 var knockback_direction: Vector2 = Vector2.ZERO
 
 func _ready():
+	add_to_group("enemy")
 	health.death.connect(_on_death)
 	health.damaged.connect(_on_damaged)
 
@@ -93,8 +94,15 @@ func _on_death():
 	queue_free()
 
 func update_facing(direction: float) -> void:
-	## Update arah hadap sprite menggunakan scale.x
+	## Update arah hadap sprite dan hitbox menggunakan scale.x
+	if direction == 0:
+		return
+	
 	var sprite = get_node_or_null("Sprite2D")
 	if sprite and sprite is Sprite2D:
-		if direction != 0:
-			sprite.scale.x = abs(sprite.scale.x) * -sign(direction)
+		sprite.scale.x = abs(sprite.scale.x) * -sign(direction)
+	
+	# Flip hitbox juga
+	var hitbox = get_node_or_null("Hitbox")
+	if hitbox:
+		hitbox.scale.x = abs(hitbox.scale.x) * -sign(direction)

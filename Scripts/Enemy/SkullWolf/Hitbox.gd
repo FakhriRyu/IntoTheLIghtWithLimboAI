@@ -1,46 +1,29 @@
 extends Area2D
 
-## Hitbox untuk SkullWolf yang bisa memberikan damage ke player
+## Hitbox untuk SkullWolf - contact damage (selalu aktif)
 
 @export var damage: int = 2
+@export var damage_interval: float = 1.0  # Interval antara damage
 
-var active: bool = false
-var already_hit: Array = []  # Track yang sudah kena hit
+var damage_timer: float = 0.0
 
 func _ready():
-	# Connect signal
-	area_entered.connect(_on_area_entered)
-	
-	# Start disabled
-	set_active(false)
+	# Selalu aktif untuk contact damage
+	monitoring = true
+	monitorable = true
 
-func set_active(is_active: bool):
-	active = is_active
-	
-	# Reset hit tracking saat diaktifkan
-	if is_active:
-		already_hit.clear()
-	
-	# Gunakan set_deferred untuk menghindari error saat physics processing
-	set_deferred("monitoring", is_active)
-	
-	# Hide/show collision shapes dengan deferred
-	for child in get_children():
-		if child is CollisionShape2D:
-			child.set_deferred("disabled", not is_active)
-
-func _on_area_entered(area):
-	if not active:
+func _physics_process(delta: float) -> void:
+	# Countdown timer
+	if damage_timer > 0:
+		damage_timer -= delta
 		return
 	
-	# Cek apakah sudah pernah hit area ini
-	if area in already_hit:
-		return
-	
-	# Cek apakah ini player hurtbox
-	if area is GameHurtbox:
-		area.take_damage(damage)
-		already_hit.append(area)
-		print("SkullWolf hit player for ", damage, " damage")
+	# Cek overlap dengan player hurtbox
+	for area in get_overlapping_areas():
+		if area is GameHurtbox:
+			area.take_damage(damage)
+			print("SkullWolf hit player for ", damage, " damage")
+			damage_timer = damage_interval
+			break  # Hanya hit sekali per interval
 
 
