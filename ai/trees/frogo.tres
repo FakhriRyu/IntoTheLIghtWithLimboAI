@@ -60,9 +60,10 @@ animation_name = &"Hop"
 script = ExtResource("3_it4os")
 target_var = &"target"
 speed = 30.0
-approach_distance = 0.0
-max_chase_distance = 100.0
+approach_distance = 20.0
+max_chase_distance = 300.0
 attack_area_path = NodePath("Hitbox")
+detection_area_path = NodePath("DetectionArea")
 
 [sub_resource type="BTSequence" id="BTSequence_0ll3w"]
 custom_name = "Chase"

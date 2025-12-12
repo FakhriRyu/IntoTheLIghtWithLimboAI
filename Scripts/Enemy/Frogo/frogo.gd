@@ -11,3 +11,10 @@ func _physics_process(delta: float) -> void:
 		velocity += get_gravity() * delta
 
 	move_and_slide()
+
+func update_facing(direction: float) -> void:
+	## Update arah hadap sprite menggunakan flip_h
+	var sprite = get_node_or_null("Sprite2D")
+	if sprite and sprite is Sprite2D:
+		if direction != 0:
+			sprite.flip_h = direction < 0

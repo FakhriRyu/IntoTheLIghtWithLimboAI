@@ -1,4 +1,4 @@
-[gd_scene load_steps=73 format=3 uid="uid://6bwtmnfhpxbs"]
+[gd_scene load_steps=88 format=3 uid="uid://6bwtmnfhpxbs"]
 
 [ext_resource type="Script" uid="uid://bwhvvmyw1y5ks" path="res://Scripts/player/Health.gd" id="1_health"]
 [ext_resource type="Script" uid="uid://bnv143y5kl4ds" path="res://Scripts/player/Hurtbox.gd" id="1_hurtbox"]
@@ -11,9 +11,15 @@
 [ext_resource type="Texture2D" uid="uid://bjns4xyhlemfy" path="res://Assets/Warrior/idle/Warrior_Idle_2.png" id="3_kd672"]
 [ext_resource type="AudioStream" uid="uid://cfi88abiysq1m" path="res://Assets/audio/sfx/femaleJump.mp3" id="4_m3jr7"]
 [ext_resource type="Texture2D" uid="uid://blmes7b7jf7v0" path="res://Assets/Warrior/idle/Warrior_Idle_3.png" id="4_t3oqc"]
+[ext_resource type="Texture2D" uid="uid://bslraqwdrb30o" path="res://Assets/button/Jump.png" id="5_a66fc"]
+[ext_resource type="Texture2D" uid="uid://ybk5wmoh7nqa" path="res://Assets/button/kanan.png" id="5_fxjs8"]
 [ext_resource type="Texture2D" uid="uid://dv5u2e787ybm2" path="res://Assets/Warrior/idle/Warrior_Idle_4.png" id="5_p8lfk"]
+[ext_resource type="Texture2D" uid="uid://b8ywbr7nm2u2j" path="res://Assets/button/kanan-press.png" id="6_70icj"]
+[ext_resource type="Texture2D" uid="uid://cxa0mdp8vq7nj" path="res://Assets/button/JumpPressed.png" id="6_a66fc"]
 [ext_resource type="Texture2D" uid="uid://b2dnbsa2h3t50" path="res://Assets/Warrior/idle/Warrior_Idle_5.png" id="6_uawwb"]
 [ext_resource type="Texture2D" uid="uid://cdp74alq0787y" path="res://Assets/Warrior/idle/Warrior_Idle_6.png" id="7_ag54m"]
+[ext_resource type="Texture2D" uid="uid://6m5boik516vh" path="res://Assets/button/kiri.png" id="7_bywm7"]
+[ext_resource type="Texture2D" uid="uid://b1ebwfxyydw1x" path="res://Assets/button/kiri-press.png" id="8_2yv6k"]
 [ext_resource type="Script" uid="uid://35eggp1x3j6m" path="res://Scripts/player/states/Idle.gd" id="8_p8lfk"]
 [ext_resource type="Texture2D" uid="uid://d4hf1n673rh3h" path="res://Assets/Warrior/Run/Warrior_Run_1.png" id="8_spm8d"]
 [ext_resource type="Texture2D" uid="uid://diw4v5pjy66u4" path="res://Assets/Warrior/Run/Warrior_Run_2.png" id="9_dpkfr"]
@@ -22,8 +28,12 @@
 [ext_resource type="Texture2D" uid="uid://dybvcllnafkkv" path="res://Assets/Warrior/Run/Warrior_Run_3.png" id="10_kysaj"]
 [ext_resource type="Texture2D" uid="uid://7l1hi60nhuoq" path="res://Assets/Warrior/Run/Warrior_Run_4.png" id="11_egohg"]
 [ext_resource type="Script" uid="uid://b1mlnfodm0xcn" path="res://Scripts/player/states/Fall.gd" id="11_g7b1g"]
+[ext_resource type="Texture2D" uid="uid://cttsnjvai4c64" path="res://Assets/button/Sword.png" id="11_mht06"]
+[ext_resource type="Texture2D" uid="uid://c77we2pnmhk4f" path="res://Assets/button/SwordPressed.png" id="12_r42nt"]
 [ext_resource type="Texture2D" uid="uid://dgr21qqcytjxk" path="res://Assets/Warrior/Run/Warrior_Run_5.png" id="12_ua3np"]
 [ext_resource type="Texture2D" uid="uid://cvhelk3slh1ow" path="res://Assets/Warrior/Run/Warrior_Run_6.png" id="13_mnu3u"]
+[ext_resource type="Texture2D" uid="uid://bsncqj7tfu6a0" path="res://Assets/button/Dash.png" id="13_r42nt"]
+[ext_resource type="Texture2D" uid="uid://djsk7qx7afmna" path="res://Assets/button/DashPressed.png" id="14_1vluk"]
 [ext_resource type="Texture2D" uid="uid://cc0xaynslr7fp" path="res://Assets/Warrior/Run/Warrior_Run_7.png" id="14_rwmec"]
 [ext_resource type="Texture2D" uid="uid://btpp6tghwy8wg" path="res://Assets/Warrior/Run/Warrior_Run_8.png" id="15_utcu2"]
 [ext_resource type="Texture2D" uid="uid://b2y8suxpber87" path="res://Assets/Warrior/Jump/Warrior_Jump_1.png" id="16_rwmec"]
@@ -60,6 +70,10 @@
 [ext_resource type="Texture2D" uid="uid://p12gdx4bxbgr" path="res://Assets/Warrior/Death-Effect/Warrior_Death_10.png" id="47_fxjs8"]
 [ext_resource type="Texture2D" uid="uid://c5wtle2nnmgn4" path="res://Assets/Warrior/Death-Effect/Warrior_Death_11.png" id="48_70icj"]
 [ext_resource type="Script" uid="uid://bjgsne0qgf2qh" path="res://Scripts/player/states/Dead.gd" id="50_bywm7"]
+[ext_resource type="Texture2D" uid="uid://dvdd1kd4bompq" path="res://Assets/Warrior/Hurt-Effect/Warrior_hurt_1.png" id="59_dxbo1"]
+[ext_resource type="Texture2D" uid="uid://dw82o5gulomtw" path="res://Assets/Warrior/Hurt-Effect/Warrior_hurt_2.png" id="60_wekdv"]
+[ext_resource type="Texture2D" uid="uid://deahc7c107tiw" path="res://Assets/Warrior/Hurt-Effect/Warrior_hurt_3.png" id="61_krql8"]
+[ext_resource type="Texture2D" uid="uid://fg528jk5cflm" path="res://Assets/Warrior/Hurt-Effect/Warrior_hurt_4.png" id="62_v3b3r"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_s3lwd"]
 radius = 6.0
@@ -108,7 +122,7 @@ tracks/1/keys = {
 tracks/2/type = "value"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("AttackSound:playing")
+tracks/2/path = NodePath("SFX/AttackSound:playing")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
@@ -206,7 +220,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("JumpSound:playing")
+tracks/1/path = NodePath("SFX/JumpSound:playing")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -236,7 +250,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("StepSound:playing")
+tracks/1/path = NodePath("SFX/StepSound:playing")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -246,7 +260,24 @@ tracks/1/keys = {
 "values": [true, true]
 }
 
-[sub_resource type="Animation" id="Animation_6vj4j"]
+[sub_resource type="Animation" id="Animation_eskcx"]
+resource_name = "Hurt"
+length = 0.4
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("59_dxbo1"), ExtResource("60_wekdv"), ExtResource("61_krql8"), ExtResource("62_v3b3r")]
+}
+
+[sub_resource type="Animation" id="Animation_18m0u"]
 length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -258,43 +289,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [ExtResource("2_6k3cy")]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("AttackSound:playing")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [false]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("StepSound:playing")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [false]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("JumpSound:playing")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [false]
+"values": [ExtResource("19_mj82b")]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_nyrd7"]
@@ -303,32 +298,16 @@ _data = {
 &"Dash": SubResource("Animation_o1e43"),
 &"Dead": SubResource("Animation_2yv6k"),
 &"Fall": SubResource("Animation_eges4"),
+&"Hurt": SubResource("Animation_eskcx"),
 &"Idle": SubResource("Animation_h0khc"),
 &"Jump": SubResource("Animation_v44ur"),
 &"Move": SubResource("Animation_emekf"),
-&"RESET": SubResource("Animation_6vj4j")
+&"RESET": SubResource("Animation_18m0u")
 }
 
 [node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("state_machine") groups=["player"]]
 script = ExtResource("1_xxarj")
 state_machine = NodePath("LimboHSM")
-
-[node name="FemaleAttackSound" type="AudioStreamPlayer2D" parent="."]
-stream = ExtResource("2_p5xt2")
-
-[node name="HurtSound" type="AudioStreamPlayer2D" parent="."]
-stream = ExtResource("3_k37cg")
-
-[node name="JumpSound" type="AudioStreamPlayer2D" parent="."]
-stream = ExtResource("4_m3jr7")
-
-[node name="StepSound" type="AudioStreamPlayer2D" parent="."]
-stream = ExtResource("2_b42p4")
-pitch_scale = 2.09
-
-[node name="AttackSound" type="AudioStreamPlayer2D" parent="."]
-stream = ExtResource("3_b42p4")
-volume_db = -8.105
 
 [node name="Health" type="Node" parent="."]
 script = ExtResource("1_health")
@@ -349,7 +328,7 @@ shape = SubResource("RectangleShape2D_s3lwd")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(-27, -25)
-texture = ExtResource("2_6k3cy")
+texture = ExtResource("19_mj82b")
 centered = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -360,6 +339,41 @@ debug_color = Color(0.265251, 0.502683, 1, 0.42)
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(1, -24)
 zoom = Vector2(5, 5)
+
+[node name="JumpButton" type="TouchScreenButton" parent="Camera2D"]
+position = Vector2(63, 24)
+scale = Vector2(0.4375, 0.4375)
+texture_normal = ExtResource("5_a66fc")
+texture_pressed = ExtResource("6_a66fc")
+action = "Jump"
+
+[node name="RightButtonMove" type="TouchScreenButton" parent="Camera2D"]
+position = Vector2(-73, 35)
+scale = Vector2(0.5, 0.5)
+texture_normal = ExtResource("5_fxjs8")
+texture_pressed = ExtResource("6_70icj")
+action = "Right"
+
+[node name="LeftButtonMove" type="TouchScreenButton" parent="Camera2D"]
+position = Vector2(-102, 35)
+scale = Vector2(0.5, 0.5)
+texture_normal = ExtResource("7_bywm7")
+texture_pressed = ExtResource("8_2yv6k")
+action = "Left"
+
+[node name="AttackButon" type="TouchScreenButton" parent="Camera2D"]
+position = Vector2(81, 25)
+scale = Vector2(0.65625, 0.65625)
+texture_normal = ExtResource("11_mht06")
+texture_pressed = ExtResource("12_r42nt")
+action = "Attack"
+
+[node name="DashButton" type="TouchScreenButton" parent="Camera2D"]
+position = Vector2(79, 7)
+scale = Vector2(0.46875, 0.46875)
+texture_normal = ExtResource("13_r42nt")
+texture_pressed = ExtResource("14_1vluk")
+action = "Dash"
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
@@ -402,5 +416,24 @@ animation = &"Attack"
 script = ExtResource("41_s3lwd")
 animation_player = NodePath("../../AnimationPlayer")
 animation = &"Dash"
+
+[node name="SFX" type="Node" parent="."]
+
+[node name="FemaleAttackSound" type="AudioStreamPlayer2D" parent="SFX"]
+stream = ExtResource("2_p5xt2")
+
+[node name="HurtSound" type="AudioStreamPlayer2D" parent="SFX"]
+stream = ExtResource("3_k37cg")
+
+[node name="JumpSound" type="AudioStreamPlayer2D" parent="SFX"]
+stream = ExtResource("4_m3jr7")
+
+[node name="StepSound" type="AudioStreamPlayer2D" parent="SFX"]
+stream = ExtResource("2_b42p4")
+pitch_scale = 2.09
+
+[node name="AttackSound" type="AudioStreamPlayer2D" parent="SFX"]
+stream = ExtResource("3_b42p4")
+volume_db = -8.105
 
 [connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_player_animation_finished"]

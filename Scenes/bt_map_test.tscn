@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=4 uid="uid://jfa53apjja42"]
+[gd_scene load_steps=7 format=4 uid="uid://jfa53apjja42"]
 
 [ext_resource type="PackedScene" uid="uid://6bwtmnfhpxbs" path="res://Scenes/player/player.tscn" id="1_ogpyw"]
 [ext_resource type="Texture2D" uid="uid://clbupgcmkr32y" path="res://Assets/Tiles/field-tileset.png" id="2_b3kxj"]
 [ext_resource type="PackedScene" uid="uid://cqv5k66bt3lso" path="res://Scenes/Enemy/Frogo/frogo.tscn" id="3_vfrat"]
+[ext_resource type="PackedScene" uid="uid://c12utjeviwbmc" path="res://Scenes/Enemy/SkullWolf/skull_wolf.tscn" id="4_5wg2a"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_vfrat"]
 texture = ExtResource("2_b3kxj")
@@ -364,6 +365,7 @@ sources/0 = SubResource("TileSetAtlasSource_vfrat")
 [node name="BT_map_test" type="Node2D"]
 
 [node name="Player" parent="." instance=ExtResource("1_ogpyw")]
+z_index = 5
 position = Vector2(-11, -12)
 
 [node name="TileMapLayer" type="TileMapLayer" parent="."]
@@ -372,3 +374,7 @@ tile_set = SubResource("TileSet_5wg2a")
 
 [node name="Frogo" parent="." instance=ExtResource("3_vfrat")]
 position = Vector2(303, -1)
+
+[node name="SkullWolf" parent="." instance=ExtResource("4_5wg2a")]
+position = Vector2(111, -28)
+scale = Vector2(0.7, 0.7)
