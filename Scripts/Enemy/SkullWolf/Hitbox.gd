@@ -13,6 +13,9 @@ func _ready():
 	monitorable = true
 
 func _physics_process(delta: float) -> void:
+	if not monitoring:
+		return
+	
 	# Countdown timer
 	if damage_timer > 0:
 		damage_timer -= delta

@@ -14,4 +14,3 @@ func take_damage(amount: int = 1):
 	if health and health.has_method("take_damage"):
 		health.take_damage(amount)
 		print("Enemy took damage: ", amount)
-

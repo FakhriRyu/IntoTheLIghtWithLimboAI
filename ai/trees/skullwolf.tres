@@ -12,7 +12,7 @@
 script = ExtResource("1_p3hs1")
 hp_threshold = 0.3
 health_node_path = NodePath("Health")
-cooldown_var = null
+cooldown_var = &"flee_cooldown_end"
 
 [sub_resource type="BBNode" id="BBNode_xwyy8"]
 saved_value = NodePath("AnimationPlayer")
@@ -26,9 +26,9 @@ animation_name = &"move"
 script = ExtResource("2_fbkr3")
 target_var = &"target"
 flee_speed = 80.0
-flee_duration = null
-cooldown_duration = null
-cooldown_var = null
+flee_duration = 2.0
+cooldown_duration = 5.0
+cooldown_var = &"flee_cooldown_end"
 
 [sub_resource type="BTSequence" id="BTSequence_fo450"]
 custom_name = "Flee"

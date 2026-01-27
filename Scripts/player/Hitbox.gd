@@ -17,13 +17,13 @@ func _ready():
 
 func set_active(is_active: bool):
 	active = is_active
-	monitoring = is_active
-	monitorable = is_active
+	set_deferred("monitoring", is_active)
+	set_deferred("monitorable", is_active)
 	
-	# Hide/show collision shapes
+	# Hide/show collision shapes with deferred
 	for child in get_children():
 		if child is CollisionShape2D:
-			child.disabled = not is_active
+			child.set_deferred("disabled", not is_active)
 
 func _on_body_entered(body):
 	if not active:

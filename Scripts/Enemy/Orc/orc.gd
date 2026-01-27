@@ -51,6 +51,7 @@ func _initialize_state_machine() -> void:
 	state_machine.add_transition(attack_state, idle_state, "to_idle")
 	state_machine.add_transition(state_machine.ANYSTATE, dead_state, "to_dead")
 	
+	
 	state_machine.initial_state = idle_state
 	state_machine.initialize(self)
 	state_machine.set_active(true)

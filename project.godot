@@ -13,7 +13,7 @@ config_version=5
 config/name="IntoTheLightLIMBO"
 run/main_scene="uid://2hq430ox7fub"
 config/features=PackedStringArray("4.4", "Mobile")
-config/icon="res://icon.svg"
+config/icon="uid://lakgrdr4mj7k"
 
 [input]
 

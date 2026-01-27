@@ -24,8 +24,10 @@ func _update(_delta: float) -> void:
 	agent.velocity.x = 0
 	if attack_finished:
 		if agent.player_in_attack_range:
+			await get_tree().create_timer(0.5).timeout
 			dispatch("to_chase")
 		elif agent.player_in_range:
+			await get_tree().create_timer(0.5).timeout
 			dispatch("to_chase")
 		else:
 			dispatch("to_idle")
