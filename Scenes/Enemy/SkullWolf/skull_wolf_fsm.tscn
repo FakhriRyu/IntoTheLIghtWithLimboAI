@@ -109,7 +109,7 @@ _data = {
 }
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_6aa46"]
-size = Vector2(26.2501, 177)
+size = Vector2(26.2501, 211.5)
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_6aa46"]
 height = 44.0
@@ -142,7 +142,7 @@ position = Vector2(-22.5, 18.25)
 rotation = 1.5708
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea"]
-position = Vector2(-3.25008, -22.5)
+position = Vector2(-3.25008, -5.24999)
 shape = SubResource("RectangleShape2D_6aa46")
 
 [node name="LimboHSM" type="LimboHSM" parent="."]

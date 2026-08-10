@@ -42,7 +42,7 @@ func _initialize_state_machine() -> void:
 	state_machine.initialize(self)
 	state_machine.set_active(true)
 
-func _process(delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity += get_gravity() * delta
 	
