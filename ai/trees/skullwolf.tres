@@ -1,4 +1,4 @@
-[gd_resource type="BehaviorTree" load_steps=23 format=3 uid="uid://cahh62rejymgg"]
+[gd_resource type="BehaviorTree" format=3 uid="uid://cahh62rejymgg"]
 
 [ext_resource type="Script" uid="uid://dyxefr5b7rtck" path="res://ai/tasks/get_player_location.gd" id="1_ivfri"]
 [ext_resource type="Script" uid="uid://bgj4cbc5ce55n" path="res://ai/tasks/check_low_hp.gd" id="1_p3hs1"]
@@ -10,9 +10,6 @@
 
 [sub_resource type="BTCondition" id="BTCondition_r5sv8"]
 script = ExtResource("1_p3hs1")
-hp_threshold = 0.3
-health_node_path = NodePath("Health")
-cooldown_var = &"flee_cooldown_end"
 
 [sub_resource type="BBNode" id="BBNode_xwyy8"]
 saved_value = NodePath("AnimationPlayer")
@@ -24,11 +21,7 @@ animation_name = &"move"
 
 [sub_resource type="BTAction" id="BTAction_l5hgd"]
 script = ExtResource("2_fbkr3")
-target_var = &"target"
 flee_speed = 80.0
-flee_duration = 2.0
-cooldown_duration = 5.0
-cooldown_var = &"flee_cooldown_end"
 
 [sub_resource type="BTSequence" id="BTSequence_fo450"]
 custom_name = "Flee"
@@ -36,12 +29,9 @@ children = [SubResource("BTCondition_r5sv8"), SubResource("BTPlayAnimation_p40nv
 
 [sub_resource type="BTAction" id="BTAction_u56yi"]
 script = ExtResource("1_ivfri")
-output_var = &"target"
 
 [sub_resource type="BTCondition" id="BTCondition_p3hs1"]
 script = ExtResource("2_b4flw")
-target_var = &"target"
-detection_area_path = NodePath("DetectionArea")
 
 [sub_resource type="BBNode" id="BBNode_fbkr3"]
 saved_value = NodePath("AnimationPlayer")
@@ -53,12 +43,6 @@ animation_name = &"move"
 
 [sub_resource type="BTAction" id="BTAction_p3hs1"]
 script = ExtResource("3_b4flw")
-target_var = &"target"
-speed = 30.0
-approach_distance = 20.0
-max_chase_distance = 300.0
-attack_area_path = NodePath("hitbox")
-detection_area_path = NodePath("DetectionArea")
 
 [sub_resource type="BTSequence" id="BTSequence_l5hgd"]
 custom_name = "Chase"
