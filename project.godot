@@ -19,6 +19,13 @@ run/main_scene="uid://2hq430ox7fub"
 config/features=PackedStringArray("4.7", "Mobile")
 config/icon="uid://lakgrdr4mj7k"
 
+[display]
+
+window/size/viewport_width=640
+window/size/viewport_height=480
+window/stretch/mode="viewport"
+window/stretch/aspect="expand"
+
 [input]
 
 Left={
