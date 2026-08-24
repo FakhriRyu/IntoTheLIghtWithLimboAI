@@ -19,7 +19,7 @@ extends CharacterBody2D
 @onready var health: GameHealth = $Health
 
 
-const SPEED = 200.0
+const SPEED = 120.0
 const JUMP_VELOCITY = -300.0
 const DASH_SPEED = 400.0
 const DASH_DURATION = 0.25

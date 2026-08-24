@@ -1,4 +1,4 @@
-[gd_scene load_steps=90 format=3 uid="uid://6bwtmnfhpxbs"]
+[gd_scene format=3 uid="uid://6bwtmnfhpxbs"]
 
 [ext_resource type="Script" uid="uid://bwhvvmyw1y5ks" path="res://Scripts/player/Health.gd" id="1_health"]
 [ext_resource type="Script" uid="uid://bnv143y5kl4ds" path="res://Scripts/player/Hurtbox.gd" id="1_hurtbox"]
@@ -12,15 +12,9 @@
 [ext_resource type="Script" uid="uid://bh50hax4vpetl" path="res://Scripts/player/Hitbox.gd" id="4_krql8"]
 [ext_resource type="AudioStream" uid="uid://cfi88abiysq1m" path="res://Assets/audio/sfx/femaleJump.mp3" id="4_m3jr7"]
 [ext_resource type="Texture2D" uid="uid://blmes7b7jf7v0" path="res://Assets/Warrior/idle/Warrior_Idle_3.png" id="4_t3oqc"]
-[ext_resource type="Texture2D" uid="uid://bslraqwdrb30o" path="res://Assets/button/Jump.png" id="5_a66fc"]
-[ext_resource type="Texture2D" uid="uid://ybk5wmoh7nqa" path="res://Assets/button/kanan.png" id="5_fxjs8"]
 [ext_resource type="Texture2D" uid="uid://dv5u2e787ybm2" path="res://Assets/Warrior/idle/Warrior_Idle_4.png" id="5_p8lfk"]
-[ext_resource type="Texture2D" uid="uid://b8ywbr7nm2u2j" path="res://Assets/button/kanan-press.png" id="6_70icj"]
-[ext_resource type="Texture2D" uid="uid://cxa0mdp8vq7nj" path="res://Assets/button/JumpPressed.png" id="6_a66fc"]
 [ext_resource type="Texture2D" uid="uid://b2dnbsa2h3t50" path="res://Assets/Warrior/idle/Warrior_Idle_5.png" id="6_uawwb"]
 [ext_resource type="Texture2D" uid="uid://cdp74alq0787y" path="res://Assets/Warrior/idle/Warrior_Idle_6.png" id="7_ag54m"]
-[ext_resource type="Texture2D" uid="uid://6m5boik516vh" path="res://Assets/button/kiri.png" id="7_bywm7"]
-[ext_resource type="Texture2D" uid="uid://b1ebwfxyydw1x" path="res://Assets/button/kiri-press.png" id="8_2yv6k"]
 [ext_resource type="Script" uid="uid://35eggp1x3j6m" path="res://Scripts/player/states/Idle.gd" id="8_p8lfk"]
 [ext_resource type="Texture2D" uid="uid://d4hf1n673rh3h" path="res://Assets/Warrior/Run/Warrior_Run_1.png" id="8_spm8d"]
 [ext_resource type="Texture2D" uid="uid://diw4v5pjy66u4" path="res://Assets/Warrior/Run/Warrior_Run_2.png" id="9_dpkfr"]
@@ -29,12 +23,8 @@
 [ext_resource type="Texture2D" uid="uid://dybvcllnafkkv" path="res://Assets/Warrior/Run/Warrior_Run_3.png" id="10_kysaj"]
 [ext_resource type="Texture2D" uid="uid://7l1hi60nhuoq" path="res://Assets/Warrior/Run/Warrior_Run_4.png" id="11_egohg"]
 [ext_resource type="Script" uid="uid://b1mlnfodm0xcn" path="res://Scripts/player/states/Fall.gd" id="11_g7b1g"]
-[ext_resource type="Texture2D" uid="uid://cttsnjvai4c64" path="res://Assets/button/Sword.png" id="11_mht06"]
-[ext_resource type="Texture2D" uid="uid://c77we2pnmhk4f" path="res://Assets/button/SwordPressed.png" id="12_r42nt"]
 [ext_resource type="Texture2D" uid="uid://dgr21qqcytjxk" path="res://Assets/Warrior/Run/Warrior_Run_5.png" id="12_ua3np"]
 [ext_resource type="Texture2D" uid="uid://cvhelk3slh1ow" path="res://Assets/Warrior/Run/Warrior_Run_6.png" id="13_mnu3u"]
-[ext_resource type="Texture2D" uid="uid://bsncqj7tfu6a0" path="res://Assets/button/Dash.png" id="13_r42nt"]
-[ext_resource type="Texture2D" uid="uid://djsk7qx7afmna" path="res://Assets/button/DashPressed.png" id="14_1vluk"]
 [ext_resource type="Texture2D" uid="uid://cc0xaynslr7fp" path="res://Assets/Warrior/Run/Warrior_Run_7.png" id="14_rwmec"]
 [ext_resource type="Texture2D" uid="uid://btpp6tghwy8wg" path="res://Assets/Warrior/Run/Warrior_Run_8.png" id="15_utcu2"]
 [ext_resource type="Texture2D" uid="uid://b2y8suxpber87" path="res://Assets/Warrior/Jump/Warrior_Jump_1.png" id="16_rwmec"]
@@ -307,135 +297,94 @@ _data = {
 &"RESET": SubResource("Animation_18m0u")
 }
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("state_machine") groups=["player"]]
+[node name="Player" type="CharacterBody2D" unique_id=1226008961 node_paths=PackedStringArray("state_machine") groups=["player"]]
 script = ExtResource("1_xxarj")
 state_machine = NodePath("LimboHSM")
 
-[node name="Health" type="Node" parent="."]
+[node name="Health" type="Node" parent="." unique_id=865538603]
 script = ExtResource("1_health")
 
-[node name="HurtBox" type="Area2D" parent="." node_paths=PackedStringArray("health")]
+[node name="HurtBox" type="Area2D" parent="." unique_id=888057827 node_paths=PackedStringArray("health")]
 script = ExtResource("1_hurtbox")
 health = NodePath("../Health")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox" unique_id=348862555]
 shape = SubResource("CapsuleShape2D_s3lwd")
 
-[node name="Hitbox" type="Area2D" parent="."]
+[node name="Hitbox" type="Area2D" parent="." unique_id=487323799]
 script = ExtResource("4_krql8")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=1178735564]
 position = Vector2(23, -2)
 shape = SubResource("RectangleShape2D_s3lwd")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1244729541]
 texture = ExtResource("19_mj82b")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1755702819]
 shape = SubResource("CapsuleShape2D_g7b1g")
 debug_color = Color(0.265251, 0.502683, 1, 0.42)
 
-[node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(1, -24)
-zoom = Vector2(5, 5)
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1616776169]
+libraries/ = SubResource("AnimationLibrary_nyrd7")
+autoplay = &"Idle"
 
-[node name="JumpButton" type="TouchScreenButton" parent="Camera2D"]
-position = Vector2(63, 24)
-scale = Vector2(0.4375, 0.4375)
-texture_normal = ExtResource("5_a66fc")
-texture_pressed = ExtResource("6_a66fc")
-action = "Jump"
+[node name="LimboHSM" type="LimboHSM" parent="." unique_id=1526374304]
 
-[node name="RightButtonMove" type="TouchScreenButton" parent="Camera2D"]
-position = Vector2(-73, 35)
-scale = Vector2(0.5, 0.5)
-texture_normal = ExtResource("5_fxjs8")
-texture_pressed = ExtResource("6_70icj")
-action = "Right"
-
-[node name="LeftButtonMove" type="TouchScreenButton" parent="Camera2D"]
-position = Vector2(-102, 35)
-scale = Vector2(0.5, 0.5)
-texture_normal = ExtResource("7_bywm7")
-texture_pressed = ExtResource("8_2yv6k")
-action = "Left"
-
-[node name="AttackButon" type="TouchScreenButton" parent="Camera2D"]
-position = Vector2(81, 25)
-scale = Vector2(0.65625, 0.65625)
-texture_normal = ExtResource("11_mht06")
-texture_pressed = ExtResource("12_r42nt")
-action = "Attack"
-
-[node name="DashButton" type="TouchScreenButton" parent="Camera2D"]
-position = Vector2(79, 7)
-scale = Vector2(0.46875, 0.46875)
-texture_normal = ExtResource("13_r42nt")
-texture_pressed = ExtResource("14_1vluk")
-action = "Dash"
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimationLibrary_nyrd7")
-}
-autoplay = "Idle"
-
-[node name="LimboHSM" type="LimboHSM" parent="."]
-
-[node name="Idle" type="LimboState" parent="LimboHSM" node_paths=PackedStringArray("animation_player")]
+[node name="Idle" type="LimboState" parent="LimboHSM" unique_id=2066568584 node_paths=PackedStringArray("animation_player")]
 script = ExtResource("8_p8lfk")
 animation_player = NodePath("../../AnimationPlayer")
 animation = &"Idle"
 
-[node name="Dead" type="LimboState" parent="LimboHSM" node_paths=PackedStringArray("animation_player")]
+[node name="Dead" type="LimboState" parent="LimboHSM" unique_id=473559455 node_paths=PackedStringArray("animation_player")]
 script = ExtResource("50_bywm7")
 animation_player = NodePath("../../AnimationPlayer")
 
-[node name="Move" type="LimboState" parent="LimboHSM" node_paths=PackedStringArray("animation_player")]
+[node name="Move" type="LimboState" parent="LimboHSM" unique_id=1860896565 node_paths=PackedStringArray("animation_player")]
 script = ExtResource("9_uawwb")
 animation_player = NodePath("../../AnimationPlayer")
 animation = &"Move"
 
-[node name="Jump" type="LimboState" parent="LimboHSM" node_paths=PackedStringArray("animation_player")]
+[node name="Jump" type="LimboState" parent="LimboHSM" unique_id=71047399 node_paths=PackedStringArray("animation_player")]
 script = ExtResource("10_ag54m")
 animation_player = NodePath("../../AnimationPlayer")
 animation = &"Jump"
 
-[node name="Fall" type="LimboState" parent="LimboHSM" node_paths=PackedStringArray("animation_player")]
+[node name="Fall" type="LimboState" parent="LimboHSM" unique_id=773846699 node_paths=PackedStringArray("animation_player")]
 script = ExtResource("11_g7b1g")
 animation_player = NodePath("../../AnimationPlayer")
 animation = &"Fall"
 
-[node name="Attack" type="LimboState" parent="LimboHSM" node_paths=PackedStringArray("animation_player")]
+[node name="Attack" type="LimboState" parent="LimboHSM" unique_id=1871048380 node_paths=PackedStringArray("animation_player")]
 script = ExtResource("33_cawuu")
 animation_player = NodePath("../../AnimationPlayer")
 animation = &"Attack"
 
-[node name="Dash" type="LimboState" parent="LimboHSM" node_paths=PackedStringArray("animation_player")]
+[node name="Dash" type="LimboState" parent="LimboHSM" unique_id=1719929632 node_paths=PackedStringArray("animation_player")]
 script = ExtResource("41_s3lwd")
 animation_player = NodePath("../../AnimationPlayer")
 animation = &"Dash"
 
-[node name="Hurt" type="LimboState" parent="LimboHSM" node_paths=PackedStringArray("animation_player")]
+[node name="Hurt" type="LimboState" parent="LimboHSM" unique_id=1063426702 node_paths=PackedStringArray("animation_player")]
 script = ExtResource("51_hurt")
 animation_player = NodePath("../../AnimationPlayer")
 
-[node name="SFX" type="Node" parent="."]
+[node name="SFX" type="Node" parent="." unique_id=1077285812]
 
-[node name="FemaleAttackSound" type="AudioStreamPlayer2D" parent="SFX"]
+[node name="FemaleAttackSound" type="AudioStreamPlayer2D" parent="SFX" unique_id=505980864]
 stream = ExtResource("2_p5xt2")
 
-[node name="HurtSound" type="AudioStreamPlayer2D" parent="SFX"]
+[node name="HurtSound" type="AudioStreamPlayer2D" parent="SFX" unique_id=1002601880]
 stream = ExtResource("3_k37cg")
 
-[node name="JumpSound" type="AudioStreamPlayer2D" parent="SFX"]
+[node name="JumpSound" type="AudioStreamPlayer2D" parent="SFX" unique_id=1684641521]
 stream = ExtResource("4_m3jr7")
 
-[node name="StepSound" type="AudioStreamPlayer2D" parent="SFX"]
+[node name="StepSound" type="AudioStreamPlayer2D" parent="SFX" unique_id=1051817512]
 stream = ExtResource("2_b42p4")
 pitch_scale = 2.09
 
-[node name="AttackSound" type="AudioStreamPlayer2D" parent="SFX"]
+[node name="AttackSound" type="AudioStreamPlayer2D" parent="SFX" unique_id=1351669064]
 stream = ExtResource("3_b42p4")
 volume_db = -8.105
 
