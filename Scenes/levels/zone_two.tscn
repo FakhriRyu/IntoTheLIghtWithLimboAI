@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://m76anex3axrv"]
+
+[ext_resource type="TileSet" uid="uid://cjgthgy87l8s4" path="res://Scenes/levels/new_tile_set.tres" id="1_0850n"]
+[ext_resource type="PackedScene" uid="uid://bk26vwm358w76" path="res://Scenes/levels/background.tscn" id="2_mxpd2"]
+
+[node name="zone_two" type="Node2D" unique_id=102063117]
+
+[node name="tilemaps" type="Node2D" parent="." unique_id=405285063]
+
+[node name="TileMapLayer" type="TileMapLayer" parent="tilemaps" unique_id=1959004443]
+tile_set = ExtResource("1_0850n")
+
+[node name="TileMapLayer2" type="TileMapLayer" parent="tilemaps" unique_id=1586175817]
+tile_set = ExtResource("1_0850n")
+
+[node name="trap" type="TileMapLayer" parent="tilemaps" unique_id=1187365831]
+tile_set = ExtResource("1_0850n")
+
+[node name="background" parent="." unique_id=2080337116 instance=ExtResource("2_mxpd2")]
