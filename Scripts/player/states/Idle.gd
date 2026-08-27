@@ -7,8 +7,10 @@ extends LimboState
 func _enter() -> void:
 	animation_player.play(animation)
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _update(_delta: float) -> void:
+
+func _update(delta: float) -> void:
+	agent.apply_movement(delta)
+	agent.update_facing()
 	agent.check_jump_input()
 	agent.check_attack_input()
 	agent.check_dash_input()

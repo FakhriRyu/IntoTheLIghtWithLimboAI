@@ -1,33 +1,58 @@
+class_name Player
 extends CharacterBody2D
 
-#state machine
+## Player controller with LimboHSM state machine.
+## Handles movement, combat, and health systems.
+
+# --- Transition Event Constants ---
+const TRANSITION_MOVE := "to_move"
+const TRANSITION_IDLE := "to_idle"
+const TRANSITION_JUMP := "to_jump"
+const TRANSITION_FALL := "to_fall"
+const TRANSITION_ATTACK := "to_attack"
+const TRANSITION_DASH := "to_dash"
+const TRANSITION_DEAD := "to_dead"
+const TRANSITION_HURT := "to_hurt"
+
+# --- Coyote Time & Jump Buffer ---
+const COYOTE_TIME := 0.12
+const JUMP_BUFFER_TIME := 0.12
+
+# --- State Machine ---
 @export var state_machine: LimboHSM
 
-#state
-@onready var idle_state = $LimboHSM/Idle
-@onready var move_state = $LimboHSM/Move
-@onready var jump_state = $LimboHSM/Jump
-@onready var fall_state = $LimboHSM/Fall
-@onready var attack_state = $LimboHSM/Attack
-@onready var dash_state = $LimboHSM/Dash
-@onready var dead_state = $LimboHSM/Dead
-@onready var hurt_state = $LimboHSM/Hurt
+# --- Movement Tuning ---
+@export var speed: float = 120.0
+@export var jump_velocity: float = -300.0
+@export var acceleration: float = 800.0
+@export var friction: float = 1000.0
+
+# --- Dash Tuning ---
+@export var dash_speed: float = 400.0
+@export var dash_duration: float = 0.25
+@export var dash_cooldown: float = 2.0
+
+# --- Combat Tuning ---
+@export var knockback_force: float = 200.0
+@export var immunity_duration: float = 1.5
+@export var respawn_delay: float = 2.0
+
+# --- State References ---
+@onready var idle_state: LimboState = $LimboHSM/Idle
+@onready var move_state: LimboState = $LimboHSM/Move
+@onready var jump_state: LimboState = $LimboHSM/Jump
+@onready var fall_state: LimboState = $LimboHSM/Fall
+@onready var attack_state: LimboState = $LimboHSM/Attack
+@onready var dash_state: LimboState = $LimboHSM/Dash
+@onready var dead_state: LimboState = $LimboHSM/Dead
+@onready var hurt_state: LimboState = $LimboHSM/Hurt
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var hitbox: Area2D = $Hitbox
 @onready var hurtbox: Area2D = $HurtBox
 @onready var health: GameHealth = $Health
 
-
-const SPEED = 120.0
-const JUMP_VELOCITY = -300.0
-const DASH_SPEED = 400.0
-const DASH_DURATION = 0.25
-const DASH_COOLDOWN = 2.0
-const RESPAWN_DELAY = 2.0
-const KNOCKBACK_FORCE = 200.0
-const IMMUNITY_DURATION = 1.5  # Durasi immunity setelah terkena hit
-
+# --- Runtime State ---
 var movement_input: Vector2 = Vector2.ZERO
 var dash_direction: Vector2 = Vector2.ZERO
 var dash_timer: float = 0.0
@@ -37,120 +62,129 @@ var spawn_position: Vector2 = Vector2.ZERO
 var is_hurt: bool = false
 var is_immune: bool = false
 var knockback_direction: Vector2 = Vector2.ZERO
+var coyote_timer: float = 0.0
+var jump_buffer_timer: float = 0.0
+
+var _immunity_tween: Tween = null
+
 
 func _ready() -> void:
 	add_to_group("player")
 	spawn_position = global_position
 	_initialize_state_machine()
-	
+
 	# Connect health signals
 	if health:
 		health.death.connect(_on_death)
 		health.damaged.connect(_on_damaged)
 
+
 func _initialize_state_machine() -> void:
-	#define states transitions
-	state_machine.add_transition(idle_state, move_state, "to_move")
-	state_machine.add_transition(move_state, idle_state, "to_idle")
-	state_machine.add_transition(idle_state, jump_state, "to_jump")
-	state_machine.add_transition(move_state, jump_state, "to_jump")
-	state_machine.add_transition(state_machine.ANYSTATE, fall_state, "to_fall")
-	state_machine.add_transition(fall_state, move_state, "to_move")
-	state_machine.add_transition(fall_state, idle_state, "to_idle")
-	state_machine.add_transition(idle_state, attack_state, "to_attack")
-	state_machine.add_transition(move_state, attack_state, "to_attack")
-	state_machine.add_transition(attack_state, move_state, "to_move")
-	state_machine.add_transition(attack_state, idle_state, "to_idle")
-	state_machine.add_transition(state_machine.ANYSTATE, dash_state, "to_dash")
-	state_machine.add_transition(dash_state, move_state, "to_move")
-	state_machine.add_transition(dash_state, idle_state, "to_idle")
-	state_machine.add_transition(dash_state, jump_state, "to_jump")
-	state_machine.add_transition(state_machine.ANYSTATE, dead_state, "to_dead")
-	state_machine.add_transition(dead_state, idle_state, "to_idle")
-	state_machine.add_transition(state_machine.ANYSTATE, hurt_state, "to_hurt")
-	state_machine.add_transition(hurt_state, idle_state, "to_idle")
-	state_machine.add_transition(hurt_state, move_state, "to_move")
-	#setup state machine
+	# Define state transitions
+	state_machine.add_transition(idle_state, move_state, TRANSITION_MOVE)
+	state_machine.add_transition(move_state, idle_state, TRANSITION_IDLE)
+	state_machine.add_transition(idle_state, jump_state, TRANSITION_JUMP)
+	state_machine.add_transition(move_state, jump_state, TRANSITION_JUMP)
+	state_machine.add_transition(state_machine.ANYSTATE, fall_state, TRANSITION_FALL)
+	state_machine.add_transition(fall_state, move_state, TRANSITION_MOVE)
+	state_machine.add_transition(fall_state, idle_state, TRANSITION_IDLE)
+	state_machine.add_transition(fall_state, jump_state, TRANSITION_JUMP)
+	state_machine.add_transition(idle_state, attack_state, TRANSITION_ATTACK)
+	state_machine.add_transition(move_state, attack_state, TRANSITION_ATTACK)
+	state_machine.add_transition(attack_state, move_state, TRANSITION_MOVE)
+	state_machine.add_transition(attack_state, idle_state, TRANSITION_IDLE)
+	state_machine.add_transition(state_machine.ANYSTATE, dash_state, TRANSITION_DASH)
+	state_machine.add_transition(dash_state, move_state, TRANSITION_MOVE)
+	state_machine.add_transition(dash_state, idle_state, TRANSITION_IDLE)
+	state_machine.add_transition(dash_state, jump_state, TRANSITION_JUMP)
+	state_machine.add_transition(state_machine.ANYSTATE, dead_state, TRANSITION_DEAD)
+	state_machine.add_transition(dead_state, idle_state, TRANSITION_IDLE)
+	state_machine.add_transition(state_machine.ANYSTATE, hurt_state, TRANSITION_HURT)
+	state_machine.add_transition(hurt_state, idle_state, TRANSITION_IDLE)
+	state_machine.add_transition(hurt_state, move_state, TRANSITION_MOVE)
+
+	# Setup state machine
 	state_machine.initial_state = idle_state
 	state_machine.initialize(self)
 	state_machine.set_active(true)
 
-func apply_movement(_delta):
-	velocity.x = movement_input.x * SPEED
 
-func check_attack_input():
+# --- Movement ---
+
+func apply_movement(delta: float) -> void:
+	var target_speed := movement_input.x * speed
+	var accel := acceleration if is_on_floor() else acceleration * 0.5
+
+	if movement_input.x != 0:
+		velocity.x = move_toward(velocity.x, target_speed, accel * delta)
+	else:
+		velocity.x = move_toward(velocity.x, 0, friction * delta)
+
+
+func update_facing() -> void:
+	if movement_input.x != 0:
+		sprite.flip_h = movement_input.x < 0
+		# Flip hitbox for attack direction
+		if hitbox:
+			hitbox.scale.x = -1 if sprite.flip_h else 1
+
+
+# --- Input Checks ---
+
+func check_attack_input() -> void:
 	if Input.is_action_just_pressed("Attack") and is_on_floor():
-		state_machine.dispatch("to_attack")
+		state_machine.dispatch(TRANSITION_ATTACK)
 
-func check_jump_input():
-	if Input.is_action_just_pressed("Jump") and is_on_floor():
-		state_machine.dispatch("to_jump")
 
-func check_dash_input():
-	if Input.is_action_just_pressed("Dash") and can_dash and dash_cooldown_timer <= 0:
+func check_jump_input() -> void:
+	var wants_jump := Input.is_action_just_pressed("Jump") or jump_buffer_timer > 0
+	if wants_jump and coyote_timer > 0:
+		coyote_timer = 0.0
+		jump_buffer_timer = 0.0
+		state_machine.dispatch(TRANSITION_JUMP)
+
+
+func check_dash_input() -> void:
+	if Input.is_action_just_pressed("Dash") and can_dash:
 		# Set dash direction based on movement input or facing direction
 		if movement_input.x != 0:
 			dash_direction = Vector2(movement_input.x, 0)
 		else:
 			dash_direction = Vector2(1 if not sprite.flip_h else -1, 0)
-		
-		state_machine.dispatch("to_dash")
 
-func update_facing():
-	if movement_input.x != 0:
-		sprite.flip_h = movement_input.x < 0
-		# Flip hitbox saja (untuk attack direction)
-		if hitbox:
-			hitbox.scale.x = -1 if sprite.flip_h else 1
+		state_machine.dispatch(TRANSITION_DASH)
 
-func start_attack():
-	"""Called when attack animation begins"""
+
+# --- Combat ---
+
+func start_attack() -> void:
+	"""Called when attack animation begins (via AnimationPlayer method track)."""
 	if hitbox:
-		if hitbox.has_method("set_active"):
-			hitbox.set_active(true)
-		else:
-			# Fallback: enable monitoring with set_deferred
-			hitbox.set_deferred("monitoring", true)
-			hitbox.set_deferred("monitorable", true)
-			# Connect signals if not already connected
-			if not hitbox.body_entered.is_connected(_on_hitbox_body_entered):
-				hitbox.body_entered.connect(_on_hitbox_body_entered)
-			if not hitbox.area_entered.is_connected(_on_hitbox_area_entered):
-				hitbox.area_entered.connect(_on_hitbox_area_entered)
+		hitbox.set_active(true)
 
-func end_attack():
-	"""Called when attack animation ends"""
+
+func end_attack() -> void:
+	"""Called when attack animation ends (via AnimationPlayer method track)."""
 	if hitbox:
-		if hitbox.has_method("set_active"):
-			hitbox.set_active(false)
-		else:
-			# Fallback: disable monitoring with set_deferred
-			hitbox.set_deferred("monitoring", false)
-			hitbox.set_deferred("monitorable", false)
+		hitbox.set_active(false)
 
-func _on_hitbox_body_entered(body):
-	"""Handle hitbox collision with bodies (like barrels)"""
-	if body.has_method("take_damage"):
-		body.take_damage()
-		print("Player hit: ", body.name)
 
-func _on_hitbox_area_entered(area):
-	"""Handle hitbox collision with areas (like enemy hurtboxes)"""
-	if area.has_method("take_damage"):
-		area.take_damage()
-		print("Player hit area: ", area.name)
-	elif area.get_parent().has_method("take_damage"):
-		area.get_parent().take_damage()
-		print("Player hit enemy: ", area.get_parent().name)
+# --- Physics ---
 
 func _physics_process(delta: float) -> void:
 	# Don't process physics if dead
 	if state_machine.get_active_state() == dead_state:
 		return
-	
+
 	movement_input = Input.get_vector("Left", "Right", "Up", "Down")
 
-	# Add the gravity.
+	# Record jump buffer input
+	if Input.is_action_just_pressed("Jump"):
+		jump_buffer_timer = JUMP_BUFFER_TIME
+	elif jump_buffer_timer > 0:
+		jump_buffer_timer -= delta
+
+	# Add gravity
 	if not is_on_floor():
 		velocity += get_gravity() * delta
 
@@ -163,155 +197,150 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 
+	# Update coyote timer (after move_and_slide so is_on_floor() is current)
+	if is_on_floor():
+		coyote_timer = COYOTE_TIME
+	else:
+		coyote_timer = maxf(coyote_timer - delta, 0.0)
+
+
+# --- Animation Callbacks ---
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 	if anim_name == "Attack":
 		end_attack()
-		state_machine.dispatch("to_idle")
+		state_machine.dispatch(TRANSITION_IDLE)
 	elif anim_name == "Dead":
-		print("Dead animation finished, waiting ", RESPAWN_DELAY, " seconds before respawn...")
-		# Wait a bit before respawning
-		await get_tree().create_timer(RESPAWN_DELAY).timeout
-		print("Timer finished, calling respawn()...")
+		if OS.is_debug_build():
+			print("Dead animation finished, waiting ", respawn_delay, " seconds before respawn...")
+		await get_tree().create_timer(respawn_delay).timeout
+		if OS.is_debug_build():
+			print("Timer finished, calling respawn()...")
 		respawn()
 	elif anim_name == "Hurt":
-		# Hurt animation selesai tapi knockback mungkin masih berlangsung
-		# State transition dihandle di _end_hurt_state()
+		# Hurt animation finished; knockback may still be in progress.
+		# State transition is handled in _end_hurt_state().
 		pass
 
-func _on_damaged(amount: int) -> void:
-	"""Called when player takes damage"""
+
+# --- Damage & Knockback ---
+
+func _on_damaged(amount: int, source_position: Vector2) -> void:
+	"""Called when player takes damage."""
 	if is_immune or is_hurt:
 		return
-	
-	print("Player took ", amount, " damage!")
+
+	if OS.is_debug_build():
+		print("Player took ", amount, " damage!")
+
 	is_hurt = true
-	
-	# Hitung arah knockback (dari enemy terdekat)
-	var enemies = get_tree().get_nodes_in_group("enemy")
-	var closest_enemy: Node2D = null
-	var closest_distance: float = INF
-	
-	for enemy in enemies:
-		if enemy is Node2D:
-			var dist = global_position.distance_to(enemy.global_position)
-			if dist < closest_distance:
-				closest_distance = dist
-				closest_enemy = enemy
-	
-	if closest_enemy:
-		knockback_direction = (global_position - closest_enemy.global_position).normalized()
-	else:
-		# Fallback: knockback berdasarkan arah hadap
-		knockback_direction = Vector2(1 if sprite.flip_h else -1, 0)
-	
-	# Transition ke hurt state
-	state_machine.dispatch("to_hurt")
-	
+	knockback_direction = (global_position - source_position).normalized()
+
+	# Transition to hurt state
+	state_machine.dispatch(TRANSITION_HURT)
+
 	# Apply knockback
 	_apply_knockback()
 
+
 func _apply_knockback() -> void:
-	"""Apply knockback effect"""
-	for i in range(10):
-		if not is_hurt:
-			return
-		velocity.x = knockback_direction.x * KNOCKBACK_FORCE
-		velocity.y = -100  # Sedikit terangkat
-		await get_tree().physics_frame
-	
-	_end_hurt_state()
+	"""Apply knockback as a single impulse, then wait before ending hurt state."""
+	velocity = Vector2(knockback_direction.x * knockback_force, -100)
+	await get_tree().create_timer(0.2).timeout
+	if is_hurt:
+		_end_hurt_state()
+
 
 func _end_hurt_state() -> void:
-	"""End hurt state and start immunity"""
+	"""End hurt state and start immunity."""
 	is_hurt = false
 	knockback_direction = Vector2.ZERO
 	velocity = Vector2.ZERO  # Stop sliding
-	
+
 	# Start immunity period
 	_start_immunity()
-	
+
 	# Return to idle or move state
 	if movement_input != Vector2.ZERO:
-		state_machine.dispatch("to_move")
+		state_machine.dispatch(TRANSITION_MOVE)
 	else:
-		state_machine.dispatch("to_idle")
+		state_machine.dispatch(TRANSITION_IDLE)
+
 
 func _start_immunity() -> void:
-	"""Start immunity period with blinking effect"""
+	"""Start immunity period with blinking effect using Tween."""
 	is_immune = true
-	
-	# Blink effect selama immunity
-	var blink_count = int(IMMUNITY_DURATION / 0.1)
-	for i in range(blink_count):
-		if not is_immune:
-			break
-		sprite.modulate.a = 0.3 if i % 2 == 0 else 1.0
-		await get_tree().create_timer(0.1).timeout
-	
-	# Reset sprite dan immunity
+
+	# Kill any existing immunity tween
+	if _immunity_tween and _immunity_tween.is_valid():
+		_immunity_tween.kill()
+
+	_immunity_tween = create_tween()
+	var loop_count := int(immunity_duration / 0.2)
+	_immunity_tween.set_loops(loop_count)
+	_immunity_tween.tween_property(sprite, "modulate:a", 0.3, 0.1)
+	_immunity_tween.tween_property(sprite, "modulate:a", 1.0, 0.1)
+	_immunity_tween.finished.connect(_on_immunity_finished)
+
+
+func _on_immunity_finished() -> void:
 	sprite.modulate.a = 1.0
 	is_immune = false
 
+
+# --- Death & Respawn ---
+
 func _on_death() -> void:
-	"""Called when health reaches 0"""
-	print("Player died! Transitioning to dead state...")
-	
-	# Stop immunity jika sedang berlangsung
+	"""Called when health reaches 0."""
+	if OS.is_debug_build():
+		print("Player died! Transitioning to dead state...")
+
+	# Stop immunity if in progress
 	is_immune = false
 	is_hurt = false
-	
+	if _immunity_tween and _immunity_tween.is_valid():
+		_immunity_tween.kill()
+	sprite.modulate.a = 1.0
+
 	# Disable hurtbox so player can't take more damage while dead
 	if hurtbox:
 		hurtbox.set_deferred("monitoring", false)
 		hurtbox.set_deferred("monitorable", false)
-		print("Hurtbox disabled (deferred)")
-	
-	state_machine.dispatch("to_dead")
+
+	state_machine.dispatch(TRANSITION_DEAD)
+
 
 func respawn() -> void:
-	"""Respawn player at starting position"""
-	print("=== RESPAWN START ===")
-	print("Current position before respawn: ", global_position)
-	print("Spawn position: ", spawn_position)
-	print("Current state: ", state_machine.get_active_state())
-	
-	# Reset position
+	"""Respawn player at starting position."""
+	if OS.is_debug_build():
+		print("Respawning player at: ", spawn_position)
+
+	# Reset position & velocity
 	global_position = spawn_position
-	print("Position set to: ", global_position)
-	
-	# Reset velocity
 	velocity = Vector2.ZERO
-	print("Velocity reset to zero")
-	
+
 	# Reset health
 	if health:
 		health.current_health = health.max_health
-		print("Health reset to: ", health.max_health)
-	
+
 	# Re-enable hurtbox
 	if hurtbox:
 		hurtbox.set_deferred("monitoring", true)
 		hurtbox.set_deferred("monitorable", true)
-		print("Hurtbox re-enabled (deferred)")
-	
+
 	# Reset dash cooldown
 	dash_cooldown_timer = 0.0
 	can_dash = true
-	print("Dash cooldown reset")
-	
+
 	# Reset hurt/immunity state
 	is_hurt = false
 	is_immune = false
 	knockback_direction = Vector2.ZERO
 	sprite.modulate.a = 1.0
-	print("Hurt/immunity state reset")
-	
+
+	# Reset timers
+	coyote_timer = 0.0
+	jump_buffer_timer = 0.0
+
 	# Return to idle state
-	print("Attempting to dispatch to_idle...")
-	var result = state_machine.dispatch("to_idle")
-	print("Dispatch result: ", result)
-	print("New state: ", state_machine.get_active_state())
-	
-	print("=== RESPAWN END ===")
-	print("Player respawned at: ", spawn_position)
+	state_machine.dispatch(TRANSITION_IDLE)

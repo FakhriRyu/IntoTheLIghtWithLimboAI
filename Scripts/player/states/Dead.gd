@@ -7,13 +7,16 @@ extends LimboState
 func _enter() -> void:
 	# Disable player input by setting velocity to zero
 	agent.velocity = Vector2.ZERO
-	
+
 	# Play death animation
 	if animation_player:
 		animation_player.play(animation)
-		print("Entering Dead state, playing animation: ", animation)
+		if OS.is_debug_build():
+			print("Entering Dead state, playing animation: ", animation)
 	else:
-		print("ERROR: AnimationPlayer not found!")
+		if OS.is_debug_build():
+			print("ERROR: AnimationPlayer not found!")
+
 
 func _update(_delta: float) -> void:
 	# Keep player stationary during death animation
