@@ -297,9 +297,25 @@ _data = {
 &"RESET": SubResource("Animation_18m0u")
 }
 
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_fbkr3"]
+random_pitch = 1.1348487
+streams_count = 1
+stream_0/stream = ExtResource("2_p5xt2")
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_l5hgd"]
+random_pitch = 1.122462
+streams_count = 1
+stream_0/stream = ExtResource("2_b42p4")
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_r5sv8"]
+random_pitch = 1.0779822
+streams_count = 1
+stream_0/stream = ExtResource("3_b42p4")
+
 [node name="Player" type="CharacterBody2D" unique_id=1226008961 node_paths=PackedStringArray("state_machine") groups=["player"]]
 script = ExtResource("1_xxarj")
 state_machine = NodePath("LimboHSM")
+jump_velocity = -310.0
 
 [node name="Health" type="Node" parent="." unique_id=865538603]
 script = ExtResource("1_health")
@@ -372,7 +388,7 @@ animation_player = NodePath("../../AnimationPlayer")
 [node name="SFX" type="Node" parent="." unique_id=1077285812]
 
 [node name="FemaleAttackSound" type="AudioStreamPlayer2D" parent="SFX" unique_id=505980864]
-stream = ExtResource("2_p5xt2")
+stream = SubResource("AudioStreamRandomizer_fbkr3")
 
 [node name="HurtSound" type="AudioStreamPlayer2D" parent="SFX" unique_id=1002601880]
 stream = ExtResource("3_k37cg")
@@ -381,11 +397,11 @@ stream = ExtResource("3_k37cg")
 stream = ExtResource("4_m3jr7")
 
 [node name="StepSound" type="AudioStreamPlayer2D" parent="SFX" unique_id=1051817512]
-stream = ExtResource("2_b42p4")
+stream = SubResource("AudioStreamRandomizer_l5hgd")
 pitch_scale = 2.09
 
 [node name="AttackSound" type="AudioStreamPlayer2D" parent="SFX" unique_id=1351669064]
-stream = ExtResource("3_b42p4")
+stream = SubResource("AudioStreamRandomizer_r5sv8")
 volume_db = -8.105
 
 [connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_player_animation_finished"]
