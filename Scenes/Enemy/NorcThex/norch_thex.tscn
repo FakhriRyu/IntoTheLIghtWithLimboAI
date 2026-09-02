@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://c7i4jb6ld3xn0"]
+
+[ext_resource type="Texture2D" uid="uid://ddje4jwwufl1y" path="res://Assets/Norcthex/Norc'thex spritesheet.png" id="1_ml06c"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_b1msh"]
+radius = 18.0
+height = 60.0
+
+[node name="NorchThex" type="CharacterBody2D" unique_id=1163414465]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1800892456]
+texture = ExtResource("1_ml06c")
+hframes = 19
+vframes = 10
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1191574835]
+position = Vector2(0, 11)
+shape = SubResource("CapsuleShape2D_b1msh")
+debug_color = Color(3.8023293e-06, 0.6487171, 0.18173257, 0.41960785)
