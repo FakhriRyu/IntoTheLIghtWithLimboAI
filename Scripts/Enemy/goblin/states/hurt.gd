@@ -9,15 +9,23 @@ func _enter() -> void:
 		animation_player.play(animation)
 		if not animation_player.animation_finished.is_connected(_on_animation_finished):
 			animation_player.animation_finished.connect(_on_animation_finished)
-	else:
-		await agent.get_tree().create_timer(1.0).timeout
-		agent.queue_free()
 
 
 func _update(_delta: float) -> void:
-	agent.velocity = Vector2.ZERO
+	agent.apply_knockback()
+
+
+func _exit() -> void:
+	agent.velocity.x = 0
+	agent.is_hurt = false
 
 
 func _on_animation_finished(anim_name: StringName) -> void:
 	if anim_name == animation:
-		agent.queue_free()
+		agent.is_hurt = false
+		if agent.player_in_attack_range and agent.can_attack:
+			dispatch("to_attack")
+		elif agent.player_in_range:
+			dispatch("to_chase")
+		else:
+			dispatch("to_idle")
