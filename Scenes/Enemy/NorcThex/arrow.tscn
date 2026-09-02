@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://bpwvyt71m857n"]
+
+[ext_resource type="Script" path="res://Scripts/Enemy/NorcThex/arrow.gd" id="1_arrow"]
+[ext_resource type="Texture2D" uid="uid://d3ismwcwkb556" path="res://Assets/Norcthex/Arrow.png" id="2_texture"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_arrow"]
+size = Vector2(40, 6)
+
+[node name="Arrow" type="Area2D" unique_id=864829869]
+collision_layer = 0
+collision_mask = 3
+script = ExtResource("1_arrow")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1680827082]
+texture = ExtResource("2_texture")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2066955200]
+position = Vector2(-2, 2)
+shape = SubResource("RectangleShape2D_arrow")
+debug_color = Color(0.9, 0.2, 0.1, 0.42)

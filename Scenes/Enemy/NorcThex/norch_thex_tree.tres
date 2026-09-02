@@ -1,0 +1,10 @@
+[gd_resource type="BehaviorTree" format=3 uid="uid://dsmqlvcyj6y30"]
+
+[ext_resource type="Script" path="res://Scripts/Enemy/NorcThex/ai/bt_choose_action.gd" id="1_action"]
+
+[sub_resource type="BTAction" id="BTAction_choose"]
+script = ExtResource("1_action")
+
+[resource]
+description = "Behavior Tree untuk Norc'Thex Ranged & Trap Boss"
+root_task = SubResource("BTAction_choose")
