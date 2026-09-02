@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://c4eksrq3ci2n4"]
+[gd_scene format=3 uid="uid://c4eksrq3ci2n4"]
 
 [ext_resource type="Script" uid="uid://6avn3h8382k0" path="res://Scripts/Enemy/SkullWolfFSM/skull_wolf_fsm.gd" id="1_n8wxb"]
 [ext_resource type="Texture2D" uid="uid://sk47gmoxcj6k" path="res://Assets/Skullwolf/Massacre Sprite Sheet.png" id="1_s4lhn"]
@@ -117,75 +117,73 @@ height = 44.0
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_psjb7"]
 size = Vector2(28.5, 15)
 
-[node name="SkullWolfFSM" type="CharacterBody2D" node_paths=PackedStringArray("state_machine")]
+[node name="SkullWolfFSM" type="CharacterBody2D" unique_id=1297472312 node_paths=PackedStringArray("state_machine")]
 script = ExtResource("1_n8wxb")
 state_machine = NodePath("LimboHSM")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=617850418]
 texture = ExtResource("1_s4lhn")
 hframes = 7
 vframes = 4
 frame = 1
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=679332674]
 position = Vector2(0, 21)
 rotation = 1.5708
 shape = SubResource("CapsuleShape2D_n8wxb")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimationLibrary_13d0v")
-}
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=863022782]
+libraries/ = SubResource("AnimationLibrary_13d0v")
 
-[node name="DetectionArea" type="Area2D" parent="."]
+[node name="DetectionArea" type="Area2D" parent="." unique_id=1861226990]
 position = Vector2(-22.5, 18.25)
 rotation = 1.5708
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea" unique_id=1185309303]
 position = Vector2(-3.25008, -5.24999)
 shape = SubResource("RectangleShape2D_6aa46")
 
-[node name="LimboHSM" type="LimboHSM" parent="."]
+[node name="LimboHSM" type="LimboHSM" parent="." unique_id=2122209580]
 
-[node name="Idle" type="LimboState" parent="LimboHSM" node_paths=PackedStringArray("animation_player")]
+[node name="Idle" type="LimboState" parent="LimboHSM" unique_id=138664058 node_paths=PackedStringArray("animation_player")]
 script = ExtResource("3_xkksu")
 animation_player = NodePath("../../AnimationPlayer")
 animation = &"idle"
 
-[node name="Chase" type="LimboState" parent="LimboHSM" node_paths=PackedStringArray("animation_player")]
+[node name="Chase" type="LimboState" parent="LimboHSM" unique_id=14093887 node_paths=PackedStringArray("animation_player")]
 script = ExtResource("4_13d0v")
 animation_player = NodePath("../../AnimationPlayer")
 animation = &"move"
 
-[node name="Dead" type="LimboState" parent="LimboHSM" node_paths=PackedStringArray("animation_player")]
+[node name="Dead" type="LimboState" parent="LimboHSM" unique_id=1862082855 node_paths=PackedStringArray("animation_player")]
 script = ExtResource("5_aomcw")
 animation_player = NodePath("../../AnimationPlayer")
 animation = &"death"
 
-[node name="Hurt" type="LimboState" parent="LimboHSM" node_paths=PackedStringArray("animation_player")]
+[node name="Hurt" type="LimboState" parent="LimboHSM" unique_id=2051404704 node_paths=PackedStringArray("animation_player")]
 script = ExtResource("6_psjb7")
 animation_player = NodePath("../../AnimationPlayer")
 animation = &"hurt"
 
-[node name="Health" type="Node" parent="."]
+[node name="Health" type="Node" parent="." unique_id=1682370114]
 script = ExtResource("6_6aa46")
 metadata/_custom_type_script = "uid://5byn62y1oa76"
 
-[node name="Hurtbox" type="Area2D" parent="."]
+[node name="Hurtbox" type="Area2D" parent="." unique_id=1439304062]
 script = ExtResource("7_psjb7")
 metadata/_custom_type_script = "uid://dq5h6yydckjc1"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1231804553]
 position = Vector2(0, 21)
 rotation = 1.5708
 shape = SubResource("CapsuleShape2D_6aa46")
 debug_color = Color(0.76, 0.481333, 0, 0.372549)
 
-[node name="Hitbox" type="Area2D" parent="."]
+[node name="Hitbox" type="Area2D" parent="." unique_id=1050564098]
 script = ExtResource("8_x5s2l")
 metadata/_custom_type_script = "uid://dntc3c582m5w8"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=1264697212]
 position = Vector2(-22.5, 18.25)
 rotation = 1.5708
 shape = SubResource("RectangleShape2D_psjb7")

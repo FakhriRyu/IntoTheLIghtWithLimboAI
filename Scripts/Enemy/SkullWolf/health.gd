@@ -33,4 +33,3 @@ func get_current_health() -> int:
 
 func is_alive() -> bool:
 	return current_health > 0
-
