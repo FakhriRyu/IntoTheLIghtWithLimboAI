@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://c12utjeviwbmc"]
+[gd_scene format=3 uid="uid://c12utjeviwbmc"]
 
 [ext_resource type="Script" uid="uid://bc71maopppeq6" path="res://Scripts/Enemy/SkullWolf/skull_wolf.gd" id="1_h5j02"]
 [ext_resource type="Texture2D" uid="uid://sk47gmoxcj6k" path="res://Assets/Skullwolf/Massacre Sprite Sheet.png" id="1_kdmcv"]
@@ -117,54 +117,52 @@ size = Vector2(14, 27)
 radius = 8.0
 height = 52.0
 
-[node name="SkullWolf" type="CharacterBody2D"]
+[node name="SkullWolf" type="CharacterBody2D" unique_id=1396096106]
 script = ExtResource("1_h5j02")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=493343853]
 position = Vector2(0, -32)
 texture = ExtResource("1_kdmcv")
 hframes = 7
 vframes = 4
 region_rect = Rect2(5, 49, 46, 20)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2089385039]
 position = Vector2(0, -15)
 rotation = -1.5865
 shape = SubResource("CapsuleShape2D_14j7o")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimationLibrary_jbbqh")
-}
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=204698171]
+libraries/ = SubResource("AnimationLibrary_jbbqh")
 
-[node name="BTPlayer" type="BTPlayer" parent="."]
+[node name="BTPlayer" type="BTPlayer" parent="." unique_id=730711325]
 behavior_tree = ExtResource("3_g6e8h")
 blackboard_plan = SubResource("BlackboardPlan_ypqct")
 
-[node name="DetectionArea" type="Area2D" parent="."]
+[node name="DetectionArea" type="Area2D" parent="." unique_id=1164209653]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea" unique_id=1359316061]
 position = Vector2(1, -15)
 shape = SubResource("RectangleShape2D_g6e8h")
 debug_color = Color(0.642237, 0.520312, 0.167682, 0.42)
 
-[node name="Hitbox" type="Area2D" parent="."]
+[node name="Hitbox" type="Area2D" parent="." unique_id=728638288]
 script = ExtResource("5_hitbox")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=1255423063]
 position = Vector2(-19, -13.5)
 shape = SubResource("RectangleShape2D_topbx")
 debug_color = Color(0.97, 0, 0.0161664, 0.419608)
 
-[node name="HurtBox" type="Area2D" parent="." node_paths=PackedStringArray("health")]
+[node name="HurtBox" type="Area2D" parent="." unique_id=319253849 node_paths=PackedStringArray("health")]
 script = ExtResource("6_hurtbox")
 health = NodePath("../Health")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox" unique_id=566175591]
 position = Vector2(1, -10)
 rotation = 1.5708
 shape = SubResource("CapsuleShape2D_g6e8h")
 debug_color = Color(0.165779, 0.517173, 1, 0.42)
 
-[node name="Health" type="Node" parent="."]
+[node name="Health" type="Node" parent="." unique_id=1636772218]
 script = ExtResource("4_topbx")
