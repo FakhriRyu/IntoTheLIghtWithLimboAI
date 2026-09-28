@@ -97,6 +97,91 @@ Task-task LimboAI untuk membuat behavior tree Frogo yang dapat mengejar player.
 
 ---
 
+### 7. check_distance_to_target.gd
+**Type:** BTCondition  
+**Fungsi:** Mengecek apakah jarak agent ke target berada dalam rentang tertentu. Dipakai untuk memisahkan jurus berdasarkan pita jarak (mis. trap untuk jarak dekat, panah untuk jarak jauh).
+
+**Parameters:**
+- `target_var` (StringName): Variable blackboard yang menyimpan target (default: "target")
+- `min_distance` (float): Jarak minimal, inklusif. 0 = tanpa batas bawah (default: 0.0)
+- `max_distance` (float): Jarak maksimal, inklusif. 0 = tanpa batas atas (default: 0.0)
+
+**Returns:**
+- `SUCCESS`: Jika jarak berada di antara `min_distance` dan `max_distance`
+- `FAILURE`: Jika target tidak valid atau jarak di luar rentang
+
+---
+
+### 8. check_cooldown.gd
+**Type:** BTCondition  
+**Fungsi:** Mengecek apakah cooldown sebuah jurus sudah selesai. Cooldown disimpan di blackboard sebagai timestamp absolut (detik), ditulis oleh `animated_attack.gd` atau `blink_away.gd`. Pasangkan di dalam Sequence sebelum task serangannya.
+
+**Parameters:**
+- `cooldown_var` (StringName): Variable blackboard berisi waktu cooldown berakhir (default: "cooldown_end")
+
+**Returns:**
+- `SUCCESS`: Jika variable belum pernah diset, atau waktunya sudah lewat
+- `FAILURE`: Jika masih dalam masa cooldown
+
+---
+
+### 9. face_target.gd
+**Type:** BTAction  
+**Fungsi:** Menghadapkan agent ke arah target tanpa memindahkan posisinya. Dipakai musuh yang menyerang dari tempat (mis. boss ranged) supaya proyektilnya tidak terbang ke arah yang salah. Memanggil `agent.update_facing(direction)`, dengan fallback membalik `$Sprite2D` jika method itu tidak ada.
+
+**Parameters:**
+- `target_var` (StringName): Variable blackboard yang menyimpan target (default: "target")
+
+**Returns:**
+- `SUCCESS`: Jika target valid dan arah hadap sudah diupdate
+- `FAILURE`: Jika target tidak valid
+
+---
+
+### 10. animated_attack.gd
+**Type:** BTAction  
+**Fungsi:** Memainkan animasi serangan lalu memanggil sebuah method pada agent tepat di detik tertentu, sehingga proyektil/trap muncul di **tengah** animasi, bukan di akhirnya. Cara ini tidak memerlukan call-method track di AnimationPlayer. Satu task ini dipakai ulang untuk beberapa jurus berbeda cukup dengan mengganti parameternya.
+
+Opsional, task ini juga bisa memanggil method kedua lebih dulu (`telegraph_method`) untuk memunculkan indikator peringatan, sehingga player punya waktu untuk menghindar sebelum serangan dilepas.
+
+**Parameters:**
+- `animation_player_path` (NodePath): Path ke AnimationPlayer agent (default: "AnimationPlayer")
+- `animation` (StringName): Nama animasi serangan yang dimainkan
+- `attack_method` (StringName): Nama method pada agent yang dipanggil saat serangan dilepas (mis. "shoot_arrow", "spawn_trap")
+- `fire_time` (float): Detik ke berapa sejak animasi mulai, method serangan dipanggil (default: 0.0)
+- `telegraph_method` (StringName): Nama method pada agent untuk memunculkan indikator peringatan, opsional (mis. "show_arrow_warning"). Dipanggil dengan satu argumen: jeda (detik) sampai serangan dilepas
+- `telegraph_time` (float): Detik ke berapa indikator peringatan dimunculkan, biasanya 0.0 = awal animasi (default: 0.0)
+- `duration` (float): Durasi total task. 0 = pakai panjang animasi (default: 0.0)
+- `cooldown_duration` (float): Durasi cooldown setelah serangan selesai. 0 = tanpa cooldown (default: 0.0)
+- `cooldown_var` (StringName): Variable blackboard untuk menyimpan waktu cooldown berakhir (default: "attack_cooldown_end")
+
+**Returns:**
+- `RUNNING`: Selama animasi berjalan
+- `SUCCESS`: Setelah durasi selesai (dan cooldown diset)
+- `FAILURE`: Jika AnimationPlayer atau animasinya tidak ditemukan
+
+---
+
+### 11. blink_away.gd
+**Type:** BTAction  
+**Fungsi:** Menghilang lalu muncul kembali di jarak aman dari target (blink/teleport). Dibuat untuk musuh yang **tidak punya animasi jalan** tapi tetap perlu menjaga jarak. Urutannya: animasi menghilang ➜ pindah posisi ➜ animasi muncul ➜ set cooldown. Ketinggian (`y`) dipertahankan supaya agent tetap berpijak di lantai yang sama.
+
+**Parameters:**
+- `target_var` (StringName): Variable blackboard yang menyimpan target (default: "target")
+- `animation_player_path` (NodePath): Path ke AnimationPlayer agent (default: "AnimationPlayer")
+- `out_animation` (StringName): Animasi saat menghilang (default: "fadeaway")
+- `in_animation` (StringName): Animasi saat muncul kembali (default: "fadein")
+- `blink_distance` (float): Jarak dari target tempat agent muncul kembali (default: 260.0)
+- `cooldown_duration` (float): Durasi cooldown setelah blink (default: 5.0)
+- `cooldown_var` (StringName): Variable blackboard untuk waktu cooldown berakhir (default: "blink_cooldown_end")
+
+**Returns:**
+- `RUNNING`: Selama proses blink berlangsung
+- `SUCCESS`: Setelah animasi muncul selesai (dan cooldown diset)
+- `FAILURE`: Jika target tidak valid atau animasinya tidak ditemukan
+
+---
+
 ## Cara Menggunakan dalam Behavior Tree
 
 Berikut adalah contoh struktur behavior tree untuk Frogo:

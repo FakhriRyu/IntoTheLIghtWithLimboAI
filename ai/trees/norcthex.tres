@@ -1,18 +1,111 @@
 [gd_resource type="BehaviorTree" format=3 uid="uid://db2xwnah7lxn1"]
 
+[ext_resource type="Script" uid="uid://dyxefr5b7rtck" path="res://ai/tasks/get_player_location.gd" id="1_getply"]
+[ext_resource type="Script" uid="uid://ulvv5it00no2" path="res://ai/tasks/check_target_in_area.gd" id="2_inarea"]
+[ext_resource type="Script" uid="uid://wqywxfs4bm8n" path="res://ai/tasks/check_distance_to_target.gd" id="3_chkdst"]
+[ext_resource type="Script" uid="uid://do7pxa76ed5j6" path="res://ai/tasks/check_cooldown.gd" id="4_chkcd"]
+[ext_resource type="Script" uid="uid://dj1m34allavm5" path="res://ai/tasks/face_target.gd" id="5_face"]
+[ext_resource type="Script" uid="uid://s65uxjjqpcli" path="res://ai/tasks/animated_attack.gd" id="6_atk"]
+[ext_resource type="Script" uid="uid://bij8aing6h0ob" path="res://ai/tasks/blink_away.gd" id="7_blink"]
+
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_f3jhl"]
+
+[sub_resource type="BTAction" id="BTAction_trapget"]
+script = ExtResource("1_getply")
+
+[sub_resource type="BTCondition" id="BTCondition_traparea"]
+script = ExtResource("2_inarea")
+detection_area_path = NodePath("DetectionAreaBoss")
+
+[sub_resource type="BTCondition" id="BTCondition_trapdst"]
+script = ExtResource("3_chkdst")
+min_distance = 80.0
+max_distance = 260.0
+
+[sub_resource type="BTCondition" id="BTCondition_trapcd"]
+script = ExtResource("4_chkcd")
+cooldown_var = &"trap_cooldown_end"
+
+[sub_resource type="BTAction" id="BTAction_trapface"]
+script = ExtResource("5_face")
+
+[sub_resource type="BTAction" id="BTAction_trapatk"]
+script = ExtResource("6_atk")
+animation = &"trapscream"
+attack_method = &"spawn_trap"
+fire_time = 0.6
+cooldown_duration = 9.0
+cooldown_var = &"trap_cooldown_end"
 
 [sub_resource type="BTSequence" id="BTSequence_f3jhl"]
 custom_name = "Trap"
+children = [SubResource("BTAction_trapget"), SubResource("BTCondition_traparea"), SubResource("BTCondition_trapdst"), SubResource("BTCondition_trapcd"), SubResource("BTAction_trapface"), SubResource("BTAction_trapatk")]
+
+[sub_resource type="BTAction" id="BTAction_shotget"]
+script = ExtResource("1_getply")
+
+[sub_resource type="BTCondition" id="BTCondition_shotarea"]
+script = ExtResource("2_inarea")
+detection_area_path = NodePath("DetectionAreaBoss")
+
+[sub_resource type="BTCondition" id="BTCondition_shotdst"]
+script = ExtResource("3_chkdst")
+min_distance = 140.0
+max_distance = 700.0
+
+[sub_resource type="BTCondition" id="BTCondition_shotcd"]
+script = ExtResource("4_chkcd")
+cooldown_var = &"shot_cooldown_end"
+
+[sub_resource type="BTAction" id="BTAction_shotface"]
+script = ExtResource("5_face")
+
+[sub_resource type="BTAction" id="BTAction_shotatk"]
+script = ExtResource("6_atk")
+animation = &"shot"
+attack_method = &"shoot_arrow"
+fire_time = 0.8
+telegraph_method = &"show_arrow_warning"
+cooldown_duration = 2.0
+cooldown_var = &"shot_cooldown_end"
 
 [sub_resource type="BTSequence" id="BTSequence_d731k"]
 custom_name = "Ranged Shot"
+children = [SubResource("BTAction_shotget"), SubResource("BTCondition_shotarea"), SubResource("BTCondition_shotdst"), SubResource("BTCondition_shotcd"), SubResource("BTAction_shotface"), SubResource("BTAction_shotatk")]
+
+[sub_resource type="BTAction" id="BTAction_blinkget"]
+script = ExtResource("1_getply")
+
+[sub_resource type="BTCondition" id="BTCondition_blinkdst"]
+script = ExtResource("3_chkdst")
+max_distance = 130.0
+
+[sub_resource type="BTCondition" id="BTCondition_blinkcd"]
+script = ExtResource("4_chkcd")
+cooldown_var = &"blink_cooldown_end"
+
+[sub_resource type="BTAction" id="BTAction_blink"]
+script = ExtResource("7_blink")
 
 [sub_resource type="BTSequence" id="BTSequence_ygmw4"]
 custom_name = "Keep Distance"
+children = [SubResource("BTAction_blinkget"), SubResource("BTCondition_blinkdst"), SubResource("BTCondition_blinkcd"), SubResource("BTAction_blink")]
+
+[sub_resource type="BBNode" id="BBNode_idleap"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTPlayAnimation" id="BTPlayAnimation_idle"]
+animation_player = SubResource("BBNode_idleap")
+animation_name = &"idle"
+
+[sub_resource type="BTRandomWait" id="BTRandomWait_idle"]
+min_duration = 0.3
+max_duration = 0.8
 
 [sub_resource type="BTSequence" id="BTSequence_l5i5b"]
 custom_name = "Idle"
+children = [SubResource("BTPlayAnimation_idle"), SubResource("BTRandomWait_idle")]
 
 [sub_resource type="BTSelector" id="BTSelector_lsfu4"]
 children = [SubResource("BTSequence_f3jhl"), SubResource("BTSequence_d731k"), SubResource("BTSequence_ygmw4"), SubResource("BTSequence_l5i5b")]
