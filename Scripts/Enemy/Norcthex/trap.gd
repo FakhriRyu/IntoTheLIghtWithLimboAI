@@ -1,38 +1,54 @@
 class_name NorcThexTrap
 extends Area2D
 
-## Perangkap lantai yang dipasang oleh Norc'Thex
+## Perangkap duri Norc'Thex.
+## Begitu muncul, animasinya langsung jalan sampai selesai (tidak menunggu diinjak).
+## Durinya menancap di pertengahan animasi — di situlah damage diberikan,
+## sehingga player punya jeda untuk menyingkir sebelum duri naik.
 
 @export var damage: int = 1
-@export var trap_duration: float = 12.0
+
+## Detik ke berapa (sejak animasi mulai) duri menancap dan melukai
+@export var strike_time: float = 0.95
+
+## Nama animasi duri
+@export var trigger_animation: StringName = &"trigger"
+
+## Dipakai hanya kalau animasi trigger tidak ada
+@export var fallback_duration: float = 1.8
 
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 
-var is_triggered: bool = false
+var elapsed: float = 0.0
+var has_struck: bool = false
 
 
 func _ready() -> void:
-	area_entered.connect(_on_area_entered)
-	get_tree().create_timer(trap_duration).timeout.connect(_on_timeout)
+	if animation_player and animation_player.has_animation(trigger_animation):
+		animation_player.play(trigger_animation)
+		animation_player.animation_finished.connect(_on_animation_finished)
+	else:
+		# Tidak ada animasi: tetap hilang sendiri supaya tidak menumpuk di level
+		get_tree().create_timer(fallback_duration).timeout.connect(queue_free)
 
 
-func _on_area_entered(area: Area2D) -> void:
-	if is_triggered:
+func _process(delta: float) -> void:
+	if has_struck:
 		return
 
-	if area is GameHurtbox:
-		is_triggered = true
-		area.take_damage(damage, global_position)
+	elapsed += delta
 
-		if animation_player and animation_player.has_animation("trigger"):
-			animation_player.play("trigger")
-			await animation_player.animation_finished
-		else:
-			await get_tree().create_timer(0.4).timeout
-
-		queue_free()
+	if elapsed >= strike_time:
+		has_struck = true
+		_strike()
 
 
-func _on_timeout() -> void:
-	if not is_triggered:
-		queue_free()
+func _strike() -> void:
+	"""Duri menancap: lukai semua hurtbox yang sedang berada di atas perangkap."""
+	for area in get_overlapping_areas():
+		if area is GameHurtbox:
+			area.take_damage(damage, global_position)
+
+
+func _on_animation_finished(_anim_name: StringName) -> void:
+	queue_free()

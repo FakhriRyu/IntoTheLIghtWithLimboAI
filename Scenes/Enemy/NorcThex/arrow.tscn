@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bpwvyt71m857n"]
 
-[ext_resource type="Script" path="res://Scripts/Enemy/NorcThex/arrow.gd" id="1_arrow"]
+[ext_resource type="Script" uid="uid://c0w7a8qakfuji" path="res://Scripts/Enemy/Norcthex/arrow.gd" id="1_arrow"]
 [ext_resource type="Texture2D" uid="uid://d3ismwcwkb556" path="res://Assets/Norcthex/Arrow.png" id="2_texture"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_arrow"]

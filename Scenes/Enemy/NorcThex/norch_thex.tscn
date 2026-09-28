@@ -3,6 +3,8 @@
 [ext_resource type="Texture2D" uid="uid://ddje4jwwufl1y" path="res://Assets/Norcthex/Norc'thex spritesheet.png" id="1_ml06c"]
 [ext_resource type="Script" uid="uid://cixyq7o8yrfu0" path="res://Scripts/Enemy/Norcthex/norch_thex.gd" id="2_script"]
 [ext_resource type="BehaviorTree" uid="uid://db2xwnah7lxn1" path="res://ai/trees/norcthex.tres" id="3_xfwvu"]
+[ext_resource type="Script" uid="uid://cbfskp64h0a3n" path="res://Scripts/Enemy/Norcthex/health.gd" id="4_health"]
+[ext_resource type="Script" uid="uid://d325d0v7tiqqv" path="res://Scripts/Enemy/Norcthex/hurtbox.gd" id="5_hurtbox"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_b1msh"]
 radius = 18.0
@@ -158,6 +160,10 @@ _data = {
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_b1msh"]
 size = Vector2(1150.75, 343)
 
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_hurt"]
+radius = 18.0
+height = 60.0
+
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_xfwvu"]
 
 [node name="NorchThex" type="CharacterBody2D" unique_id=1163414465]
@@ -190,3 +196,14 @@ debug_color = Color(0.6851317, 0.49491215, 0.22544667, 0.41960785)
 [node name="BTPlayer" type="BTPlayer" parent="." unique_id=826916787]
 behavior_tree = ExtResource("3_xfwvu")
 blackboard_plan = SubResource("BlackboardPlan_xfwvu")
+
+[node name="Health" type="Node" parent="." unique_id=1044219876]
+script = ExtResource("4_health")
+
+[node name="HurtBox" type="Area2D" parent="." unique_id=1502338791 node_paths=PackedStringArray("health")]
+script = ExtResource("5_hurtbox")
+health = NodePath("../Health")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox" unique_id=622104537]
+position = Vector2(0, 11)
+shape = SubResource("CapsuleShape2D_hurt")

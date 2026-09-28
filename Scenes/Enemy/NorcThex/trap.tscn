@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dxcv8d0w8lc5c"]
 
-[ext_resource type="Script" path="res://Scripts/Enemy/NorcThex/trap.gd" id="1_trap"]
+[ext_resource type="Script" uid="uid://dnwigitslhqqx" path="res://Scripts/Enemy/Norcthex/trap.gd" id="1_trap"]
 [ext_resource type="Texture2D" uid="uid://dnxegg8i386y4" path="res://Assets/Norcthex/trap.png" id="2_texture"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_trap"]
@@ -46,7 +46,7 @@ _data = {
 
 [node name="Trap" type="Area2D" unique_id=116245556]
 collision_layer = 0
-collision_mask = 2
+collision_mask = 1
 script = ExtResource("1_trap")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1195067455]

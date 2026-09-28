@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dqx7v3nwarn01"]
+
+[ext_resource type="Script" uid="uid://hgkx2p83mbwy" path="res://Scripts/Enemy/Norcthex/arrow_warning.gd" id="1_warn"]
+
+[node name="ArrowWarning" type="Node2D" unique_id=417338902]
+script = ExtResource("1_warn")
