@@ -2,6 +2,8 @@
 
 [ext_resource type="TileSet" uid="uid://cjgthgy87l8s4" path="res://Scenes/levels/new_tile_set.tres" id="1_0850n"]
 [ext_resource type="PackedScene" uid="uid://bk26vwm358w76" path="res://Scenes/levels/background.tscn" id="2_mxpd2"]
+[ext_resource type="PackedScene" uid="uid://6bwtmnfhpxbs" path="res://Scenes/player/player.tscn" id="3_dkyar"]
+[ext_resource type="PackedScene" uid="uid://c7i4jb6ld3xn0" path="res://Scenes/Enemy/NorcThex/norch_thex.tscn" id="4_e6e8q"]
 
 [node name="zone_two" type="Node2D" unique_id=102063117]
 
@@ -21,3 +23,19 @@ tile_set = ExtResource("1_0850n")
 tile_set = ExtResource("1_0850n")
 
 [node name="background" parent="." unique_id=2080337116 instance=ExtResource("2_mxpd2")]
+
+[node name="Player" parent="." unique_id=1226008961 instance=ExtResource("3_dkyar")]
+z_index = 5
+position = Vector2(121, 232)
+
+[node name="Camera2D" type="Camera2D" parent="Player" unique_id=1072977564]
+zoom = Vector2(1.5, 1.5)
+limit_left = 50
+limit_top = 0
+limit_right = 1550
+limit_bottom = 500
+position_smoothing_enabled = true
+editor_draw_limits = true
+
+[node name="NorchThex" parent="." unique_id=1163414465 instance=ExtResource("4_e6e8q")]
+position = Vector2(858, 304)
