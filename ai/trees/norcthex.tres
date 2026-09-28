@@ -1,0 +1,22 @@
+[gd_resource type="BehaviorTree" format=3 uid="uid://db2xwnah7lxn1"]
+
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_f3jhl"]
+
+[sub_resource type="BTSequence" id="BTSequence_f3jhl"]
+custom_name = "Trap"
+
+[sub_resource type="BTSequence" id="BTSequence_d731k"]
+custom_name = "Ranged Shot"
+
+[sub_resource type="BTSequence" id="BTSequence_ygmw4"]
+custom_name = "Keep Distance"
+
+[sub_resource type="BTSequence" id="BTSequence_l5i5b"]
+custom_name = "Idle"
+
+[sub_resource type="BTSelector" id="BTSelector_lsfu4"]
+children = [SubResource("BTSequence_f3jhl"), SubResource("BTSequence_d731k"), SubResource("BTSequence_ygmw4"), SubResource("BTSequence_l5i5b")]
+
+[resource]
+blackboard_plan = SubResource("BlackboardPlan_f3jhl")
+root_task = SubResource("BTSelector_lsfu4")
