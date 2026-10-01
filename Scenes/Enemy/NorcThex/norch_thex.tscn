@@ -160,11 +160,11 @@ _data = {
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_b1msh"]
 size = Vector2(1150.75, 343)
 
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_xfwvu"]
+
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_hurt"]
 radius = 18.0
 height = 60.0
-
-[sub_resource type="BlackboardPlan" id="BlackboardPlan_xfwvu"]
 
 [node name="NorchThex" type="CharacterBody2D" unique_id=1163414465]
 script = ExtResource("2_script")

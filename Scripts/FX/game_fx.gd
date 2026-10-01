@@ -71,3 +71,15 @@ static func _fx_host(node: Node) -> Node:
 	while n.get_parent() != null and n.get_parent() != tree.root:
 		n = n.get_parent()
 	return n
+
+
+## Kedip sesaat pada sebuah sprite sebagai tanda pukulan mendarat.
+## Digeneralisasi dari _flash() milik Norc'Thex supaya semua musuh memakai yang sama.
+static func flash(sprite: CanvasItem, color: Color = Color(2.2, 2.2, 2.2),
+		duration: float = 0.09) -> void:
+	if not is_instance_valid(sprite) or not sprite.is_inside_tree():
+		return
+
+	sprite.modulate = color
+	var tween := sprite.create_tween()
+	tween.tween_property(sprite, "modulate", Color.WHITE, duration)

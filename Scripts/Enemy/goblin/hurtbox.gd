@@ -22,6 +22,7 @@ func take_damage(amount: int = 1, source_position: Vector2 = Vector2.ZERO) -> vo
 		if OS.is_debug_build():
 			print("Goblin hurtbox took damage: ", amount)
 		_check_death_fx()
+		_flash_sprite()
 
 
 func _check_death_fx() -> void:
@@ -34,3 +35,10 @@ func _check_death_fx() -> void:
 		return
 	_death_fx_done = true
 	GameFx.burst(self, death_burst, global_position)
+
+
+func _flash_sprite() -> void:
+	"""Kedip putih supaya pukulan terasa mendarat."""
+	var sprite := get_parent().get_node_or_null("Sprite2D")
+	if sprite != null:
+		GameFx.flash(sprite)
