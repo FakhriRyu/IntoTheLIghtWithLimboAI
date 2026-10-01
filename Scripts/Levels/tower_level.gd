@@ -13,10 +13,10 @@ extends Node2D
 	preload("res://Scenes/Enemy/SkullWolf/skull_wolf.tscn"),
 ]
 ## Musuh per lantai istirahat (min, max)
-@export var enemies_per_landing_min: int = 1
-@export var enemies_per_landing_max: int = 2
+@export var enemies_per_landing_min: int = 2
+@export var enemies_per_landing_max: int = 4
 ## Peluang platform panjang (>= 5 tile) berisi satu musuh
-@export_range(0.0, 1.0) var platform_enemy_chance: float = 0.12
+@export_range(0.0, 1.0) var platform_enemy_chance: float = 0.2
 ## Jarak minimal (tile) musuh dari titik spawn, supaya player tidak langsung diserbu
 @export var min_enemy_distance: int = 10
 
@@ -27,8 +27,11 @@ extends Node2D
 @export_range(0.0, 1.0) var window_chance: float = 0.5
 
 ## Warna suasana: makin tinggi makin terang ("menuju cahaya")
-@export var bottom_tint: Color = Color(0.45, 0.55, 0.5)
-@export var top_tint: Color = Color(0.92, 0.9, 0.84)
+@export var bottom_tint: Color = Color(0.11, 0.14, 0.14)
+@export var top_tint: Color = Color(0.5, 0.5, 0.46)
+
+## Peti harta yang bisa dibuka di lantai istirahat
+@export var chest_scene: PackedScene = preload("res://Scenes/Items/chest.tscn")
 
 @export var exit_scene: PackedScene = preload("res://Scenes/levels/cave_exit.tscn")
 ## Scene setelah menara ini. Kosong = generate menara baru.
@@ -93,7 +96,6 @@ const SEWER_PROPS: Array = [
 	[SRC_EXTRA, Vector2i(1, 1), Vector2i(1, 1)],      # tulang
 	[SRC_CASTLE, Vector2i(0, 12), Vector2i(2, 2)],    # peti kayu hanyut
 ]
-const CHEST := [SRC_EXTRA, Vector2i(10, 2), Vector2i(2, 2)]
 
 @onready var back_layer: TileMapLayer = $tilemaps/BackTiles
 @onready var decor_layer: TileMapLayer = $tilemaps/Decor
@@ -319,8 +321,8 @@ func _place_enemies(rng: RandomNumberGenerator) -> int:
 				break
 			var idx: int = rng.randi_range(0, cells.size() - 1)
 			var cell: Vector2i = cells[idx]
-			# jangan bertumpuk: buang kandidat di dekatnya
-			cells = cells.filter(func(c: Vector2i) -> bool: return absi(c.x - cell.x) > 3)
+			# boleh bergerombol, tapi jangan tepat bertumpuk di cell yang sama
+			cells = cells.filter(func(c: Vector2i) -> bool: return absi(c.x - cell.x) > 1)
 			var scene: PackedScene = enemy_scenes[rng.randi_range(0, enemy_scenes.size() - 1)]
 			var enemy: Node2D = scene.instantiate()
 			enemy.position = cell_to_floor_pos(cell) - Vector2(0, _feet_offset(enemy) + 1.0)
@@ -407,7 +409,16 @@ func _place_decor(rng: RandomNumberGenerator) -> void:
 		var x: int = rng.randi_range(maxi(r.position.x, g.inner_left(y)), mini(r.end.x - 1, g.inner_right(y)))
 		var cell := Vector2i(x, y)
 		if g.is_standing(x, y) and not _keep_clear.has(cell) and not _has_prop(cell):
-			_put_prop(cell, CHEST, rng)
+			_place_chest(cell)
+
+
+func _place_chest(cell: Vector2i) -> void:
+	if chest_scene == null:
+		return
+	var chest: Node2D = chest_scene.instantiate()
+	chest.position = cell_to_floor_pos(cell)
+	add_child(chest)
+	_keep_clear[cell] = true
 
 
 ## Properti kecil di layer Props (skala 1, grid 16px), menempel ke lantai cell.

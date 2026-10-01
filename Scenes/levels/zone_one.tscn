@@ -249,4 +249,4 @@ z_index = 6
 position = Vector2(274, 349)
 
 [node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=162421704]
-color = Color(0.26, 0.28, 0.4, 1)
+color = Color(0.1, 0.11, 0.18, 1)

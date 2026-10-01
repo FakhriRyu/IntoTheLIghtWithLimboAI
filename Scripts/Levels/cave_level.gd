@@ -13,6 +13,8 @@ extends Node2D
 ]
 ## Peluang satu ruangan berisi musuh
 @export_range(0.0, 1.0) var enemy_chance_per_room: float = 0.55
+## Bobot ukuran gerombolan per ruangan: [1 musuh, 2 musuh, 3 musuh]
+@export var group_size_weights: Array[float] = [0.5, 0.35, 0.15]
 ## Jarak minimal (tile) musuh dari titik spawn, supaya player tidak langsung diserbu
 @export var min_enemy_distance: int = 14
 
@@ -23,8 +25,12 @@ extends Node2D
 
 ## Cahaya player khusus di gua (tidak mengubah player.tscn, jadi level lain aman).
 ## Ruang gua lebar 16 tile; dengan radius bawaan, dinding seberang tidak terbaca.
-@export var player_light_scale: float = 2.3
-@export var player_light_energy: float = 1.35
+@export var player_light_scale: float = 2.4
+@export var player_light_energy: float = 1.7
+
+## Peti harta di gua samping (ruang di luar jalur utama): hadiah untuk menjelajah
+@export var chest_scene: PackedScene = preload("res://Scenes/Items/chest.tscn")
+@export_range(0.0, 1.0) var chest_chance_per_side_room: float = 0.6
 
 @export var exit_scene: PackedScene = preload("res://Scenes/levels/cave_exit.tscn")
 ## Scene setelah gua ini. Kosong = generate gua baru.
@@ -67,11 +73,12 @@ func _ready() -> void:
 	_place_player()
 	_place_exit()
 	var enemy_count: int = _place_enemies(rng)
+	var chest_count: int = _place_chests(rng)
 	_place_decor(rng)
 	_setup_view()
 
-	print("[CaveLevel] seed %d | %d ms | %d ruang di jalur | %d musuh | tile tak cocok %d" % [
-		used_seed, Time.get_ticks_msec() - t0, result["path"].size(), enemy_count, fallback])
+	print("[CaveLevel] seed %d | %d ms | %d ruang di jalur | %d musuh | %d peti | tile tak cocok %d" % [
+		used_seed, Time.get_ticks_msec() - t0, result["path"].size(), enemy_count, chest_count, fallback])
 
 
 # ---------------------------------------------------------------- konversi
@@ -147,11 +154,61 @@ func _place_enemies(rng: RandomNumberGenerator) -> int:
 			continue
 		var cells: Array = by_room[room]
 		cells.sort()
+		for i in range(_roll_group_size(rng)):
+			if cells.is_empty():
+				break
+			var cell: Vector2i = cells[rng.randi_range(0, cells.size() - 1)]
+			# gerombolan: berdekatan, tapi tidak di cell yang sama
+			cells = cells.filter(func(c: Vector2i) -> bool: return c.y != cell.y or absi(c.x - cell.x) > 1)
+			var scene: PackedScene = enemy_scenes[rng.randi_range(0, enemy_scenes.size() - 1)]
+			var enemy: Node2D = scene.instantiate()
+			enemy.position = cell_to_floor_pos(cell) - Vector2(0, _feet_offset(enemy) + 1.0)
+			enemies.add_child(enemy)
+			count += 1
+	return count
+
+
+func _roll_group_size(rng: RandomNumberGenerator) -> int:
+	var total: float = 0.0
+	for w in group_size_weights:
+		total += w
+	var roll: float = rng.randf() * total
+	for i in range(group_size_weights.size()):
+		roll -= group_size_weights[i]
+		if roll <= 0.0:
+			return i + 1
+	return 1
+
+
+## Satu peti per gua samping (peluang chest_chance_per_side_room), di lantai
+## yang terjangkau dan punya ruang kepala.
+func _place_chests(rng: RandomNumberGenerator) -> int:
+	if chest_scene == null:
+		return 0
+	var reach: Dictionary = result["reachable"]
+	var protected: Dictionary = result["protected"]
+	var rooms: Dictionary = result["rooms"]
+	var keys: Array = rooms.keys()
+	keys.sort()       # urutan stabil supaya hasil per seed deterministik
+	var count: int = 0
+	for key in keys:
+		var info: Dictionary = rooms[key]
+		if info.get("on_path", true) or rng.randf() > chest_chance_per_side_room:
+			continue
+		var r: Rect2i = info["interior"]
+		var cells: Array = []
+		for y in range(r.position.y, r.end.y):
+			for x in range(r.position.x, r.end.x):
+				var c := Vector2i(x, y)
+				if reach.has(c) and not protected.has(c) and generator.is_standing(x, y) \
+						and generator._col_clear(x, y - 1, y):
+					cells.append(c)
+		if cells.is_empty():
+			continue
 		var cell: Vector2i = cells[rng.randi_range(0, cells.size() - 1)]
-		var scene: PackedScene = enemy_scenes[rng.randi_range(0, enemy_scenes.size() - 1)]
-		var enemy: Node2D = scene.instantiate()
-		enemy.position = cell_to_floor_pos(cell) - Vector2(0, _feet_offset(enemy) + 1.0)
-		enemies.add_child(enemy)
+		var chest: Node2D = chest_scene.instantiate()
+		chest.position = cell_to_floor_pos(cell)
+		add_child(chest)
 		count += 1
 	return count
 
@@ -181,10 +238,16 @@ func _place_decor(rng: RandomNumberGenerator) -> void:
 
 
 func _setup_view() -> void:
+	# Isi nilai DASAR cahaya, bukan nilai langsung: script cahaya player
+	# mengecilkan radius dari dasar ini sesuai sisa cahaya.
 	var light := player.get_node_or_null("Light") as PointLight2D
 	if light != null:
-		light.texture_scale = player_light_scale
-		light.energy = player_light_energy
+		if "base_scale" in light:
+			light.base_scale = player_light_scale
+			light.base_energy = player_light_energy
+		else:
+			light.texture_scale = player_light_scale
+			light.energy = player_light_energy
 
 	var w: int = generator.width * TILE
 	var h: int = generator.height * TILE

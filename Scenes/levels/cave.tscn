@@ -1,5 +1,6 @@
 [gd_scene format=3]
 
+[ext_resource type="Script" path="res://Scripts/Core/level_music.gd" id="level_music_1"]
 [ext_resource type="Script" path="res://Scripts/Levels/cave_level.gd" id="1_l2sjp"]
 [ext_resource type="TileSet" path="res://Scenes/levels/cave_tile_set.tres" id="2_k6xpk"]
 [ext_resource type="PackedScene" path="res://Scenes/player/player.tscn" id="3_p1kct"]
@@ -13,7 +14,7 @@ script = ExtResource("1_l2sjp")
 [node name="Background" type="ColorRect" parent="." unique_id=2144534831]
 z_index = -20
 mouse_filter = 2
-color = Color(0.2, 0.22, 0.3, 1)
+color = Color(0.03, 0.035, 0.06, 1)
 
 [node name="tilemaps" type="Node2D" parent="." unique_id=1515378862]
 
@@ -39,8 +40,12 @@ position_smoothing_enabled = true
 position_smoothing_speed = 6.0
 
 [node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=1757120791]
-color = Color(0.17, 0.18, 0.25, 1)
+color = Color(0.055, 0.06, 0.1, 1)
 
 [node name="PlayerHUD" type="CanvasLayer" parent="." unique_id=1332670053 instance=ExtResource("5_qqkwq")]
 layer = 10
 script = ExtResource("6_8o402")
+
+[node name="LevelMusic" type="Node" parent="."]
+script = ExtResource("level_music_1")
+track = "cave"
