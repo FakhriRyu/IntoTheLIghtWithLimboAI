@@ -40,6 +40,22 @@
 [ext_resource type="Texture2D" uid="uid://cbo5oedhojhaf" path="res://Assets/Warrior/Attack/Warrior_Attack_7.png" id="26_1larn"]
 [ext_resource type="Texture2D" uid="uid://cbj4y1u3dgmsb" path="res://Assets/Warrior/Attack/Warrior_Attack_8.png" id="27_tiw0p"]
 [ext_resource type="Texture2D" uid="uid://dl1mg4pfkj6is" path="res://Assets/Warrior/Attack/Warrior_Attack_9.png" id="28_ktyyn"]
+[ext_resource type="Texture2D" uid="uid://27bibapeije6" path="res://Assets/Warrior/Attack/Warrior_Attack_2.png" id="70_atk2"]
+[ext_resource type="Texture2D" uid="uid://c1kflvwxkxacw" path="res://Assets/Warrior/Attack/Warrior_Attack_4.png" id="71_atk4"]
+[ext_resource type="Texture2D" uid="uid://bbdblbbtm8120" path="res://Assets/Warrior/Attack/Warrior_Attack_10.png" id="72_atk10"]
+[ext_resource type="Texture2D" uid="uid://b68yg1l7oe1fx" path="res://Assets/Warrior/Attack/Warrior_Attack_11.png" id="73_atk11"]
+[ext_resource type="Texture2D" uid="uid://bcts2po3lt7xo" path="res://Assets/Warrior/Attack/Warrior_Attack_12.png" id="74_atk12"]
+[ext_resource type="Texture2D" uid="uid://cvwup02edukqs" path="res://Assets/Warrior/Dash Attack/Warrior_Dash-Attack_1.png" id="80_da1"]
+[ext_resource type="Texture2D" uid="uid://de555suxfgghl" path="res://Assets/Warrior/Dash Attack/Warrior_Dash-Attack_2.png" id="81_da2"]
+[ext_resource type="Texture2D" uid="uid://cikx5xtnhsmcu" path="res://Assets/Warrior/Dash Attack/Warrior_Dash-Attack_3.png" id="82_da3"]
+[ext_resource type="Texture2D" uid="uid://bvdu4ytyax37j" path="res://Assets/Warrior/Dash Attack/Warrior_Dash-Attack_4.png" id="83_da4"]
+[ext_resource type="Texture2D" uid="uid://6ywlm0uajlyu" path="res://Assets/Warrior/Dash Attack/Warrior_Dash-Attack_5.png" id="84_da5"]
+[ext_resource type="Texture2D" uid="uid://cr8y4pe6ljotr" path="res://Assets/Warrior/Dash Attack/Warrior_Dash-Attack_6.png" id="85_da6"]
+[ext_resource type="Texture2D" uid="uid://c3fp45pxl7vid" path="res://Assets/Warrior/Dash Attack/Warrior_Dash-Attack_7.png" id="86_da7"]
+[ext_resource type="Texture2D" uid="uid://cau6hk7vnkh37" path="res://Assets/Warrior/Dash Attack/Warrior_Dash-Attack_8.png" id="87_da8"]
+[ext_resource type="Texture2D" uid="uid://cgcd8cdy5f42a" path="res://Assets/Warrior/Dash Attack/Warrior_Dash-Attack_9.png" id="88_da9"]
+[ext_resource type="Texture2D" uid="uid://b62lirm4pda3r" path="res://Assets/Warrior/Dash Attack/Warrior_Dash-Attack_10.png" id="89_da10"]
+[ext_resource type="Script" path="res://Scripts/player/states/DashAttack.gd" id="95_dashatk"]
 [ext_resource type="Texture2D" uid="uid://dwcritd5ws0ke" path="res://Assets/Warrior/Dash/Warrior_Dash_1.png" id="29_cawuu"]
 [ext_resource type="Texture2D" uid="uid://by6umdjsoyrn6" path="res://Assets/Warrior/Dash/Warrior_Dash_2.png" id="30_s3lwd"]
 [ext_resource type="Texture2D" uid="uid://7stbkn2rxfhb" path="res://Assets/Warrior/Dash/Warrior_Dash_3.png" id="31_endsp"]
@@ -78,10 +94,10 @@ size = Vector2(22, 38)
 radius = 6.0
 height = 32.0
 
-[sub_resource type="Animation" id="Animation_s3lwd"]
-resource_name = "Attack"
-length = 0.7
-step = 0.1
+[sub_resource type="Animation" id="Animation_atk1"]
+resource_name = "Attack1"
+length = 0.2
+step = 0.05
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -89,10 +105,10 @@ tracks/0/path = NodePath("Sprite2D:texture")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"times": PackedFloat32Array(0.0, 0.05, 0.1, 0.15),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [ExtResource("22_l71q1"), ExtResource("23_wib7k"), ExtResource("24_o4w3n"), ExtResource("25_yei8a"), ExtResource("26_1larn"), ExtResource("27_tiw0p"), ExtResource("28_ktyyn")]
+"values": [ExtResource("22_l71q1"), ExtResource("23_wib7k"), ExtResource("24_o4w3n"), ExtResource("25_yei8a")]
 }
 tracks/1/type = "method"
 tracks/1/imported = false
@@ -101,7 +117,7 @@ tracks/1/path = NodePath(".")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0.3, 0.5),
+"times": PackedFloat32Array(0.05, 0.15),
 "transitions": PackedFloat32Array(1, 1),
 "values": [{
 "args": [],
@@ -118,12 +134,149 @@ tracks/2/path = NodePath("SFX/AttackSound:playing")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0.3),
+"times": PackedFloat32Array(0.04),
 "transitions": PackedFloat32Array(1),
 "update": 1,
 "values": [true]
 }
 
+[sub_resource type="Animation" id="Animation_atk2"]
+resource_name = "Attack2"
+length = 0.15
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.0, 0.05, 0.1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [ExtResource("26_1larn"), ExtResource("27_tiw0p"), ExtResource("28_ktyyn")]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.05, 0.12),
+"transitions": PackedFloat32Array(1, 1),
+"values": [{
+"args": [],
+"method": &"start_attack"
+}, {
+"args": [],
+"method": &"end_attack"
+}]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("SFX/AttackSound:playing")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.03),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+
+[sub_resource type="Animation" id="Animation_atk3"]
+resource_name = "Attack3"
+length = 0.6
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("22_l71q1"), ExtResource("70_atk2"), ExtResource("23_wib7k"), ExtResource("71_atk4"), ExtResource("24_o4w3n"), ExtResource("25_yei8a"), ExtResource("26_1larn"), ExtResource("27_tiw0p"), ExtResource("28_ktyyn"), ExtResource("72_atk10"), ExtResource("73_atk11"), ExtResource("74_atk12")]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.12, 0.35),
+"transitions": PackedFloat32Array(1, 1),
+"values": [{
+"args": [],
+"method": &"start_attack"
+}, {
+"args": [],
+"method": &"end_attack"
+}]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("SFX/AttackSound:playing")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.1),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+
+[sub_resource type="Animation" id="Animation_dash_atk"]
+resource_name = "DashAttack"
+length = 0.5
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("80_da1"), ExtResource("81_da2"), ExtResource("82_da3"), ExtResource("83_da4"), ExtResource("84_da5"), ExtResource("85_da6"), ExtResource("86_da7"), ExtResource("87_da8"), ExtResource("88_da9"), ExtResource("89_da10")]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.05, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"values": [{
+"args": [],
+"method": &"start_attack"
+}, {
+"args": [],
+"method": &"end_attack"
+}]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("SFX/AttackSound:playing")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.04),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
 [sub_resource type="Animation" id="Animation_o1e43"]
 resource_name = "Dash"
 length = 0.7
@@ -286,7 +439,10 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_nyrd7"]
 _data = {
-&"Attack": SubResource("Animation_s3lwd"),
+&"Attack1": SubResource("Animation_atk1"),
+&"Attack2": SubResource("Animation_atk2"),
+&"Attack3": SubResource("Animation_atk3"),
+&"DashAttack": SubResource("Animation_dash_atk"),
 &"Dash": SubResource("Animation_o1e43"),
 &"Dead": SubResource("Animation_2yv6k"),
 &"Fall": SubResource("Animation_eges4"),
@@ -325,9 +481,10 @@ fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(1, 0.5)
 
 [node name="Player" type="CharacterBody2D" unique_id=1226008961 node_paths=PackedStringArray("state_machine") groups=["player"]]
+collision_mask = 17
 script = ExtResource("1_xxarj")
 state_machine = NodePath("LimboHSM")
-jump_velocity = -310.0
+jump_velocity = -330.0
 
 [node name="Health" type="Node" parent="." unique_id=865538603]
 script = ExtResource("1_health")
@@ -386,7 +543,7 @@ animation = &"Fall"
 [node name="Attack" type="LimboState" parent="LimboHSM" unique_id=1871048380 node_paths=PackedStringArray("animation_player")]
 script = ExtResource("33_cawuu")
 animation_player = NodePath("../../AnimationPlayer")
-animation = &"Attack"
+animation = &"Attack1"
 
 [node name="Dash" type="LimboState" parent="LimboHSM" unique_id=1719929632 node_paths=PackedStringArray("animation_player")]
 script = ExtResource("41_s3lwd")
@@ -424,3 +581,8 @@ color = Color(1, 0.95, 0.85, 1)
 energy = 1.2
 texture = SubResource("GradientTexture2D_plight")
 texture_scale = 1.6
+
+[node name="DashAttack" type="LimboState" parent="LimboHSM" unique_id=1443902877 node_paths=PackedStringArray("animation_player")]
+script = ExtResource("95_dashatk")
+animation_player = NodePath("../../AnimationPlayer")
+animation = &"DashAttack"

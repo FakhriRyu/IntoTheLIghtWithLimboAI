@@ -13,10 +13,24 @@ const TRANSITION_ATTACK := "to_attack"
 const TRANSITION_DASH := "to_dash"
 const TRANSITION_DEAD := "to_dead"
 const TRANSITION_HURT := "to_hurt"
+const TRANSITION_DASH_ATTACK := "to_dash_attack"
 
 # --- Coyote Time & Jump Buffer ---
 const COYOTE_TIME := 0.12
 const JUMP_BUFFER_TIME := 0.12
+## Tekanan tombol Attack disimpan sebentar supaya rantai combo terasa responsif
+const ATTACK_BUFFER_TIME := 0.15
+## Berapa lama rantai combo tetap terbuka setelah satu tebasan selesai
+const COMBO_WINDOW := 0.35
+## Jeda setelah pukulan pamungkas sebelum rantai baru boleh dimulai.
+## Tanpa ini, mashing tombol bisa menyerang tanpa henti.
+const COMBO_LOCKOUT := 0.28
+
+# --- Papan one-way ---
+## Layer fisika papan/jembatan one-way. Down+Jump di atasnya = turun menembus.
+const ONE_WAY_LAYER := 5
+## Lama collision papan dimatikan; cukup sampai badan lewat di bawah papan
+const DROP_THROUGH_TIME := 0.35
 
 # --- State Machine ---
 @export var state_machine: LimboHSM
@@ -52,6 +66,7 @@ const JUMP_BUFFER_TIME := 0.12
 @onready var fall_state: LimboState = $LimboHSM/Fall
 @onready var attack_state: LimboState = $LimboHSM/Attack
 @onready var dash_state: LimboState = $LimboHSM/Dash
+@onready var dash_attack_state: LimboState = $LimboHSM/DashAttack
 @onready var dead_state: LimboState = $LimboHSM/Dead
 @onready var hurt_state: LimboState = $LimboHSM/Hurt
 
@@ -72,12 +87,29 @@ var is_immune: bool = false
 var knockback_direction: Vector2 = Vector2.ZERO
 var coyote_timer: float = 0.0
 var jump_buffer_timer: float = 0.0
+var attack_buffer_timer: float = 0.0
+
+## --- Combo ---
+## 0,1,2 -> Attack1, Attack2, Attack3
+var combo_index: int = 0
+## Sisa waktu jendela untuk menyambung pukulan berikutnya
+var combo_window: float = 0.0
+## Sisa jeda setelah pamungkas
+var combo_lockout: float = 0.0
+## True setelah end_attack dipanggil: serangan boleh dibatalkan ke dash/lompat
+var attack_recovery: bool = false
+## Satu serangan udara per lompatan
+var air_attack_used: bool = false
+var is_dash_attacking: bool = false
 
 var _immunity_tween: Tween = null
 
 ## Dipakai mendeteksi momen mendarat dan seberapa keras jatuhnya
 var _was_on_floor: bool = true
 var _fall_speed: float = 0.0
+
+## Sisa waktu turun menembus papan one-way
+var _drop_timer: float = 0.0
 
 
 func _ready() -> void:
@@ -105,6 +137,18 @@ func _initialize_state_machine() -> void:
 	state_machine.add_transition(move_state, attack_state, TRANSITION_ATTACK)
 	state_machine.add_transition(attack_state, move_state, TRANSITION_MOVE)
 	state_machine.add_transition(attack_state, idle_state, TRANSITION_IDLE)
+	# serangan udara: boleh menyerang saat melompat / jatuh, dan kembali ke fall
+	state_machine.add_transition(jump_state, attack_state, TRANSITION_ATTACK)
+	state_machine.add_transition(fall_state, attack_state, TRANSITION_ATTACK)
+	state_machine.add_transition(attack_state, fall_state, TRANSITION_FALL)
+	state_machine.add_transition(attack_state, jump_state, TRANSITION_JUMP)
+	# rantai combo: Attack -> Attack lagi
+	state_machine.add_transition(attack_state, attack_state, TRANSITION_ATTACK)
+	# dash attack
+	state_machine.add_transition(dash_state, dash_attack_state, TRANSITION_DASH_ATTACK)
+	state_machine.add_transition(dash_attack_state, idle_state, TRANSITION_IDLE)
+	state_machine.add_transition(dash_attack_state, move_state, TRANSITION_MOVE)
+	state_machine.add_transition(dash_attack_state, fall_state, TRANSITION_FALL)
 	state_machine.add_transition(state_machine.ANYSTATE, dash_state, TRANSITION_DASH)
 	state_machine.add_transition(dash_state, move_state, TRANSITION_MOVE)
 	state_machine.add_transition(dash_state, idle_state, TRANSITION_IDLE)
@@ -144,16 +188,92 @@ func update_facing() -> void:
 # --- Input Checks ---
 
 func check_attack_input() -> void:
-	if Input.is_action_just_pressed("Attack") and is_on_floor():
-		state_machine.dispatch(TRANSITION_ATTACK)
+	"""Mencatat tekanan Attack ke buffer, lalu memakainya saat state mengizinkan."""
+	if Input.is_action_just_pressed("Attack"):
+		attack_buffer_timer = ATTACK_BUFFER_TIME
+
+	if attack_buffer_timer <= 0.0:
+		return
+
+	var active := state_machine.get_active_state()
+
+	# dash + Attack = tebasan meluncur
+	if active == dash_state:
+		attack_buffer_timer = 0.0
+		state_machine.dispatch(TRANSITION_DASH_ATTACK)
+		return
+
+	# menyambung rantai combo saat recovery
+	if active == attack_state:
+		if attack_recovery and combo_index < 2:
+			attack_buffer_timer = 0.0
+			combo_index += 1
+			state_machine.dispatch(TRANSITION_ATTACK)
+		else:
+			# Rantai sudah mentok atau belum waktunya. Buang inputnya, jangan
+			# dibiarkan meledak begitu keluar dari state Attack.
+			attack_buffer_timer = 0.0
+		return
+
+	# masih dalam jeda setelah pamungkas
+	if combo_lockout > 0.0:
+		attack_buffer_timer = 0.0
+		return
+
+	# serangan baru dari darat atau udara
+	if not is_on_floor() and air_attack_used:
+		return
+
+	attack_buffer_timer = 0.0
+
+	# Jendela masih terbuka -> LANJUTKAN rantai, bukan mengulang pukulan yang sama.
+	# Jalur ini penting karena recovery Attack2 cuma 0,03 dtk, jadi tekanan
+	# tombol hampir selalu mendarat setelah state sudah kembali ke Idle.
+	if combo_window > 0.0 and combo_index < 2:
+		combo_index += 1
+	else:
+		combo_index = 0
+
+	state_machine.dispatch(TRANSITION_ATTACK)
+
+
+func current_attack_animation() -> StringName:
+	"""Nama animasi untuk indeks combo saat ini."""
+	return StringName("Attack%d" % (clampi(combo_index, 0, 2) + 1))
 
 
 func check_jump_input() -> void:
 	var wants_jump := Input.is_action_just_pressed("Jump") or jump_buffer_timer > 0
+	if wants_jump and Input.is_action_pressed("Down") and _standing_on_one_way():
+		_drop_through()
+		return
 	if wants_jump and coyote_timer > 0:
 		coyote_timer = 0.0
 		jump_buffer_timer = 0.0
 		state_machine.dispatch(TRANSITION_JUMP)
+
+
+## Berdiri di atas papan one-way (dan bukan sekaligus di atas batu)?
+func _standing_on_one_way() -> bool:
+	if not is_on_floor() or not get_collision_mask_value(ONE_WAY_LAYER):
+		return false
+	var saved := collision_mask
+	var one_way_bit := 1 << (ONE_WAY_LAYER - 1)
+	collision_mask = one_way_bit
+	var on_one_way := test_move(global_transform, Vector2(0, 2))
+	collision_mask = saved & ~one_way_bit
+	var on_solid := test_move(global_transform, Vector2(0, 2))
+	collision_mask = saved
+	return on_one_way and not on_solid
+
+
+func _drop_through() -> void:
+	coyote_timer = 0.0
+	jump_buffer_timer = 0.0
+	set_collision_mask_value(ONE_WAY_LAYER, false)
+	_drop_timer = DROP_THROUGH_TIME
+	position.y += 2.0
+	state_machine.dispatch(TRANSITION_FALL)
 
 
 func check_dash_input() -> void:
@@ -179,10 +299,23 @@ func start_attack() -> void:
 		hitbox.set_active(true)
 
 
+func cancel_attack_hitbox() -> void:
+	"""Matikan hitbox saja, tanpa menyentuh pembukuan combo.
+	Dipakai state saat keluar, supaya tidak membuka ulang jendela combo
+	yang baru saja ditutup oleh pukulan pamungkas."""
+	if hitbox:
+		hitbox.set_active(false)
+
+
 func end_attack() -> void:
 	"""Called when attack animation ends (via AnimationPlayer method track)."""
 	if hitbox:
 		hitbox.set_active(false)
+	# mulai dari sini serangan boleh dibatalkan dan rantai combo boleh disambung
+	attack_recovery = true
+	# Jendela sambung hanya dibuka kalau masih ada pukulan berikutnya.
+	# Setelah pamungkas, rantai ditutup supaya tidak bisa berputar terus.
+	combo_window = COMBO_WINDOW if combo_index < 2 else 0.0
 
 
 # --- Physics ---
@@ -200,9 +333,30 @@ func _physics_process(delta: float) -> void:
 	elif jump_buffer_timer > 0:
 		jump_buffer_timer -= delta
 
+	if attack_buffer_timer > 0.0:
+		attack_buffer_timer -= delta
+	if combo_lockout > 0.0:
+		combo_lockout -= delta
+
+	# Jendela hanya meluruh saat TIDAK sedang menyerang, supaya combo_index
+	# tidak ter-reset di tengah animasi dan bikin urutan mundur sendiri.
+	if combo_window > 0.0 and state_machine.get_active_state() != attack_state:
+		combo_window -= delta
+		if combo_window <= 0.0:
+			combo_index = 0
+
+	# Dipanggil terpusat, bukan per-state, supaya buffer dan rantai combo
+	# tetap terbaca saat sedang menyerang maupun sedang dash.
+	check_attack_input()
+
 	# Add gravity
 	if not is_on_floor():
 		velocity += get_gravity() * delta
+
+	if _drop_timer > 0.0:
+		_drop_timer -= delta
+		if _drop_timer <= 0.0:
+			set_collision_mask_value(ONE_WAY_LAYER, true)
 
 	# Update dash cooldown
 	if dash_cooldown_timer > 0:
@@ -233,14 +387,20 @@ func _check_landing() -> void:
 		GameFx.burst(self, land_dust, global_position + Vector2(0, 16))
 	if on_floor:
 		_fall_speed = 0.0
+		air_attack_used = false
 	_was_on_floor = on_floor
 
 
 # --- Animation Callbacks ---
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
-	if anim_name == "Attack":
+	if anim_name.begins_with("Attack"):
 		end_attack()
+		if combo_index >= 2:
+			# Pamungkas selesai: tutup rantai dan beri jeda sebelum combo baru.
+			combo_index = 0
+			combo_window = 0.0
+			combo_lockout = COMBO_LOCKOUT
 		state_machine.dispatch(TRANSITION_IDLE)
 	elif anim_name == "Dead":
 		if OS.is_debug_build():
@@ -267,6 +427,13 @@ func _on_damaged(amount: int, source_position: Vector2) -> void:
 
 	is_hurt = true
 	knockback_direction = (global_position - source_position).normalized()
+
+	# Serangan yang terpotong karena kena pukul tidak pernah sampai ke
+	# animation_finished, jadi reset rantainya di sini. Tanpa ini combo_index
+	# bisa tertinggal di 2 setelah pamungkas yang terinterupsi.
+	combo_index = 0
+	combo_window = 0.0
+	attack_buffer_timer = 0.0
 
 	# Transition to hurt state
 	state_machine.dispatch(TRANSITION_HURT)
