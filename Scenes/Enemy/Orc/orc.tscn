@@ -286,6 +286,8 @@ radius = 8.0
 size = Vector2(98.3334, 12.6667)
 
 [node name="Orc" type="CharacterBody2D" node_paths=PackedStringArray("state_machine")]
+collision_layer = 4
+collision_mask = 1
 scale = Vector2(1.5, 1.5)
 script = ExtResource("1_104kq")
 state_machine = NodePath("LimboHSM")
@@ -308,6 +310,8 @@ libraries = {
 autoplay = "Idle"
 
 [node name="AttackArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AttackArea"]
 position = Vector2(17, -1.5)
@@ -317,6 +321,8 @@ shape = SubResource("RectangleShape2D_rqk0w")
 script = ExtResource("10_health")
 
 [node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 32
+collision_mask = 0
 script = ExtResource("11_hurtbox")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
@@ -324,6 +330,8 @@ position = Vector2(1, 0)
 shape = SubResource("CircleShape2D_bh43d")
 
 [node name="Hitbox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 8
 script = ExtResource("9_hitbox")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
@@ -358,6 +366,8 @@ animation_player = NodePath("../../AnimationPlayer")
 animation = &"Death"
 
 [node name="DetectionArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionArea"]
 position = Vector2(1.33333, 0)

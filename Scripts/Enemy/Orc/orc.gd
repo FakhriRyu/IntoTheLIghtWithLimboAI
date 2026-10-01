@@ -132,6 +132,7 @@ func _on_attack_area_body_exited(body: Node2D) -> void:
 		state_machine.dispatch("to_chase")
 
 func _on_death() -> void:
+	Audio.enemy_voice(self, &"death")
 	# Trigger transition ke dead state
 	state_machine.dispatch("to_dead")
 	

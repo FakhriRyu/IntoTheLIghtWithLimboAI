@@ -138,6 +138,8 @@ func _has_ground(at_x: float) -> bool:
 	var from := Vector2(at_x, agent.global_position.y)
 	var query := PhysicsRayQueryParameters2D.create(from, from + Vector2(0.0, ground_probe))
 	query.collide_with_areas = false
+	# hanya lantai (world + papan one-way)
+	query.collision_mask = 1 | (1 << 4)
 
 	var ignored: Array[RID] = [agent.get_rid()]
 	query.exclude = ignored

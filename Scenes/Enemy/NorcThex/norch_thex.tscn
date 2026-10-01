@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://c7i4jb6ld3xn0"]
 
+[ext_resource type="Script" path="res://Scripts/Items/loot_dropper.gd" id="loot_dropper_1"]
 [ext_resource type="Texture2D" uid="uid://ddje4jwwufl1y" path="res://Assets/Norcthex/Norc'thex spritesheet.png" id="1_ml06c"]
 [ext_resource type="Script" uid="uid://cixyq7o8yrfu0" path="res://Scripts/Enemy/Norcthex/norch_thex.gd" id="2_script"]
 [ext_resource type="BehaviorTree" uid="uid://db2xwnah7lxn1" path="res://ai/trees/norcthex.tres" id="3_xfwvu"]
@@ -167,6 +168,8 @@ radius = 18.0
 height = 60.0
 
 [node name="NorchThex" type="CharacterBody2D" unique_id=1163414465]
+collision_layer = 4
+collision_mask = 1
 script = ExtResource("2_script")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1800892456]
@@ -187,6 +190,8 @@ autoplay = &"idle"
 position = Vector2(-52, 19)
 
 [node name="DetectionAreaBoss" type="Area2D" parent="." unique_id=303763804]
+collision_layer = 0
+collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionAreaBoss" unique_id=1614703531]
 position = Vector2(3, -60)
@@ -201,9 +206,20 @@ blackboard_plan = SubResource("BlackboardPlan_xfwvu")
 script = ExtResource("4_health")
 
 [node name="HurtBox" type="Area2D" parent="." unique_id=1502338791 node_paths=PackedStringArray("health")]
+collision_layer = 32
+collision_mask = 0
 script = ExtResource("5_hurtbox")
 health = NodePath("../Health")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox" unique_id=622104537]
 position = Vector2(0, 11)
 shape = SubResource("CapsuleShape2D_hurt")
+
+[node name="LootDropper" type="Node" parent="."]
+script = ExtResource("loot_dropper_1")
+xp = 25
+light_chance = 1.0
+light_amount = 50.0
+heal_chance = 1.0
+heal_amount = 3
+drop_offset = Vector2(0, -16)

@@ -44,6 +44,8 @@ func _clip_to_wall() -> void:
 	var query := PhysicsRayQueryParameters2D.create(
 		global_position, global_position + direction * length)
 	query.collide_with_areas = false
+	# hanya tembok (layer world); panah menembus body player & musuh
+	query.collision_mask = 1
 	query.exclude = exclude
 
 	var hit := space.intersect_ray(query)

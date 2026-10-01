@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://bxpd1uwg8fgef"]
 
+[ext_resource type="Script" path="res://Scripts/Items/loot_dropper.gd" id="loot_dropper_1"]
 [ext_resource type="Texture2D" uid="uid://ncblr28nxfg0" path="res://Assets/Goblin/Idle.png" id="1_4culo"]
 [ext_resource type="Script" uid="uid://d1jbh32tb4oh" path="res://Scenes/Enemy/goblin/goblin.gd" id="1_8seuw"]
 [ext_resource type="Texture2D" uid="uid://brw8s8kdfr67i" path="res://Assets/Goblin/Attack.png" id="2_p5nbh"]
@@ -294,7 +295,7 @@ _data = {
 }
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_b1msh"]
-size = Vector2(190.5, 20)
+size = Vector2(190.5, 90)
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_k5hrn"]
 radius = 16.0
@@ -307,6 +308,8 @@ size = Vector2(90.75246, 20)
 size = Vector2(34, 39)
 
 [node name="goblin" type="CharacterBody2D" unique_id=1202615665 node_paths=PackedStringArray("state_machine")]
+collision_layer = 4
+collision_mask = 1
 script = ExtResource("1_8seuw")
 state_machine = NodePath("LimboHSM")
 
@@ -323,13 +326,17 @@ libraries/ = SubResource("AnimationLibrary_lxrhn")
 autoplay = &"idle"
 
 [node name="GoblinDetection" type="Area2D" parent="." unique_id=1604048943]
+collision_layer = 0
+collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="GoblinDetection" unique_id=1755294869]
-position = Vector2(3, 4)
+position = Vector2(3, -10)
 shape = SubResource("RectangleShape2D_b1msh")
 debug_color = Color(0.7, 0.45499998, 0, 0.33333334)
 
 [node name="GoblinHurtBox" type="Area2D" parent="." unique_id=2073430601]
+collision_layer = 32
+collision_mask = 0
 script = ExtResource("13_hurtbox")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="GoblinHurtBox" unique_id=1178504309]
@@ -338,6 +345,8 @@ shape = SubResource("CapsuleShape2D_k5hrn")
 debug_color = Color(0.25666666, 0.7, 0, 0.41960785)
 
 [node name="GoblinHitBox" type="Area2D" parent="." unique_id=672835479]
+collision_layer = 0
+collision_mask = 8
 script = ExtResource("14_hitbox")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="GoblinHitBox" unique_id=1581700120]
@@ -347,6 +356,8 @@ shape = SubResource("RectangleShape2D_k5hrn")
 debug_color = Color(0.7, 0, 0, 0.41960785)
 
 [node name="GoblinAttackArea" type="Area2D" parent="." unique_id=285536839]
+collision_layer = 0
+collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="GoblinAttackArea" unique_id=1504855008]
 position = Vector2(17, 9)
@@ -395,3 +406,10 @@ script = ExtResource("8_4xagn")
 
 [node name="HealthBar" parent="." unique_id=382947329 instance=ExtResource("hpbar_1")]
 position = Vector2(0, -16)
+
+[node name="LootDropper" type="Node" parent="."]
+script = ExtResource("loot_dropper_1")
+xp = 3
+light_chance = 0.75
+light_amount = 20.0
+heal_chance = 0.1

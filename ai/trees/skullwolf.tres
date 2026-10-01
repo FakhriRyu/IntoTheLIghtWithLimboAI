@@ -5,6 +5,10 @@
 [ext_resource type="Script" uid="uid://ulvv5it00no2" path="res://ai/tasks/check_target_in_area.gd" id="2_b4flw"]
 [ext_resource type="Script" uid="uid://2q680t4lp651" path="res://ai/tasks/flee_from_target.gd" id="2_fbkr3"]
 [ext_resource type="Script" uid="uid://dmq3kak1p7tvy" path="res://ai/tasks/pursue_target.gd" id="3_b4flw"]
+[ext_resource type="Script" uid="uid://do7pxa76ed5j6" path="res://ai/tasks/check_cooldown.gd" id="4_cd"]
+[ext_resource type="Script" uid="uid://wqywxfs4bm8n" path="res://ai/tasks/check_distance_to_target.gd" id="5_dist"]
+[ext_resource type="Script" uid="uid://dj1m34allavm5" path="res://ai/tasks/face_target.gd" id="6_face"]
+[ext_resource type="Script" uid="uid://b8w2865lpht7u" path="res://ai/tasks/wolf_charge_attack.gd" id="7_wolf"]
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_mjmvc"]
 
@@ -27,11 +31,39 @@ flee_speed = 80.0
 custom_name = "Flee"
 children = [SubResource("BTCondition_r5sv8"), SubResource("BTPlayAnimation_p40nv"), SubResource("BTAction_l5hgd")]
 
+[sub_resource type="BTAction" id="BTAction_atk_player"]
+script = ExtResource("1_ivfri")
+
+[sub_resource type="BTCondition" id="BTCondition_atk_area"]
+script = ExtResource("2_b4flw")
+
+[sub_resource type="BTCondition" id="BTCondition_atk_cd"]
+script = ExtResource("4_cd")
+cooldown_var = &"wolf_attack_cd"
+
+[sub_resource type="BTCondition" id="BTCondition_atk_range"]
+script = ExtResource("5_dist")
+max_distance = 100.0
+
+[sub_resource type="BTAction" id="BTAction_atk_face"]
+script = ExtResource("6_face")
+
+[sub_resource type="BTAction" id="BTAction_atk_charge"]
+script = ExtResource("7_wolf")
+
+[sub_resource type="BTSequence" id="BTSequence_attack"]
+custom_name = "Attack"
+children = [SubResource("BTAction_atk_player"), SubResource("BTCondition_atk_area"), SubResource("BTCondition_atk_cd"), SubResource("BTCondition_atk_range"), SubResource("BTAction_atk_face"), SubResource("BTAction_atk_charge")]
+
 [sub_resource type="BTAction" id="BTAction_u56yi"]
 script = ExtResource("1_ivfri")
 
 [sub_resource type="BTCondition" id="BTCondition_p3hs1"]
 script = ExtResource("2_b4flw")
+
+[sub_resource type="BTCondition" id="BTCondition_chase_far"]
+script = ExtResource("5_dist")
+min_distance = 56.0
 
 [sub_resource type="BBNode" id="BBNode_fbkr3"]
 saved_value = NodePath("AnimationPlayer")
@@ -43,10 +75,36 @@ animation_name = &"move"
 
 [sub_resource type="BTAction" id="BTAction_p3hs1"]
 script = ExtResource("3_b4flw")
+approach_distance = 54.0
 
 [sub_resource type="BTSequence" id="BTSequence_l5hgd"]
 custom_name = "Chase"
-children = [SubResource("BTAction_u56yi"), SubResource("BTCondition_p3hs1"), SubResource("BTPlayAnimation_r5sv8"), SubResource("BTAction_p3hs1")]
+children = [SubResource("BTAction_u56yi"), SubResource("BTCondition_p3hs1"), SubResource("BTCondition_chase_far"), SubResource("BTPlayAnimation_r5sv8"), SubResource("BTAction_p3hs1")]
+
+[sub_resource type="BTAction" id="BTAction_hold_player"]
+script = ExtResource("1_ivfri")
+
+[sub_resource type="BTCondition" id="BTCondition_hold_area"]
+script = ExtResource("2_b4flw")
+
+[sub_resource type="BTAction" id="BTAction_hold_face"]
+script = ExtResource("6_face")
+
+[sub_resource type="BBNode" id="BBNode_hold"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTPlayAnimation" id="BTPlayAnimation_hold"]
+animation_player = SubResource("BBNode_hold")
+animation_name = &"idle"
+
+[sub_resource type="BTRandomWait" id="BTRandomWait_hold"]
+min_duration = 0.1
+max_duration = 0.2
+
+[sub_resource type="BTSequence" id="BTSequence_hold"]
+custom_name = "Hold"
+children = [SubResource("BTAction_hold_player"), SubResource("BTCondition_hold_area"), SubResource("BTAction_hold_face"), SubResource("BTPlayAnimation_hold"), SubResource("BTRandomWait_hold")]
 
 [sub_resource type="BBNode" id="BBNode_mjmvc"]
 saved_value = NodePath("AnimationPlayer")
@@ -64,8 +122,8 @@ max_duration = 0.5
 custom_name = "Chill"
 children = [SubResource("BTPlayAnimation_v6lue"), SubResource("BTRandomWait_b4flw")]
 
-[sub_resource type="BTSelector" id="BTSelector_b4flw"]
-children = [SubResource("BTSequence_fo450"), SubResource("BTSequence_l5hgd"), SubResource("BTSequence_ivfri")]
+[sub_resource type="BTDynamicSelector" id="BTSelector_b4flw"]
+children = [SubResource("BTSequence_fo450"), SubResource("BTSequence_attack"), SubResource("BTSequence_l5hgd"), SubResource("BTSequence_hold"), SubResource("BTSequence_ivfri")]
 
 [resource]
 blackboard_plan = SubResource("BlackboardPlan_mjmvc")

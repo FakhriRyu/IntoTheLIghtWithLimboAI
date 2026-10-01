@@ -45,6 +45,7 @@ func _process(delta: float) -> void:
 
 func _strike() -> void:
 	"""Duri menancap: lukai semua hurtbox yang sedang berada di atas perangkap."""
+	Audio.play_sfx_at(&"trap_snap", global_position, -4.0)
 	for area in get_overlapping_areas():
 		if area is GameHurtbox:
 			area.take_damage(damage, global_position)

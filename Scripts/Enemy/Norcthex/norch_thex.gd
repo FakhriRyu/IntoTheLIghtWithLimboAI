@@ -97,6 +97,7 @@ func shoot_arrow() -> void:
 	var arrow = arrow_scene.instantiate()
 	arrow.global_position = marker_2d.global_position
 	arrow.direction = facing_vector()
+	Audio.play_sfx_at(&"arrow_shot", marker_2d.global_position, -2.0)
 
 	get_parent().add_child(arrow)
 
@@ -107,6 +108,7 @@ func spawn_trap() -> void:
 	if not trap_scene:
 		return
 
+	Audio.enemy_voice(self, &"attack")
 	var player = get_tree().get_first_node_in_group("player")
 	if player == null:
 		return
@@ -134,6 +136,8 @@ func _find_ground(from: Vector2, player: Node2D) -> float:
 	var query := PhysicsRayQueryParameters2D.create(
 		from, from + Vector2(0.0, trap_ground_probe))
 	query.collide_with_areas = false
+	# hanya lantai (world + papan one-way), bukan body musuh/player
+	query.collision_mask = 1 | (1 << 4)
 
 	# Abaikan bos dan player supaya yang terdeteksi hanya lantai
 	var ignored: Array[RID] = [get_rid()]
@@ -242,6 +246,7 @@ func _on_death() -> void:
 	is_dead = true
 	is_hurt = false
 	is_uninterruptible = false
+	Audio.enemy_voice(self, &"death")
 
 	# Stop AI behavior
 	bt_player.set_active(false)

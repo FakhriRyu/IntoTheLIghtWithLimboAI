@@ -23,9 +23,9 @@ func _exit() -> void:
 func _on_animation_finished(anim_name: StringName) -> void:
 	if anim_name == animation:
 		agent.is_hurt = false
-		if agent.player_in_attack_range and agent.can_attack:
+		if agent.ready_to_attack():
 			dispatch("to_attack")
-		elif agent.player_in_range:
+		elif agent.has_target():
 			dispatch("to_chase")
 		else:
 			dispatch("to_idle")
