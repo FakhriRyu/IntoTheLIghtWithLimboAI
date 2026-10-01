@@ -111,6 +111,13 @@ var _fall_speed: float = 0.0
 ## Sisa waktu turun menembus papan one-way
 var _drop_timer: float = 0.0
 
+## Nilai dasar sebelum dikali modifier upgrade dari RunState.
+## Disimpan sekali supaya modifier tidak berlipat ganda tiap kali diterapkan.
+var _base_speed: float
+var _base_dash_cooldown: float
+var _base_immunity: float
+var _base_max_health: int
+
 
 func _ready() -> void:
 	add_to_group("player")
@@ -121,6 +128,47 @@ func _ready() -> void:
 	if health:
 		health.death.connect(_on_death)
 		health.damaged.connect(_on_damaged)
+
+	_base_speed = speed
+	_base_dash_cooldown = dash_cooldown
+	_base_immunity = immunity_duration
+	_base_max_health = health.max_health if health else 0
+	_apply_run_stats()
+	RunState.stats_changed.connect(_apply_run_stats)
+	RunState.light_depleted.connect(_on_light_depleted)
+
+	# HP dibawa dari area sebelumnya; cahaya diisi penuh di tiap area baru
+	if health and RunState.hp > 0:
+		health.current_health = mini(RunState.hp, health.max_health)
+	RunState.begin_level()
+
+
+func _exit_tree() -> void:
+	# Simpan HP untuk area berikutnya. Saat mati tidak disimpan, karena
+	# RunState sudah di-reset untuk run baru.
+	if health and health.is_alive():
+		RunState.hp = health.current_health
+
+
+## Terapkan modifier upgrade ke nilai dasar player.
+func _apply_run_stats() -> void:
+	var st := RunState.stats
+	speed = _base_speed * float(st["speed_mult"])
+	dash_cooldown = _base_dash_cooldown * maxf(float(st["dash_cd_mult"]), 0.2)
+	immunity_duration = _base_immunity + float(st["immunity_bonus"])
+	if health:
+		var new_max := _base_max_health + int(st["max_hp_bonus"])
+		if new_max != health.max_health:
+			health.max_health = new_max
+			health.current_health = mini(health.current_health, new_max)
+
+
+## Cahaya padam = mati seketika.
+func _on_light_depleted() -> void:
+	if health and health.is_alive():
+		if OS.is_debug_build():
+			print("Cahaya padam! Player mati.")
+		health.kill()
 
 
 func _initialize_state_machine() -> void:
@@ -288,6 +336,7 @@ func check_dash_input() -> void:
 		GameFx.burst(self, dash_dust, global_position + Vector2(0, 8),
 			Vector2(-signf(dash_direction.x), 0))
 
+		Audio.play_sfx(&"player_dash", -3.0, 0.05)
 		state_machine.dispatch(TRANSITION_DASH)
 
 
@@ -385,6 +434,7 @@ func _check_landing() -> void:
 	var on_floor := is_on_floor()
 	if on_floor and not _was_on_floor and _fall_speed >= land_dust_min_fall:
 		GameFx.burst(self, land_dust, global_position + Vector2(0, 16))
+		Audio.play_sfx(&"player_land", -6.0 + minf((_fall_speed - land_dust_min_fall) / 400.0, 1.0) * 4.0)
 	if on_floor:
 		_fall_speed = 0.0
 		air_attack_used = false
@@ -404,11 +454,10 @@ func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 		state_machine.dispatch(TRANSITION_IDLE)
 	elif anim_name == "Dead":
 		if OS.is_debug_build():
-			print("Dead animation finished, waiting ", respawn_delay, " seconds before respawn...")
+			print("Dead animation finished, waiting ", respawn_delay, " seconds before ending the run...")
 		await get_tree().create_timer(respawn_delay).timeout
-		if OS.is_debug_build():
-			print("Timer finished, calling respawn()...")
-		respawn()
+		# Roguelike: mati = run berakhir, level dan upgrade di-reset
+		RunState.end_run()
 	elif anim_name == "Hurt":
 		# Hurt animation finished; knockback may still be in progress.
 		# State transition is handled in _end_hurt_state().
@@ -506,6 +555,7 @@ func _on_death() -> void:
 		hurtbox.set_deferred("monitoring", false)
 		hurtbox.set_deferred("monitorable", false)
 
+	Audio.play_sfx(&"player_death", 0.0, 0.0)
 	state_machine.dispatch(TRANSITION_DEAD)
 
 

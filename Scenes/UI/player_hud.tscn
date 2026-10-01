@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://Scripts/UI/player_hud.gd" id="1_y31ga"]
 [ext_resource type="Texture2D" path="res://Assets/Warrior/idle/Warrior_Idle_1.png" id="2_jh2mb"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/level_up_screen.tscn" id="3_lvlup"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/run_over_screen.tscn" id="4_over"]
 
 [node name="PlayerHUD" type="CanvasLayer" unique_id=1332670053]
 layer = 10
@@ -21,13 +23,13 @@ anchor_right = 1.0
 offset_left = -160.0
 offset_top = 8.0
 offset_right = -8.0
-offset_bottom = 56.0
+offset_bottom = 66.0
 mouse_filter = 2
 
 [node name="Bg" type="ColorRect" parent="Root/Panel" unique_id=2113428879]
 layout_mode = 0
 offset_right = 152.0
-offset_bottom = 48.0
+offset_bottom = 58.0
 mouse_filter = 2
 color = Color(0.06, 0.07, 0.1, 0.78)
 
@@ -57,7 +59,7 @@ layout_mode = 0
 offset_left = 50.0
 offset_top = 19.0
 offset_right = 148.0
-offset_bottom = 31.0
+offset_bottom = 29.0
 mouse_filter = 2
 color = Color(0.13, 0.14, 0.18, 0.95)
 
@@ -66,16 +68,16 @@ layout_mode = 0
 offset_left = 1.0
 offset_top = 1.0
 offset_right = 97.0
-offset_bottom = 11.0
+offset_bottom = 9.0
 mouse_filter = 2
 color = Color(0.85, 0.22, 0.25, 1)
 
 [node name="DashBg" type="ColorRect" parent="Root/Panel" unique_id=355084756]
 layout_mode = 0
 offset_left = 50.0
-offset_top = 35.0
+offset_top = 43.0
 offset_right = 148.0
-offset_bottom = 42.0
+offset_bottom = 47.0
 mouse_filter = 2
 color = Color(0.13, 0.14, 0.18, 0.95)
 
@@ -84,6 +86,46 @@ layout_mode = 0
 offset_left = 1.0
 offset_top = 1.0
 offset_right = 97.0
-offset_bottom = 6.0
+offset_bottom = 3.0
 mouse_filter = 2
 color = Color(0.35, 0.85, 1, 1)
+
+[node name="LightBg" type="ColorRect" parent="Root/Panel" unique_id=1400200301]
+layout_mode = 0
+offset_left = 50.0
+offset_top = 32.0
+offset_right = 148.0
+offset_bottom = 40.0
+mouse_filter = 2
+color = Color(0.13, 0.14, 0.18, 0.95)
+
+[node name="LightFill" type="ColorRect" parent="Root/Panel/LightBg" unique_id=1400200302]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = 97.0
+offset_bottom = 7.0
+mouse_filter = 2
+color = Color(1, 0.82, 0.4, 1)
+
+[node name="XpBg" type="ColorRect" parent="Root/Panel" unique_id=1400200303]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 50.0
+offset_right = 148.0
+offset_bottom = 54.0
+mouse_filter = 2
+color = Color(0.13, 0.14, 0.18, 0.95)
+
+[node name="XpFill" type="ColorRect" parent="Root/Panel/XpBg" unique_id=1400200304]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = 143.0
+offset_bottom = 3.0
+mouse_filter = 2
+color = Color(0.4, 0.95, 1, 1)
+
+[node name="LevelUpScreen" parent="." unique_id=1400200305 instance=ExtResource("3_lvlup")]
+
+[node name="RunOverScreen" parent="." unique_id=1400200306 instance=ExtResource("4_over")]

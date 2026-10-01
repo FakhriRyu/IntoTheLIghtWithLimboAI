@@ -1,6 +1,16 @@
 [gd_scene format=3 uid="uid://6bwtmnfhpxbs"]
 
+[ext_resource type="AudioStream" path="res://Assets/audio/sfx/real/sword_swing_0.wav" id="gen_sword_swing_0"]
+[ext_resource type="AudioStream" path="res://Assets/audio/sfx/real/sword_swing_1.wav" id="gen_sword_swing_1"]
+[ext_resource type="AudioStream" path="res://Assets/audio/sfx/real/sword_swing_2.wav" id="gen_sword_swing_2"]
+[ext_resource type="AudioStream" path="res://Assets/audio/sfx/real/step_0.wav" id="gen_step_0"]
+[ext_resource type="AudioStream" path="res://Assets/audio/sfx/real/step_1.wav" id="gen_step_1"]
+[ext_resource type="AudioStream" path="res://Assets/audio/sfx/real/step_2.wav" id="gen_step_2"]
+[ext_resource type="AudioStream" path="res://Assets/audio/sfx/real/step_3.wav" id="gen_step_3"]
+[ext_resource type="AudioStream" path="res://Assets/audio/sfx/real/jump.wav" id="gen_jump"]
+[ext_resource type="AudioStream" path="res://Assets/audio/sfx/real/player_hurt.wav" id="gen_player_hurt"]
 [ext_resource type="Script" uid="uid://bwhvvmyw1y5ks" path="res://Scripts/player/Health.gd" id="1_health"]
+[ext_resource type="Script" path="res://Scripts/player/player_light.gd" id="96_plight"]
 [ext_resource type="Script" uid="uid://bnv143y5kl4ds" path="res://Scripts/player/Hurtbox.gd" id="1_hurtbox"]
 [ext_resource type="Script" uid="uid://bjjjjmchg4o12" path="res://Scripts/player/player.gd" id="1_xxarj"]
 [ext_resource type="Texture2D" uid="uid://iukhxom43jof" path="res://Assets/Warrior/idle/Warrior_Idle_1.png" id="2_6k3cy"]
@@ -459,18 +469,23 @@ streams_count = 1
 stream_0/stream = ExtResource("2_p5xt2")
 
 [sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_l5hgd"]
-random_pitch = 1.122462
-streams_count = 1
-stream_0/stream = ExtResource("2_b42p4")
+random_pitch = 1.08
+streams_count = 4
+stream_0/stream = ExtResource("gen_step_0")
+stream_1/stream = ExtResource("gen_step_1")
+stream_2/stream = ExtResource("gen_step_2")
+stream_3/stream = ExtResource("gen_step_3")
 
 [sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_r5sv8"]
-random_pitch = 1.0779822
-streams_count = 1
-stream_0/stream = ExtResource("3_b42p4")
+random_pitch = 1.1
+streams_count = 3
+stream_0/stream = ExtResource("gen_sword_swing_0")
+stream_1/stream = ExtResource("gen_sword_swing_1")
+stream_2/stream = ExtResource("gen_sword_swing_2")
 
 [sub_resource type="Gradient" id="Gradient_plight"]
-offsets = PackedFloat32Array(0, 0.45, 1)
-colors = PackedColorArray(1, 0.97, 0.88, 1, 1, 0.88, 0.68, 0.72, 0.6, 0.45, 0.3, 0)
+offsets = PackedFloat32Array(0, 0.3, 0.7, 1)
+colors = PackedColorArray(1, 0.97, 0.88, 1, 1, 0.9, 0.7, 0.85, 0.9, 0.7, 0.45, 0.25, 0.6, 0.45, 0.3, 0)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_plight"]
 gradient = SubResource("Gradient_plight")
@@ -481,6 +496,8 @@ fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(1, 0.5)
 
 [node name="Player" type="CharacterBody2D" unique_id=1226008961 node_paths=PackedStringArray("state_machine") groups=["player"]]
+z_index = 1
+collision_layer = 2
 collision_mask = 17
 script = ExtResource("1_xxarj")
 state_machine = NodePath("LimboHSM")
@@ -488,8 +505,11 @@ jump_velocity = -330.0
 
 [node name="Health" type="Node" parent="." unique_id=865538603]
 script = ExtResource("1_health")
+max_health = 10
 
 [node name="HurtBox" type="Area2D" parent="." unique_id=888057827 node_paths=PackedStringArray("health")]
+collision_layer = 8
+collision_mask = 0
 script = ExtResource("1_hurtbox")
 health = NodePath("../Health")
 
@@ -497,6 +517,8 @@ health = NodePath("../Health")
 shape = SubResource("CapsuleShape2D_s3lwd")
 
 [node name="Hitbox" type="Area2D" parent="." unique_id=487323799]
+collision_layer = 0
+collision_mask = 33
 script = ExtResource("4_krql8")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=1178735564]
@@ -558,29 +580,32 @@ animation_player = NodePath("../../AnimationPlayer")
 
 [node name="FemaleAttackSound" type="AudioStreamPlayer2D" parent="SFX" unique_id=505980864]
 stream = SubResource("AudioStreamRandomizer_fbkr3")
+volume_db = -7.0
 
 [node name="HurtSound" type="AudioStreamPlayer2D" parent="SFX" unique_id=1002601880]
-stream = ExtResource("3_k37cg")
+stream = ExtResource("gen_player_hurt")
 
 [node name="JumpSound" type="AudioStreamPlayer2D" parent="SFX" unique_id=1684641521]
-stream = ExtResource("4_m3jr7")
+stream = ExtResource("gen_jump")
+volume_db = -3.0
 
 [node name="StepSound" type="AudioStreamPlayer2D" parent="SFX" unique_id=1051817512]
 stream = SubResource("AudioStreamRandomizer_l5hgd")
-pitch_scale = 2.09
+volume_db = -9.0
 
 [node name="AttackSound" type="AudioStreamPlayer2D" parent="SFX" unique_id=1351669064]
 stream = SubResource("AudioStreamRandomizer_r5sv8")
-volume_db = -8.105
+volume_db = 2.0
 
 [connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_player_animation_finished"]
 
 [node name="Light" type="PointLight2D" parent="." unique_id=724297885]
 position = Vector2(0, -6)
 color = Color(1, 0.95, 0.85, 1)
-energy = 1.2
+energy = 1.6
 texture = SubResource("GradientTexture2D_plight")
-texture_scale = 1.6
+texture_scale = 2.0
+script = ExtResource("96_plight")
 
 [node name="DashAttack" type="LimboState" parent="LimboHSM" unique_id=1443902877 node_paths=PackedStringArray("animation_player")]
 script = ExtResource("95_dashatk")

@@ -4,6 +4,7 @@ class_name GameHealth
 ## Simple health system for the main game
 signal death
 signal damaged(amount: int, source_position: Vector2)
+signal healed(amount: int)
 
 @export var max_health: int = 100
 var current_health: int
@@ -31,9 +32,20 @@ func take_damage(amount: int = 1, source_position: Vector2 = Vector2.ZERO):
 
 
 func heal(amount: int):
+	if current_health <= 0:
+		return
 	current_health = min(current_health + amount, max_health)
+	healed.emit(amount)
 	if OS.is_debug_build():
 		print("Healed: ", amount, " - Health: ", current_health)
+
+
+## Mati langsung tanpa memicu hurt/knockback, mis. saat cahaya padam.
+func kill() -> void:
+	if current_health <= 0:
+		return
+	current_health = 0
+	death.emit()
 
 
 func get_current_health() -> int:

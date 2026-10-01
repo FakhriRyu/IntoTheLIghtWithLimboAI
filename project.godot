@@ -19,6 +19,11 @@ run/main_scene="uid://2hq430ox7fub"
 config/features=PackedStringArray("4.7", "Mobile")
 config/icon="uid://lakgrdr4mj7k"
 
+[autoload]
+
+RunState="*res://Scripts/Core/run_state.gd"
+Audio="*res://Scripts/Core/audio.gd"
+
 [display]
 
 window/size/viewport_width=640
@@ -70,7 +75,12 @@ pointing/emulate_touch_from_mouse=true
 
 [layer_names]
 
+2d_physics/layer_1="world"
+2d_physics/layer_2="player"
+2d_physics/layer_3="enemy"
+2d_physics/layer_4="player_hurtbox"
 2d_physics/layer_5="one_way"
+2d_physics/layer_6="hittable"
 
 [physics]
 

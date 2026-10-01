@@ -1,5 +1,6 @@
 extends CanvasLayer
-## HUD player di pojok kanan atas: potret, nama, health bar, dan cooldown dash.
+## HUD player di pojok kanan atas: potret, nama + level, health bar, sisa cahaya,
+## cooldown dash, dan XP.
 ## Dipasang sebagai anak dari scene level; player dicari otomatis lewat group "player".
 
 ## Nama yang ditampilkan di atas health bar
@@ -14,13 +15,21 @@ extends CanvasLayer
 @export var health_low_color: Color = Color(1.0, 0.65, 0.15)
 @export var low_hp_threshold: float = 0.3
 
+## Warna bar cahaya; di bawah low_light_threshold berdenyut ke warna bahaya
+@export var light_color: Color = Color(1.0, 0.82, 0.4)
+@export var light_danger_color: Color = Color(1.0, 0.25, 0.2)
+@export var low_light_threshold: float = 0.25
+
 @onready var name_label: Label = $Root/Panel/NameLabel
 @onready var portrait: TextureRect = $Root/Panel/Portrait
 @onready var health_fill: ColorRect = $Root/Panel/HealthBg/HealthFill
 @onready var dash_fill: ColorRect = $Root/Panel/DashBg/DashFill
+@onready var light_fill: ColorRect = $Root/Panel/LightBg/LightFill
+@onready var xp_fill: ColorRect = $Root/Panel/XpBg/XpFill
 
 var player: Node = null
 var health: Node = null
+var _pulse: float = 0.0
 
 
 func _ready() -> void:
@@ -35,13 +44,36 @@ func _find_player() -> void:
 		health = player.get_node_or_null("Health")
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	_update_light(delta)
+	_update_xp()
 	if not is_instance_valid(player):
 		_find_player()
 		if not is_instance_valid(player):
 			return
 	_update_health()
 	_update_dash()
+
+
+func _set_fill(fill: ColorRect, ratio: float) -> void:
+	var slot := fill.get_parent() as Control
+	fill.size.x = maxf((slot.size.x - 2.0) * clampf(ratio, 0.0, 1.0), 0.0)
+
+
+func _update_light(delta: float) -> void:
+	var ratio := RunState.light_ratio()
+	_set_fill(light_fill, ratio)
+	if ratio <= low_light_threshold:
+		# makin gelap makin cepat berdenyut
+		_pulse += delta * lerpf(14.0, 5.0, ratio / low_light_threshold)
+		light_fill.color = light_color.lerp(light_danger_color, 0.5 + 0.5 * sin(_pulse))
+	else:
+		light_fill.color = light_color
+
+
+func _update_xp() -> void:
+	_set_fill(xp_fill, float(RunState.xp) / float(RunState.xp_to_next()))
+	name_label.text = "%s  Lv %d" % [character_name, RunState.level]
 
 
 func _update_health() -> void:

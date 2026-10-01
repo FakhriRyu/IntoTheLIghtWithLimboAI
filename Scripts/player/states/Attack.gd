@@ -27,6 +27,10 @@ func _enter() -> void:
 	var idx: int = clampi(agent.combo_index, 0, lunge_speeds.size() - 1)
 	agent.velocity.x = facing * lunge_speeds[idx]
 
+	# pamungkas: lapisi tebasan biasa dengan ayunan berat
+	if idx >= 2:
+		Audio.play_sfx(&"sword_swing_heavy", -2.0, 0.05)
+
 
 func _exit() -> void:
 	agent.cancel_attack_hitbox()

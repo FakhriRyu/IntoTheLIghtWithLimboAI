@@ -74,6 +74,13 @@ func _on_area_entered(area):
 	var dmg: int = _pick(combo_damage, idx, damage)
 	var force: float = _pick(combo_knockback, idx, knockback_force)
 
+	# bonus dari upgrade roguelike
+	var st := RunState.stats
+	dmg += int(st["damage_bonus"])
+	var is_finisher := idx == 2 and not _is_dash_attacking()
+	if is_finisher:
+		dmg += int(st["finisher_bonus"])
+
 	var target = null
 	if area.has_method("take_damage"):
 		target = area
@@ -85,8 +92,15 @@ func _on_area_entered(area):
 	_already_hit.append(area)
 	_deal(target, dmg)
 	_push(target, force)
+	if _is_enemy(area):
+		var gain := float(st["light_on_hit"])
+		if is_finisher:
+			gain += float(st["finisher_light"])
+		RunState.add_light(gain)
 	hit_target.emit(target)
 	_impact(_contact_point(area))
+	if _is_enemy(area):
+		Audio.enemy_voice(area.get_parent(), &"hurt", -2.0)
 
 
 func _deal(target, dmg: int) -> void:
@@ -121,6 +135,16 @@ func _push(target, force: float) -> void:
 		body.velocity.x = dir * force
 
 
+func _is_enemy(area: Area2D) -> bool:
+	var p := area.get_parent()
+	return p != null and p.is_in_group("enemy")
+
+
+func _is_dash_attacking() -> bool:
+	var p := get_parent()
+	return p != null and "is_dash_attacking" in p and p.is_dash_attacking
+
+
 func _player_x() -> float:
 	var p := get_parent()
 	return p.global_position.x if p is Node2D else global_position.x
@@ -140,3 +164,8 @@ func _impact(at: Vector2) -> void:
 
 	GameFx.burst(self, hit_spark, at, dir)
 	GameFx.hit_stop(self, _pick(combo_hit_stop, idx, hit_stop_duration))
+	# pamungkas terdengar lebih berat (nada lebih rendah)
+	if idx == 2 and not _is_dash_attacking():
+		Audio.play_sfx(&"sword_hit_heavy", 0.0, 0.05)
+	else:
+		Audio.play_sfx(&"sword_hit", -1.0, 0.08, 1.0 + 0.04 * idx)
