@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://bjuqf5ef7rlyx" path="res://Scenes/Property/barrel.tscn" id="2_hi7j2"]
 [ext_resource type="Texture2D" uid="uid://d2cnvkyog45xx" path="res://Tileset.png" id="3_ik1yt"]
 [ext_resource type="PackedScene" uid="uid://cje1td6efigfc" path="res://Scenes/Enemy/Orc/orc.tscn" id="4_ik1yt"]
+[ext_resource type="PackedScene" uid="uid://c8h2ud9pl4yr1" path="res://Scenes/UI/player_hud.tscn" id="hud_1"]
 
 [sub_resource type="TileMapPattern" id="TileMapPattern_ik1yt"]
 tile_data = PackedInt32Array(0, 131072, 0, 65536, 131072, 4, 1, 262144, 1, 65537, 262144, 3)
@@ -154,3 +155,8 @@ tile_set = SubResource("TileSet_svcx0")
 
 [node name="Orc" parent="." unique_id=316070490 instance=ExtResource("4_ik1yt")]
 position = Vector2(309, -98)
+
+[node name="PlayerHUD" parent="." unique_id=1335895752 instance=ExtResource("hud_1")]
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=397030220]
+color = Color(0.26, 0.28, 0.4, 1)

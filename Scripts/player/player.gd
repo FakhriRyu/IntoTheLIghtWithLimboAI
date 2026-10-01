@@ -37,6 +37,14 @@ const JUMP_BUFFER_TIME := 0.12
 @export var immunity_duration: float = 1.5
 @export var respawn_delay: float = 2.0
 
+# --- Efek ---
+## Debu saat mendarat dari lompatan/jatuh
+@export var land_dust: PackedScene = preload("res://Scenes/FX/land_dust.tscn")
+## Debu saat dash
+@export var dash_dust: PackedScene = preload("res://Scenes/FX/dash_dust.tscn")
+## Kecepatan jatuh minimal supaya debu mendarat muncul (biar tidak spam saat jalan)
+@export var land_dust_min_fall: float = 160.0
+
 # --- State References ---
 @onready var idle_state: LimboState = $LimboHSM/Idle
 @onready var move_state: LimboState = $LimboHSM/Move
@@ -66,6 +74,10 @@ var coyote_timer: float = 0.0
 var jump_buffer_timer: float = 0.0
 
 var _immunity_tween: Tween = null
+
+## Dipakai mendeteksi momen mendarat dan seberapa keras jatuhnya
+var _was_on_floor: bool = true
+var _fall_speed: float = 0.0
 
 
 func _ready() -> void:
@@ -152,6 +164,10 @@ func check_dash_input() -> void:
 		else:
 			dash_direction = Vector2(1 if not sprite.flip_h else -1, 0)
 
+		# debu menyembur berlawanan arah dash
+		GameFx.burst(self, dash_dust, global_position + Vector2(0, 8),
+			Vector2(-signf(dash_direction.x), 0))
+
 		state_machine.dispatch(TRANSITION_DASH)
 
 
@@ -195,6 +211,10 @@ func _physics_process(delta: float) -> void:
 	else:
 		can_dash = true
 
+	# Simpan kecepatan jatuh sebelum move_and_slide menolnya saat menyentuh tanah
+	if not is_on_floor():
+		_fall_speed = velocity.y
+
 	move_and_slide()
 
 	# Update coyote timer (after move_and_slide so is_on_floor() is current)
@@ -202,6 +222,18 @@ func _physics_process(delta: float) -> void:
 		coyote_timer = COYOTE_TIME
 	else:
 		coyote_timer = maxf(coyote_timer - delta, 0.0)
+
+	_check_landing()
+
+
+func _check_landing() -> void:
+	"""Memunculkan debu tepat saat menyentuh tanah, hanya kalau jatuhnya cukup keras."""
+	var on_floor := is_on_floor()
+	if on_floor and not _was_on_floor and _fall_speed >= land_dust_min_fall:
+		GameFx.burst(self, land_dust, global_position + Vector2(0, 16))
+	if on_floor:
+		_fall_speed = 0.0
+	_was_on_floor = on_floor
 
 
 # --- Animation Callbacks ---

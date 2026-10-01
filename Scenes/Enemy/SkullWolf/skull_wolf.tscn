@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://dv3x3t2ntu8i0" path="res://Scripts/Enemy/SkullWolf/health.gd" id="4_topbx"]
 [ext_resource type="Script" uid="uid://cnwd0tvsdpuar" path="res://Scripts/Enemy/SkullWolf/Hitbox.gd" id="5_hitbox"]
 [ext_resource type="Script" uid="uid://cgf2i2q3ctmeq" path="res://Scripts/Enemy/SkullWolf/Hurtbox.gd" id="6_hurtbox"]
+[ext_resource type="PackedScene" uid="uid://d5n2my9h3lth3" path="res://Scenes/UI/enemy_health_bar.tscn" id="hpbar_1"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_14j7o"]
 radius = 8.98319
@@ -166,3 +167,6 @@ debug_color = Color(0.165779, 0.517173, 1, 0.42)
 
 [node name="Health" type="Node" parent="." unique_id=1636772218]
 script = ExtResource("4_topbx")
+
+[node name="HealthBar" parent="." unique_id=1952099019 instance=ExtResource("hpbar_1")]
+position = Vector2(0, -46)

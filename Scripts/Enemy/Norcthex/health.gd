@@ -4,7 +4,7 @@ extends Node
 signal death
 signal damaged(amount: int)
 
-@export var max_health: int = 20
+@export var max_health: int = 14
 var current_health: int
 
 func _ready():

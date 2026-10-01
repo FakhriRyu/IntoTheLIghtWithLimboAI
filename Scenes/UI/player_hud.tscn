@@ -1,0 +1,89 @@
+[gd_scene format=3 uid="uid://c8h2ud9pl4yr1"]
+
+[ext_resource type="Script" path="res://Scripts/UI/player_hud.gd" id="1_y31ga"]
+[ext_resource type="Texture2D" path="res://Assets/Warrior/idle/Warrior_Idle_1.png" id="2_jh2mb"]
+
+[node name="PlayerHUD" type="CanvasLayer" unique_id=1332670053]
+layer = 10
+script = ExtResource("1_y31ga")
+
+[node name="Root" type="Control" parent="." unique_id=1943270001]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Panel" type="Control" parent="Root" unique_id=518561922]
+anchors_preset = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -160.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = 56.0
+mouse_filter = 2
+
+[node name="Bg" type="ColorRect" parent="Root/Panel" unique_id=2113428879]
+layout_mode = 0
+offset_right = 152.0
+offset_bottom = 48.0
+mouse_filter = 2
+color = Color(0.06, 0.07, 0.1, 0.78)
+
+[node name="Portrait" type="TextureRect" parent="Root/Panel" unique_id=15080800]
+texture_filter = 1
+layout_mode = 0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 44.0
+offset_bottom = 44.0
+mouse_filter = 2
+texture = ExtResource("2_jh2mb")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="Root/Panel" unique_id=653552263]
+layout_mode = 0
+offset_left = 50.0
+offset_top = 3.0
+offset_right = 148.0
+offset_bottom = 26.0
+theme_override_font_sizes/font_size = 11
+text = "WARRIOR"
+
+[node name="HealthBg" type="ColorRect" parent="Root/Panel" unique_id=1680202077]
+layout_mode = 0
+offset_left = 50.0
+offset_top = 19.0
+offset_right = 148.0
+offset_bottom = 31.0
+mouse_filter = 2
+color = Color(0.13, 0.14, 0.18, 0.95)
+
+[node name="HealthFill" type="ColorRect" parent="Root/Panel/HealthBg" unique_id=802194285]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = 97.0
+offset_bottom = 11.0
+mouse_filter = 2
+color = Color(0.85, 0.22, 0.25, 1)
+
+[node name="DashBg" type="ColorRect" parent="Root/Panel" unique_id=355084756]
+layout_mode = 0
+offset_left = 50.0
+offset_top = 35.0
+offset_right = 148.0
+offset_bottom = 42.0
+mouse_filter = 2
+color = Color(0.13, 0.14, 0.18, 0.95)
+
+[node name="DashFill" type="ColorRect" parent="Root/Panel/DashBg" unique_id=156992482]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = 97.0
+offset_bottom = 6.0
+mouse_filter = 2
+color = Color(0.35, 0.85, 1, 1)

@@ -164,7 +164,9 @@ Opsional, task ini juga bisa memanggil method kedua lebih dulu (`telegraph_metho
 
 ### 11. blink_away.gd
 **Type:** BTAction  
-**Fungsi:** Menghilang lalu muncul kembali di jarak aman dari target (blink/teleport). Dibuat untuk musuh yang **tidak punya animasi jalan** tapi tetap perlu menjaga jarak. Urutannya: animasi menghilang ➜ pindah posisi ➜ animasi muncul ➜ set cooldown. Ketinggian (`y`) dipertahankan supaya agent tetap berpijak di lantai yang sama.
+**Fungsi:** Menghilang lalu muncul kembali di jarak aman dari target (blink/teleport). Dibuat untuk musuh yang **tidak punya animasi jalan** tapi tetap perlu menjaga jarak. Urutannya: animasi menghilang ➜ pindah posisi ➜ animasi muncul ➜ set cooldown. Ketinggian (`y`) dipertahankan supaya agent tetap berpijak di lantai yang sama, dan titik mendarat selalu dicek ada lantainya.
+
+Selama task ini berjalan, agent ditandai **tidak bisa dihentikan** lewat `agent.set_uninterruptible(true)` (dipanggil di `_enter`, dimatikan lagi di `_exit`). Agent tetap menerima damage, tapi tidak boleh membatalkan blink — ini yang mencegah player mengunci musuh dengan serangan beruntun.
 
 **Parameters:**
 - `target_var` (StringName): Variable blackboard yang menyimpan target (default: "target")
@@ -173,6 +175,7 @@ Opsional, task ini juga bisa memanggil method kedua lebih dulu (`telegraph_metho
 - `in_animation` (StringName): Animasi saat muncul kembali (default: "fadein")
 - `blink_distance` (float): Jarak dari target tempat agent muncul kembali (default: 260.0)
 - `cooldown_duration` (float): Durasi cooldown setelah blink (default: 5.0)
+- `ground_probe` (float): Sejauh apa mencari lantai di titik tujuan (default: 320.0). Kalau tujuannya jurang, jarak blink diperpendek atau dibalik arah supaya agent tidak jatuh
 - `cooldown_var` (StringName): Variable blackboard untuk waktu cooldown berakhir (default: "blink_cooldown_end")
 
 **Returns:**

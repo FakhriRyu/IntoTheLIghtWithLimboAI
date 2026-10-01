@@ -3,8 +3,10 @@
 [ext_resource type="TileSet" uid="uid://cjgthgy87l8s4" path="res://Scenes/levels/new_tile_set.tres" id="1_cc4o1"]
 [ext_resource type="PackedScene" uid="uid://6bwtmnfhpxbs" path="res://Scenes/player/player.tscn" id="3_705lm"]
 [ext_resource type="PackedScene" uid="uid://bk26vwm358w76" path="res://Scenes/levels/background.tscn" id="4_2wxxu"]
-[ext_resource type="PackedScene" uid="uid://c7i4jb6ld3xn0" path="res://Scenes/Enemy/NorcThex/norch_thex.tscn" id="5_2wxxu"]
 [ext_resource type="Texture2D" uid="uid://bo2v582afdv37" path="res://Assets/Tiles/MainLevBuild.png" id="5_8c03g"]
+[ext_resource type="PackedScene" uid="uid://c12utjeviwbmc" path="res://Scenes/Enemy/SkullWolf/skull_wolf.tscn" id="7_8mhh4"]
+[ext_resource type="PackedScene" uid="uid://b7k3stab0ssr2" path="res://Scenes/UI/boss_health_bar.tscn" id="bossbar_1"]
+[ext_resource type="PackedScene" uid="uid://c8h2ueapl4yr1" path="res://Scenes/UI/player_hud.tscn" id="hud_1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_b1msh"]
 size = Vector2(30, 10)
@@ -238,6 +240,13 @@ position = Vector2(1191, 287.5)
 shape = SubResource("RectangleShape2D_b1msh")
 one_way_collision = true
 
-[node name="NorchThex" parent="." unique_id=1163414465 instance=ExtResource("5_2wxxu")]
-z_index = 2
-position = Vector2(837, 206)
+[node name="PlayerHUD" parent="." unique_id=592491201 instance=ExtResource("hud_1")]
+
+[node name="BossHealthBar" parent="." unique_id=1057442964 instance=ExtResource("bossbar_1")]
+
+[node name="SkullWolf" parent="." unique_id=1396096106 instance=ExtResource("7_8mhh4")]
+z_index = 6
+position = Vector2(274, 349)
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=162421704]
+color = Color(0.26, 0.28, 0.4, 1)

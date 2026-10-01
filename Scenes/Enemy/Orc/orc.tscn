@@ -14,6 +14,7 @@
 [ext_resource type="Script" uid="uid://bqvxl3nh4rw6y" path="res://Scripts/Enemy/Orc/Hitbox.gd" id="9_hitbox"]
 [ext_resource type="Script" uid="uid://dm1g7cqx3h4rp" path="res://Scripts/Enemy/Orc/Health.gd" id="10_health"]
 [ext_resource type="Script" uid="uid://cjx3y8qv2kfno" path="res://Scripts/Enemy/Orc/Hurtbox.gd" id="11_hurtbox"]
+[ext_resource type="PackedScene" uid="uid://d5n2my9h3lth3" path="res://Scenes/UI/enemy_health_bar.tscn" id="hpbar_1"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_nblag"]
 radius = 7.0
@@ -366,3 +367,6 @@ shape = SubResource("RectangleShape2D_s1jv2")
 [connection signal="body_exited" from="AttackArea" to="." method="_on_attack_area_body_exited"]
 [connection signal="body_entered" from="DetectionArea" to="." method="_on_detection_area_body_entered"]
 [connection signal="body_exited" from="DetectionArea" to="." method="_on_detection_area_body_exited"]
+
+[node name="HealthBar" parent="." unique_id=161098808 instance=ExtResource("hpbar_1")]
+position = Vector2(0, -18)

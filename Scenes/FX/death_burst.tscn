@@ -1,0 +1,27 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://Assets/FX/particle_dot.png" id="1_stlwx"]
+[ext_resource type="Script" path="res://Scripts/FX/auto_free_particles.gd" id="2_5y0b2"]
+
+[sub_resource type="Gradient" id="Gradient_gc8bi"]
+offsets = PackedFloat32Array(0, 0.4, 1)
+colors = PackedColorArray(1, 0.9, 0.85, 1, 0.85, 0.2, 0.22, 0.85, 0.25, 0.05, 0.08, 0)
+
+[node name="DeathBurst" type="CPUParticles2D" unique_id=258110660]
+texture_filter = 1
+emitting = false
+amount = 26
+texture = ExtResource("1_stlwx")
+lifetime = 0.55
+one_shot = true
+explosiveness = 0.9
+direction = Vector2(0, -1)
+spread = 180.0
+gravity = Vector2(0, 330)
+initial_velocity_min = 60.0
+initial_velocity_max = 190.0
+damping_min = 15.0
+damping_max = 40.0
+scale_amount_max = 2.6
+color_ramp = SubResource("Gradient_gc8bi")
+script = ExtResource("2_5y0b2")

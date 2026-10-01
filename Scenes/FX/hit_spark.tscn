@@ -1,0 +1,27 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://Assets/FX/particle_dot.png" id="1_xa72l"]
+[ext_resource type="Script" path="res://Scripts/FX/auto_free_particles.gd" id="2_ptdkv"]
+
+[sub_resource type="Gradient" id="Gradient_flnyp"]
+offsets = PackedFloat32Array(0, 0.45, 1)
+colors = PackedColorArray(1, 1, 0.92, 1, 1, 0.82, 0.35, 0.9, 1, 0.45, 0.15, 0)
+
+[node name="HitSpark" type="CPUParticles2D" unique_id=908800078]
+texture_filter = 1
+emitting = false
+amount = 12
+texture = ExtResource("1_xa72l")
+lifetime = 0.28
+one_shot = true
+explosiveness = 1.0
+direction = Vector2(0, -1)
+spread = 62.0
+gravity = Vector2(0, 420)
+initial_velocity_min = 120.0
+initial_velocity_max = 250.0
+damping_min = 30.0
+damping_max = 60.0
+scale_amount_max = 2.2
+color_ramp = SubResource("Gradient_flnyp")
+script = ExtResource("2_ptdkv")

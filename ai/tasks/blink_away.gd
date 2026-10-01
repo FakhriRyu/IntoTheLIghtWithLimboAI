@@ -27,6 +27,10 @@ enum Phase { OUT, IN }
 ## Durasi cooldown setelah blink (detik)
 @export var cooldown_duration: float = 5.0
 
+## Sejauh apa mencari lantai di titik tujuan. Kalau tidak ada lantai,
+## jarak blink diperpendek atau dibalik arah supaya agent tidak jatuh ke jurang.
+@export var ground_probe: float = 320.0
+
 ## Blackboard variable untuk menyimpan waktu cooldown berakhir
 @export var cooldown_var: StringName = &"blink_cooldown_end"
 
@@ -50,6 +54,11 @@ func _setup() -> void:
 func _enter() -> void:
 	phase = Phase.OUT
 	elapsed = 0.0
+
+	# Selama blink berlangsung agent tidak boleh dihentikan oleh serangan,
+	# supaya player tidak bisa mengunci agent dengan pukulan beruntun.
+	if agent.has_method("set_uninterruptible"):
+		agent.set_uninterruptible(true)
 
 	if agent is CharacterBody2D:
 		agent.velocity.x = 0
@@ -99,15 +108,47 @@ func _teleport_away(target: Node2D) -> void:
 	if away == 0.0:
 		away = -1.0
 
+	var destination: float = _pick_destination(target, away)
+	if is_inf(destination):
+		# Tidak ada tempat berpijak ke mana pun: tetap di tempat, jangan jatuh ke jurang
+		return
+
 	# Ketinggian dipertahankan supaya agent tetap berpijak di lantai yang sama
-	agent.global_position.x = target.global_position.x + away * blink_distance
+	agent.global_position.x = destination
 
 	# Muncul kembali sambil menghadap target
 	if agent.has_method("update_facing"):
 		agent.update_facing(-away)
 
 
+func _pick_destination(target: Node2D, away: float) -> float:
+	"""Memilih titik mendarat yang ada lantainya.
+	Coba jarak penuh dulu, lalu diperpendek, lalu sisi seberang."""
+	for dir: float in [away, -away]:
+		for factor: float in [1.0, 0.75, 0.5]:
+			var candidate: float = target.global_position.x + dir * blink_distance * factor
+			if _has_ground(candidate):
+				return candidate
+	return INF
+
+
+func _has_ground(at_x: float) -> bool:
+	"""Cek apakah ada lantai di bawah sebuah koordinat x."""
+	var space: PhysicsDirectSpaceState2D = agent.get_world_2d().direct_space_state
+	var from := Vector2(at_x, agent.global_position.y)
+	var query := PhysicsRayQueryParameters2D.create(from, from + Vector2(0.0, ground_probe))
+	query.collide_with_areas = false
+
+	var ignored: Array[RID] = [agent.get_rid()]
+	query.exclude = ignored
+
+	return not space.intersect_ray(query).is_empty()
+
+
 func _exit() -> void:
+	if agent.has_method("set_uninterruptible"):
+		agent.set_uninterruptible(false)
+
 	if agent is CharacterBody2D:
 		agent.velocity.x = 0
 	elapsed = 0.0

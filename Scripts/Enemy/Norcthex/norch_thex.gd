@@ -3,6 +3,13 @@ extends CharacterBody2D
 
 const KNOCKBACK_FORCE = 100.0  # Kekuatan knockback
 
+## Flag blackboard yang memberi tahu behavior tree bahwa bos baru saja dipukul,
+## supaya branch "Panic Blink" langsung menendang dan bos kabur.
+const HIT_FLAG := &"was_hit"
+
+## Warna kedip saat kena pukul (umpan balik walau bos sedang tidak bisa dihentikan)
+@export var flash_color: Color = Color(1.6, 0.6, 0.6)
+
 @export var arrow_scene: PackedScene = preload("res://Scenes/Enemy/NorcThex/arrow.tscn")
 @export var trap_scene: PackedScene = preload("res://Scenes/Enemy/NorcThex/trap.tscn")
 @export var arrow_warning_scene: PackedScene = preload("res://Scenes/Enemy/NorcThex/arrow_warning.tscn")
@@ -22,16 +29,27 @@ const KNOCKBACK_FORCE = 100.0  # Kekuatan knockback
 @onready var detection_area_boss: Area2D = $DetectionAreaBoss
 @onready var health = $Health
 @onready var bt_player = $BTPlayer
+@onready var hurt_box: Area2D = $HurtBox
 
 var is_hurt: bool = false
 var is_dead: bool = false
 var knockback_direction: Vector2 = Vector2.ZERO
 
+## Saat true, bos tetap menerima damage tapi tidak bisa dihentikan.
+## Diset oleh task blink_away.gd selama teleport berlangsung.
+var is_uninterruptible: bool = false
+
+var flash_tween: Tween
+
 
 func _ready() -> void:
 	add_to_group("enemy")
+	add_to_group("boss")   # dipakai oleh Scenes/UI/boss_health_bar.tscn
 	health.death.connect(_on_death)
 	health.damaged.connect(_on_damaged)
+
+	# Flag harus sudah ada sejak awal, kalau tidak BTCheckVar akan error tiap tick
+	bt_player.blackboard.set_var(HIT_FLAG, false)
 
 
 func _physics_process(delta: float) -> void:
@@ -140,8 +158,31 @@ func update_facing(direction: float) -> void:
 	marker_2d.position.x = abs(marker_2d.position.x) * (-1 if direction < 0 else 1)
 
 
+func set_uninterruptible(value: bool) -> void:
+	"""Dipanggil oleh task BT yang sedang menjalankan gerakan yang tidak boleh dibatalkan."""
+	is_uninterruptible = value
+
+
+func _flash() -> void:
+	"""Kedip merah sebagai tanda pukulan masuk."""
+	if flash_tween and flash_tween.is_running():
+		flash_tween.kill()
+
+	sprite.modulate = flash_color
+	flash_tween = create_tween()
+	flash_tween.tween_property(sprite, "modulate", Color.WHITE, 0.15)
+
+
 func _on_damaged(_amount: int) -> void:
-	if is_hurt or is_dead:
+	if is_dead:
+		return
+
+	# Pukulan selalu terasa, walau bos sedang tidak bisa dihentikan
+	_flash()
+
+	# Sedang teleport: HP tetap berkurang, tapi gerakannya tidak boleh dibatalkan.
+	# Inilah yang mencegah player mengunci bos dengan serangan beruntun.
+	if is_uninterruptible or is_hurt:
 		return
 
 	is_hurt = true
@@ -186,9 +227,12 @@ func _end_hurt_state() -> void:
 	knockback_direction = Vector2.ZERO
 	velocity.x = 0
 
-	# Restart AI jika masih hidup
+	# Restart AI jika masih hidup, lalu suruh langsung kabur.
+	# Flag diset SESUDAH restart supaya tidak ikut terhapus kalau restart
+	# membersihkan state tree.
 	if health.current_health > 0:
 		bt_player.restart()
+		bt_player.blackboard.set_var(HIT_FLAG, true)
 
 
 func _on_death() -> void:
@@ -197,9 +241,14 @@ func _on_death() -> void:
 
 	is_dead = true
 	is_hurt = false
+	is_uninterruptible = false
 
 	# Stop AI behavior
 	bt_player.set_active(false)
+
+	# Bos sudah mati: jangan terima pukulan lagi selama animasi death
+	hurt_box.set_deferred("monitoring", false)
+	hurt_box.set_deferred("monitorable", false)
 
 	# Play death animation
 	animation_player.play("death")

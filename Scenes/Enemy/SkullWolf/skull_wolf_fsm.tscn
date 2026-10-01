@@ -9,6 +9,7 @@
 [ext_resource type="Script" uid="uid://d0608kipxkckj" path="res://Scripts/Enemy/SkullWolfFSM/states/hurt.gd" id="6_psjb7"]
 [ext_resource type="Script" uid="uid://cgf2i2q3ctmeq" path="res://Scripts/Enemy/SkullWolf/Hurtbox.gd" id="7_psjb7"]
 [ext_resource type="Script" uid="uid://cnwd0tvsdpuar" path="res://Scripts/Enemy/SkullWolf/Hitbox.gd" id="8_x5s2l"]
+[ext_resource type="PackedScene" uid="uid://d5n2my9h3lth3" path="res://Scenes/UI/enemy_health_bar.tscn" id="hpbar_1"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_n8wxb"]
 radius = 7.0
@@ -191,3 +192,6 @@ debug_color = Color(0.96, 0, 0.0159998, 0.419608)
 
 [connection signal="body_entered" from="DetectionArea" to="." method="_on_detection_area_body_entered"]
 [connection signal="body_exited" from="DetectionArea" to="." method="_on_detection_area_body_exited"]
+
+[node name="HealthBar" parent="." unique_id=992695476 instance=ExtResource("hpbar_1")]
+position = Vector2(0, -6)

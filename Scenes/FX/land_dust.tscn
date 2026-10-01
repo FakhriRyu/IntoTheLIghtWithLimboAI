@@ -1,0 +1,29 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://Assets/FX/particle_dot.png" id="1_7qyvb"]
+[ext_resource type="Script" path="res://Scripts/FX/auto_free_particles.gd" id="2_08lih"]
+
+[sub_resource type="Gradient" id="Gradient_e8xy3"]
+colors = PackedColorArray(0.82, 0.8, 0.72, 0.75, 0.6, 0.58, 0.5, 0)
+
+[node name="LandDust" type="CPUParticles2D" unique_id=1862696056]
+texture_filter = 1
+emitting = false
+amount = 10
+texture = ExtResource("1_7qyvb")
+lifetime = 0.38
+one_shot = true
+explosiveness = 1.0
+emission_shape = 1
+emission_sphere_radius = 6.0
+direction = Vector2(0, -1)
+spread = 85.0
+gravity = Vector2(0, 80)
+initial_velocity_min = 18.0
+initial_velocity_max = 62.0
+damping_min = 25.0
+damping_max = 50.0
+scale_amount_min = 1.5
+scale_amount_max = 3.0
+color_ramp = SubResource("Gradient_e8xy3")
+script = ExtResource("2_08lih")

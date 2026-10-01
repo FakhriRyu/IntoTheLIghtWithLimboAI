@@ -1,0 +1,60 @@
+[gd_scene format=3 uid="uid://b7k3ss9b0ssr2"]
+
+[ext_resource type="Script" path="res://Scripts/UI/boss_health_bar.gd" id="1_yxwhj"]
+
+[node name="BossHealthBar" type="CanvasLayer" unique_id=144232144]
+layer = 9
+script = ExtResource("1_yxwhj")
+
+[node name="Root" type="Control" parent="." unique_id=732006622]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Bar" type="Control" parent="Root" unique_id=490609899]
+anchors_preset = 0
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -210.0
+offset_top = -58.0
+offset_right = 210.0
+offset_bottom = -14.0
+mouse_filter = 2
+
+[node name="Bg" type="ColorRect" parent="Root/Bar" unique_id=1004053873]
+layout_mode = 0
+offset_right = 420.0
+offset_bottom = 44.0
+mouse_filter = 2
+color = Color(0.06, 0.07, 0.1, 0.78)
+
+[node name="NameLabel" type="Label" parent="Root/Bar" unique_id=272286821]
+layout_mode = 0
+offset_top = 4.0
+offset_right = 420.0
+offset_bottom = 27.0
+theme_override_font_sizes/font_size = 14
+text = "NORC'THEX"
+horizontal_alignment = 1
+
+[node name="BarBg" type="ColorRect" parent="Root/Bar" unique_id=911463531]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 23.0
+offset_right = 410.0
+offset_bottom = 39.0
+mouse_filter = 2
+color = Color(0.13, 0.14, 0.18, 0.95)
+
+[node name="BarFill" type="ColorRect" parent="Root/Bar/BarBg" unique_id=488876523]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = 398.0
+offset_bottom = 14.0
+mouse_filter = 2
+color = Color(0.72, 0.13, 0.16, 1)

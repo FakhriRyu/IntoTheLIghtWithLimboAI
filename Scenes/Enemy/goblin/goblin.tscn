@@ -15,6 +15,7 @@
 [ext_resource type="Script" uid="uid://b208mw11kcm2i" path="res://Scripts/Enemy/goblin/states/hurt.gd" id="12_o0y2h"]
 [ext_resource type="Script" uid="uid://brfd6qcbik4fa" path="res://Scripts/Enemy/goblin/hurtbox.gd" id="13_hurtbox"]
 [ext_resource type="Script" uid="uid://cx01a3pejhwa7" path="res://Scripts/Enemy/goblin/hitbox.gd" id="14_hitbox"]
+[ext_resource type="PackedScene" uid="uid://d5n2my9h3lth3" path="res://Scenes/UI/enemy_health_bar.tscn" id="hpbar_1"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_b1msh"]
 height = 32.0
@@ -391,3 +392,6 @@ script = ExtResource("8_4xagn")
 [connection signal="body_exited" from="GoblinDetection" to="." method="_on_goblin_detection_body_exited"]
 [connection signal="body_entered" from="GoblinAttackArea" to="." method="_on_goblin_attack_area_body_entered"]
 [connection signal="body_exited" from="GoblinAttackArea" to="." method="_on_goblin_attack_area_body_exited"]
+
+[node name="HealthBar" parent="." unique_id=382947329 instance=ExtResource("hpbar_1")]
+position = Vector2(0, -16)
