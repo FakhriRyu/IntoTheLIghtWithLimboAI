@@ -1,0 +1,54 @@
+[gd_scene format=3 uid="uid://c7tv8sguiyrof"]
+
+[ext_resource type="Script" uid="uid://cd1cqspiw875a" path="res://Scripts/Levels/tower_level.gd" id="1_tower"]
+[ext_resource type="TileSet" path="res://Scenes/levels/tower_tile_set.tres" id="2_tiles"]
+[ext_resource type="PackedScene" uid="uid://6bwtmnfhpxbs" path="res://Scenes/player/player.tscn" id="3_player"]
+[ext_resource type="PackedScene" uid="uid://c8h2ueapl4yr1" path="res://Scenes/UI/player_hud.tscn" id="4_hud"]
+
+[node name="tower" type="Node2D" unique_id=566720779]
+script = ExtResource("1_tower")
+
+[node name="Background" type="ColorRect" parent="." unique_id=513081843]
+z_index = -20
+mouse_filter = 2
+color = Color(0.96, 0.86, 0.62, 1)
+
+[node name="tilemaps" type="Node2D" parent="." unique_id=785045433]
+scale = Vector2(2, 2)
+
+[node name="BackTiles" type="TileMapLayer" parent="tilemaps" unique_id=486904425]
+modulate = Color(0.5, 0.5, 0.58, 1)
+z_index = -10
+tile_set = ExtResource("2_tiles")
+collision_enabled = false
+
+[node name="Decor" type="TileMapLayer" parent="tilemaps" unique_id=2044969187]
+z_index = -5
+tile_set = ExtResource("2_tiles")
+collision_enabled = false
+
+[node name="Walls" type="TileMapLayer" parent="tilemaps" unique_id=979955211]
+tile_set = ExtResource("2_tiles")
+
+[node name="Platforms" type="TileMapLayer" parent="tilemaps" unique_id=298339839 groups=["one_way_platform"]]
+tile_set = ExtResource("2_tiles")
+
+[node name="Props" type="TileMapLayer" parent="." unique_id=383577902]
+z_index = -1
+tile_set = ExtResource("2_tiles")
+collision_enabled = false
+
+[node name="Enemies" type="Node2D" parent="." unique_id=188265259]
+
+[node name="Player" parent="." unique_id=1823714558 instance=ExtResource("3_player")]
+z_index = 5
+
+[node name="Camera2D" type="Camera2D" parent="Player" unique_id=1078728325]
+zoom = Vector2(1.25, 1.25)
+position_smoothing_enabled = true
+position_smoothing_speed = 6.0
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=1219835643]
+color = Color(0.45, 0.55, 0.5, 1)
+
+[node name="PlayerHUD" parent="." unique_id=25717361 instance=ExtResource("4_hud")]

@@ -1,0 +1,71 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/Levels/cave_exit.gd" id="1_7kpah"]
+[ext_resource type="Texture2D" path="res://Assets/FX/particle_dot.png" id="2_2lhpy"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wwifd"]
+size = Vector2(40, 80)
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_ev2vu"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="Gradient_4lpxh"]
+colors = PackedColorArray(0.75, 0.92, 1, 0, 0.75, 0.92, 1, 0.55)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_jcymt"]
+gradient = SubResource("Gradient_4lpxh")
+width = 28
+height = 120
+fill_from = Vector2(0.5, 0)
+fill_to = Vector2(0.5, 1)
+
+[sub_resource type="Gradient" id="Gradient_wx6xi"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_5nu3i"]
+gradient = SubResource("Gradient_wx6xi")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="Gradient" id="Gradient_p311l"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(1, 1, 1, 0, 0.8, 0.95, 1, 0.9, 0.6, 0.85, 1, 0)
+
+[node name="CaveExit" type="Area2D" unique_id=659776663]
+collision_layer = 0
+script = ExtResource("1_7kpah")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=454953386]
+position = Vector2(0, -40)
+shape = SubResource("RectangleShape2D_wwifd")
+
+[node name="Beam" type="Sprite2D" parent="." unique_id=1601704249]
+material = SubResource("CanvasItemMaterial_ev2vu")
+position = Vector2(0, -60)
+texture = SubResource("GradientTexture2D_jcymt")
+
+[node name="Light" type="PointLight2D" parent="." unique_id=970913458]
+position = Vector2(0, -48)
+color = Color(0.72, 0.9, 1, 1)
+energy = 1.6
+texture = SubResource("GradientTexture2D_5nu3i")
+texture_scale = 2.6
+
+[node name="Motes" type="CPUParticles2D" parent="." unique_id=552410607]
+texture_filter = 1
+position = Vector2(0, -6)
+amount = 18
+texture = ExtResource("2_2lhpy")
+lifetime = 1.8
+emission_shape = 3
+emission_rect_extents = Vector2(14, 4)
+direction = Vector2(0, -1)
+spread = 12.0
+gravity = Vector2(0, -10)
+initial_velocity_min = 18.0
+initial_velocity_max = 42.0
+scale_amount_max = 2.0
+color_ramp = SubResource("Gradient_p311l")
