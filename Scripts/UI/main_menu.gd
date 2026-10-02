@@ -10,6 +10,9 @@ extends Node2D
 const LIGHT_WHITE := Color(1.0, 0.96, 0.86)
 const INTRO_TIME := 1.4
 const START_RUN_TIME := 1.7
+## Cutscene pembuka (Prolog) yang diputar sebelum level pertama run baru.
+## Prolog sendiri lalu membuka RunState.run_start_scene.
+const PROLOG_SCENE := "res://Scenes/Cutscene/prolog_cutscene.tscn"
 ## Jarak penanda (nyala kecil) di kiri tombol yang terpilih
 const MARKER_GAP := 14.0
 ## Penjelasan tiap kesulitan, urut sesuai RunState.Difficulty
@@ -301,7 +304,9 @@ func _begin_run() -> void:
 	t.tween_interval(0.15)
 	t.tween_property(rect, "modulate:a", 0.0, 1.0).set_trans(Tween.TRANS_SINE)
 	t.tween_callback(layer.queue_free)
-	get_tree().change_scene_to_file(RunState.run_start_scene)
+	# Run baru dari menu: putar Prolog dulu (mati lalu ulang tetap langsung ke menara)
+	var first := PROLOG_SCENE if ResourceLoader.exists(PROLOG_SCENE) else RunState.run_start_scene
+	get_tree().change_scene_to_file(first)
 
 
 func _on_controls_pressed() -> void:
