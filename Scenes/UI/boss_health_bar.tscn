@@ -1,6 +1,13 @@
 [gd_scene format=3 uid="uid://b7k3ss9b0ssr2"]
 
 [ext_resource type="Script" path="res://Scripts/UI/boss_health_bar.gd" id="1_yxwhj"]
+[ext_resource type="Theme" path="res://Assets/ui/pixel_theme.tres" id="2_theme"]
+[ext_resource type="FontFile" path="res://Assets/fonts/Jacquard24-Regular.ttf" id="3_title"]
+[ext_resource type="Texture2D" path="res://Assets/ui/boss_bar_frame.png" id="4_frame"]
+[ext_resource type="Texture2D" path="res://Assets/ui/boss_bar_fill.png" id="5_fill"]
+[ext_resource type="Texture2D" path="res://Assets/ui/boss_bar_tick.png" id="6_tick"]
+[ext_resource type="Texture2D" path="res://Assets/ui/boss_crest.png" id="7_crest"]
+[ext_resource type="Texture2D" path="res://Assets/ui/boss_crest_eyes.png" id="8_eyes"]
 
 [node name="BossHealthBar" type="CanvasLayer" unique_id=144232144]
 layer = 9
@@ -12,6 +19,7 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
+theme = ExtResource("2_theme")
 
 [node name="Bar" type="Control" parent="Root" unique_id=490609899]
 anchors_preset = 0
@@ -19,42 +27,95 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -210.0
-offset_top = -58.0
-offset_right = 210.0
-offset_bottom = -14.0
+offset_left = -180.0
+offset_top = -82.0
+offset_right = 180.0
+offset_bottom = -6.0
 mouse_filter = 2
-
-[node name="Bg" type="ColorRect" parent="Root/Bar" unique_id=1004053873]
-layout_mode = 0
-offset_right = 420.0
-offset_bottom = 44.0
-mouse_filter = 2
-color = Color(0.06, 0.07, 0.1, 0.78)
 
 [node name="NameLabel" type="Label" parent="Root/Bar" unique_id=272286821]
 layout_mode = 0
-offset_top = 4.0
-offset_right = 420.0
-offset_bottom = 27.0
-theme_override_font_sizes/font_size = 14
-text = "NORC'THEX"
-horizontal_alignment = 1
+offset_left = 62.0
+offset_top = 12.0
+offset_right = 222.0
+offset_bottom = 40.0
+theme_override_colors/font_color = Color(0.93, 0.86, 0.76, 1)
+theme_override_colors/font_outline_color = Color(0.22, 0.02, 0.05, 1)
+theme_override_constants/outline_size = 6
+theme_override_fonts/font = ExtResource("3_title")
+theme_override_font_sizes/font_size = 24
+text = "Norc'Thex"
+vertical_alignment = 2
 
-[node name="BarBg" type="ColorRect" parent="Root/Bar" unique_id=911463531]
+[node name="TitleLabel" type="Label" parent="Root/Bar" unique_id=1820463301]
 layout_mode = 0
-offset_left = 10.0
-offset_top = 23.0
-offset_right = 410.0
-offset_bottom = 39.0
-mouse_filter = 2
-color = Color(0.13, 0.14, 0.18, 0.95)
+offset_left = 190.0
+offset_top = 20.0
+offset_right = 352.0
+offset_bottom = 40.0
+theme_override_colors/font_color = Color(0.62, 0.22, 0.24, 1)
+theme_override_font_sizes/font_size = 16
+text = "Sang Pemburu Kegelapan"
+horizontal_alignment = 2
+vertical_alignment = 2
 
-[node name="BarFill" type="ColorRect" parent="Root/Bar/BarBg" unique_id=488876523]
+[node name="Frame" type="TextureRect" parent="Root/Bar" unique_id=1004053873]
 layout_mode = 0
-offset_left = 2.0
-offset_top = 2.0
-offset_right = 398.0
-offset_bottom = 14.0
+offset_left = 44.0
+offset_top = 38.0
+offset_right = 356.0
+offset_bottom = 65.0
 mouse_filter = 2
-color = Color(0.72, 0.13, 0.16, 1)
+texture = ExtResource("4_frame")
+
+[node name="Trail" type="TextureProgressBar" parent="Root/Bar/Frame" unique_id=911463531]
+layout_mode = 0
+offset_left = 9.0
+offset_top = 8.0
+offset_right = 303.0
+offset_bottom = 19.0
+mouse_filter = 2
+max_value = 1.0
+step = 0.0
+value = 1.0
+texture_progress = ExtResource("5_fill")
+tint_progress = Color(1, 0.8, 0.55, 1)
+
+[node name="Fill" type="TextureProgressBar" parent="Root/Bar/Frame" unique_id=488876523]
+layout_mode = 0
+offset_left = 9.0
+offset_top = 8.0
+offset_right = 303.0
+offset_bottom = 19.0
+mouse_filter = 2
+max_value = 1.0
+step = 0.0
+value = 1.0
+texture_progress = ExtResource("5_fill")
+tint_progress = Color(0.78, 0.1, 0.14, 1)
+
+[node name="Tick" type="TextureRect" parent="Root/Bar/Frame" unique_id=1530277412]
+layout_mode = 0
+offset_left = 154.0
+offset_top = 5.0
+offset_right = 159.0
+offset_bottom = 22.0
+pivot_offset = Vector2(2.5, 8.5)
+mouse_filter = 2
+texture = ExtResource("6_tick")
+
+[node name="Crest" type="TextureRect" parent="Root/Bar" unique_id=1688170254]
+layout_mode = 0
+offset_top = 16.0
+offset_right = 60.0
+offset_bottom = 74.0
+pivot_offset = Vector2(30, 35)
+mouse_filter = 2
+texture = ExtResource("7_crest")
+
+[node name="Eyes" type="TextureRect" parent="Root/Bar/Crest" unique_id=1112407539]
+layout_mode = 0
+offset_right = 60.0
+offset_bottom = 58.0
+mouse_filter = 2
+texture = ExtResource("8_eyes")

@@ -1,9 +1,24 @@
 [gd_scene format=3 uid="uid://c8h2ud9pl4yr1"]
 
 [ext_resource type="Script" path="res://Scripts/UI/player_hud.gd" id="1_y31ga"]
-[ext_resource type="Texture2D" path="res://Assets/Warrior/idle/Warrior_Idle_1.png" id="2_jh2mb"]
+[ext_resource type="Texture2D" path="res://Assets/ui/hud_portrait_fiora.png" id="2_jh2mb"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/level_up_screen.tscn" id="3_lvlup"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/run_over_screen.tscn" id="4_over"]
+[ext_resource type="Theme" path="res://Assets/ui/pixel_theme.tres" id="5_theme"]
+[ext_resource type="Texture2D" path="res://Assets/ui/hud_bar_hp.png" id="6_hp"]
+[ext_resource type="Texture2D" path="res://Assets/ui/hud_bar_hp_fill.png" id="7_hpf"]
+[ext_resource type="Texture2D" path="res://Assets/ui/hud_bar_light.png" id="8_li"]
+[ext_resource type="Texture2D" path="res://Assets/ui/hud_bar_light_fill.png" id="9_lif"]
+[ext_resource type="Texture2D" path="res://Assets/ui/hud_bar_dash.png" id="10_da"]
+[ext_resource type="Texture2D" path="res://Assets/ui/hud_bar_dash_fill.png" id="11_daf"]
+[ext_resource type="Texture2D" path="res://Assets/ui/hud_bar_xp.png" id="12_xp"]
+[ext_resource type="Texture2D" path="res://Assets/ui/hud_bar_xp_fill.png" id="13_xpf"]
+[ext_resource type="Texture2D" path="res://Assets/ui/hud_level_chip.png" id="14_chip"]
+[ext_resource type="Texture2D" path="res://Assets/ui/hud_portrait_back.png" id="15_pback"]
+[ext_resource type="Texture2D" path="res://Assets/ui/hud_portrait_ring.png" id="16_pring"]
+[ext_resource type="Texture2D" path="res://Assets/ui/btn_pause.png" id="17_pause"]
+[ext_resource type="Texture2D" path="res://Assets/ui/btn_pause_hover.png" id="18_pauseh"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/pause_menu.tscn" id="19_pmenu"]
 
 [node name="PlayerHUD" type="CanvasLayer" unique_id=1332670053]
 layer = 10
@@ -15,117 +30,205 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
+theme = ExtResource("5_theme")
 
-[node name="Panel" type="Control" parent="Root" unique_id=518561922]
+[node name="Panel" type="Control" parent="Root"]
 anchors_preset = 0
-anchor_left = 1.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = 220.0
+offset_bottom = 72.0
+mouse_filter = 2
+
+[node name="XpFrame" type="TextureRect" parent="Root/Panel"]
+layout_mode = 0
+offset_left = 80.0
+offset_top = 55.0
+offset_right = 184.0
+offset_bottom = 60.0
+mouse_filter = 2
+texture = ExtResource("12_xp")
+
+[node name="XpFill" type="TextureProgressBar" parent="Root/Panel/XpFrame"]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = 102.0
+offset_bottom = 4.0
+mouse_filter = 2
+max_value = 1.0
+step = 0.0
+texture_progress = ExtResource("13_xpf")
+tint_progress = Color(0.4, 0.95, 1, 1)
+
+[node name="LevelChip" type="TextureRect" parent="Root/Panel"]
+layout_mode = 0
+offset_left = 49.0
+offset_top = 50.0
+offset_right = 83.0
+offset_bottom = 65.0
+mouse_filter = 2
+texture = ExtResource("14_chip")
+
+[node name="LevelLabel" type="Label" parent="Root/Panel/LevelChip"]
+layout_mode = 1
+anchors_preset = 15
 anchor_right = 1.0
-offset_left = -160.0
-offset_top = 8.0
-offset_right = -8.0
-offset_bottom = 66.0
-mouse_filter = 2
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = -3.0
+offset_right = -6.0
+offset_bottom = 1.0
+theme_override_colors/font_color = Color(0.82, 0.92, 1, 1)
+text = "Lv 1"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="Bg" type="ColorRect" parent="Root/Panel" unique_id=2113428879]
+[node name="HpFrame" type="TextureRect" parent="Root/Panel"]
 layout_mode = 0
-offset_right = 152.0
+offset_left = 46.0
+offset_top = 14.0
+offset_right = 214.0
+offset_bottom = 30.0
+mouse_filter = 2
+texture = ExtResource("6_hp")
+
+[node name="HpTrail" type="TextureProgressBar" parent="Root/Panel/HpFrame"]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = 164.0
+offset_bottom = 14.0
+mouse_filter = 2
+max_value = 1.0
+step = 0.0
+value = 1.0
+texture_progress = ExtResource("7_hpf")
+tint_progress = Color(1, 0.86, 0.7, 1)
+
+[node name="HpFill" type="TextureProgressBar" parent="Root/Panel/HpFrame"]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = 164.0
+offset_bottom = 14.0
+mouse_filter = 2
+max_value = 1.0
+step = 0.0
+value = 1.0
+texture_progress = ExtResource("7_hpf")
+tint_progress = Color(0.85, 0.22, 0.25, 1)
+
+[node name="HpText" type="Label" parent="Root/Panel/HpFrame"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -2.0
+offset_right = -10.0
+offset_bottom = 1.0
+theme_override_colors/font_color = Color(1, 0.93, 0.78, 1)
+text = "5/5"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LightFrame" type="TextureRect" parent="Root/Panel"]
+layout_mode = 0
+offset_left = 46.0
+offset_top = 31.0
+offset_right = 178.0
+offset_bottom = 42.0
+mouse_filter = 2
+texture = ExtResource("8_li")
+
+[node name="LightFill" type="TextureProgressBar" parent="Root/Panel/LightFrame"]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = 128.0
+offset_bottom = 9.0
+mouse_filter = 2
+max_value = 1.0
+step = 0.0
+value = 1.0
+texture_progress = ExtResource("9_lif")
+tint_progress = Color(1, 0.82, 0.4, 1)
+
+[node name="DashFrame" type="TextureRect" parent="Root/Panel"]
+layout_mode = 0
+offset_left = 46.0
+offset_top = 43.0
+offset_right = 150.0
+offset_bottom = 49.0
+mouse_filter = 2
+texture = ExtResource("10_da")
+
+[node name="DashFill" type="TextureProgressBar" parent="Root/Panel/DashFrame"]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = 100.0
+offset_bottom = 4.0
+mouse_filter = 2
+max_value = 1.0
+step = 0.0
+value = 1.0
+texture_progress = ExtResource("11_daf")
+tint_progress = Color(0.35, 0.85, 1, 1)
+
+[node name="Portrait" type="TextureRect" parent="Root/Panel"]
+clip_children = 2
+layout_mode = 0
+offset_right = 68.0
+offset_bottom = 64.0
+mouse_filter = 2
+texture = ExtResource("15_pback")
+
+[node name="Face" type="TextureRect" parent="Root/Panel/Portrait"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 6.0
+offset_right = 62.0
 offset_bottom = 58.0
-mouse_filter = 2
-color = Color(0.06, 0.07, 0.1, 0.78)
-
-[node name="Portrait" type="TextureRect" parent="Root/Panel" unique_id=15080800]
-texture_filter = 1
-layout_mode = 0
-offset_left = 4.0
-offset_top = 4.0
-offset_right = 44.0
-offset_bottom = 44.0
 mouse_filter = 2
 texture = ExtResource("2_jh2mb")
 expand_mode = 1
-stretch_mode = 5
 
-[node name="NameLabel" type="Label" parent="Root/Panel" unique_id=653552263]
+[node name="PortraitRing" type="TextureRect" parent="Root/Panel"]
 layout_mode = 0
-offset_left = 50.0
-offset_top = 3.0
-offset_right = 148.0
-offset_bottom = 26.0
-theme_override_font_sizes/font_size = 11
-text = "WARRIOR"
-
-[node name="HealthBg" type="ColorRect" parent="Root/Panel" unique_id=1680202077]
-layout_mode = 0
-offset_left = 50.0
-offset_top = 19.0
-offset_right = 148.0
-offset_bottom = 29.0
+offset_right = 68.0
+offset_bottom = 64.0
 mouse_filter = 2
-color = Color(0.13, 0.14, 0.18, 0.95)
+texture = ExtResource("16_pring")
 
-[node name="HealthFill" type="ColorRect" parent="Root/Panel/HealthBg" unique_id=802194285]
+[node name="NameLabel" type="Label" parent="Root/Panel"]
 layout_mode = 0
-offset_left = 1.0
-offset_top = 1.0
-offset_right = 97.0
-offset_bottom = 9.0
-mouse_filter = 2
-color = Color(0.85, 0.22, 0.25, 1)
+offset_left = 64.0
+offset_top = -5.0
+offset_right = 200.0
+offset_bottom = 15.0
+theme_override_colors/font_color = Color(1, 0.7, 0.28, 1)
+text = "FIORA"
 
-[node name="DashBg" type="ColorRect" parent="Root/Panel" unique_id=355084756]
-layout_mode = 0
-offset_left = 50.0
-offset_top = 43.0
-offset_right = 148.0
-offset_bottom = 47.0
-mouse_filter = 2
-color = Color(0.13, 0.14, 0.18, 0.95)
-
-[node name="DashFill" type="ColorRect" parent="Root/Panel/DashBg" unique_id=156992482]
-layout_mode = 0
-offset_left = 1.0
-offset_top = 1.0
-offset_right = 97.0
-offset_bottom = 3.0
-mouse_filter = 2
-color = Color(0.35, 0.85, 1, 1)
-
-[node name="LightBg" type="ColorRect" parent="Root/Panel" unique_id=1400200301]
-layout_mode = 0
-offset_left = 50.0
-offset_top = 32.0
-offset_right = 148.0
-offset_bottom = 40.0
-mouse_filter = 2
-color = Color(0.13, 0.14, 0.18, 0.95)
-
-[node name="LightFill" type="ColorRect" parent="Root/Panel/LightBg" unique_id=1400200302]
-layout_mode = 0
-offset_left = 1.0
-offset_top = 1.0
-offset_right = 97.0
-offset_bottom = 7.0
-mouse_filter = 2
-color = Color(1, 0.82, 0.4, 1)
-
-[node name="XpBg" type="ColorRect" parent="Root/Panel" unique_id=1400200303]
-layout_mode = 0
-offset_left = 4.0
-offset_top = 50.0
-offset_right = 148.0
-offset_bottom = 54.0
-mouse_filter = 2
-color = Color(0.13, 0.14, 0.18, 0.95)
-
-[node name="XpFill" type="ColorRect" parent="Root/Panel/XpBg" unique_id=1400200304]
-layout_mode = 0
-offset_left = 1.0
-offset_top = 1.0
-offset_right = 143.0
-offset_bottom = 3.0
-mouse_filter = 2
-color = Color(0.4, 0.95, 1, 1)
+[node name="PauseButton" type="TextureButton" parent="Root"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -30.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = 30.0
+grow_horizontal = 0
+tooltip_text = "Jeda (Esc)"
+focus_mode = 0
+texture_normal = ExtResource("17_pause")
+texture_pressed = ExtResource("18_pauseh")
+texture_hover = ExtResource("18_pauseh")
 
 [node name="LevelUpScreen" parent="." unique_id=1400200305 instance=ExtResource("3_lvlup")]
 
 [node name="RunOverScreen" parent="." unique_id=1400200306 instance=ExtResource("4_over")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("19_pmenu")]

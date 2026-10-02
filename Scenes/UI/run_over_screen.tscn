@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://Scripts/UI/run_over_screen.gd" id="1_over"]
+[ext_resource type="Theme" path="res://Assets/ui/pixel_theme.tres" id="2_theme"]
 
 [node name="RunOverScreen" type="CanvasLayer"]
 process_mode = 3
@@ -14,6 +15,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("2_theme")
 
 [node name="Dim" type="ColorRect" parent="Root"]
 layout_mode = 1
@@ -28,27 +30,124 @@ color = Color(0, 0, 0, 0.88)
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_top = 120.0
-offset_bottom = 156.0
+offset_top = 30.0
+offset_bottom = 100.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(1, 0.75, 0.45, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(1, 0.62, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0.18, 0.04, 0.02, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 56
 text = "CAHAYAMU PADAM"
 horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="Summary" type="Label" parent="Root"]
+[node name="Panel" type="PanelContainer" parent="Root"]
 layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_left = 60.0
-offset_top = 176.0
-offset_right = -60.0
-offset_bottom = 300.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_top = 10.0
+offset_bottom = 10.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0.82, 0.84, 0.9, 1)
-theme_override_font_sizes/font_size = 13
+grow_vertical = 2
+
+[node name="Body" type="VBoxContainer" parent="Root/Panel"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Stats" type="HBoxContainer" parent="Root/Panel/Body"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="Level" type="VBoxContainer" parent="Root/Panel/Body/Stats"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = -6
+
+[node name="Caption" type="Label" parent="Root/Panel/Body/Stats/Level"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.6, 0.78, 1)
+text = "LEVEL TERCAPAI"
 horizontal_alignment = 1
-autowrap_mode = 3
+
+[node name="Value" type="Label" parent="Root/Panel/Body/Stats/Level"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.3, 1)
+theme_override_font_sizes/font_size = 37
+text = "1"
+horizontal_alignment = 1
+
+[node name="Kills" type="VBoxContainer" parent="Root/Panel/Body/Stats"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = -6
+
+[node name="Caption" type="Label" parent="Root/Panel/Body/Stats/Kills"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.6, 0.78, 1)
+text = "MUSUH DIKALAHKAN"
+horizontal_alignment = 1
+
+[node name="Value" type="Label" parent="Root/Panel/Body/Stats/Kills"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.3, 1)
+theme_override_font_sizes/font_size = 37
+text = "0"
+horizontal_alignment = 1
+
+[node name="Divider" type="ColorRect" parent="Root/Panel/Body"]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+color = Color(0.18, 0.22, 0.38, 1)
+
+[node name="UpgradeCaption" type="Label" parent="Root/Panel/Body"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.6, 0.78, 1)
+text = "UPGRADE"
+horizontal_alignment = 1
+
+[node name="Upgrades" type="GridContainer" parent="Root/Panel/Body"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+columns = 7
+
+[node name="NoUpgrades" type="Label" parent="Root/Panel/Body"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.48, 0.58, 1)
+text = "Tanpa upgrade"
+horizontal_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -150.0
+offset_top = -86.0
+offset_right = 150.0
+offset_bottom = -62.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="Retry" type="Button" parent="Root/Buttons"]
+custom_minimum_size = Vector2(130, 24)
+layout_mode = 2
+text = "Coba Lagi"
+
+[node name="Menu" type="Button" parent="Root/Buttons"]
+custom_minimum_size = Vector2(130, 24)
+layout_mode = 2
+text = "Menu Utama"
 
 [node name="Hint" type="Label" parent="Root"]
 layout_mode = 1
@@ -56,11 +155,9 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -80.0
-offset_bottom = -56.0
+offset_top = -44.0
+offset_bottom = -22.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_colors/font_color = Color(0.6, 0.62, 0.7, 1)
-theme_override_font_sizes/font_size = 12
-text = "Tekan J / Space untuk memulai run baru"
+theme_override_colors/font_color = Color(0.55, 0.57, 0.65, 1)
 horizontal_alignment = 1

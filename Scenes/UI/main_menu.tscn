@@ -1,0 +1,558 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/main_menu.gd" id="1_menu"]
+[ext_resource type="Texture2D" path="res://Assets/background/background_night1.png" id="2_sky"]
+[ext_resource type="Texture2D" path="res://Assets/background/background_night2.png" id="3_mist"]
+[ext_resource type="Texture2D" path="res://Assets/background/background_night3.png" id="4_mountains"]
+[ext_resource type="Texture2D" path="res://Assets/background/background_night4B.png" id="5_forest_back"]
+[ext_resource type="Texture2D" path="res://Assets/background/background_night4C.png" id="6_forest_front"]
+[ext_resource type="Texture2D" path="res://Assets/menu/glow.png" id="7_glow"]
+[ext_resource type="Texture2D" path="res://Assets/menu/light_rays.png" id="8_rays"]
+[ext_resource type="Texture2D" path="res://Assets/menu/vignette.png" id="9_vignette"]
+[ext_resource type="Texture2D" path="res://Assets/FX/particle_dot.png" id="10_dot"]
+[ext_resource type="FontFile" path="res://Assets/fonts/Jacquard24-Regular.ttf" id="11_title_font"]
+[ext_resource type="FontFile" path="res://Assets/fonts/Jersey10-Regular.ttf" id="12_ui_font"]
+[ext_resource type="Texture2D" path="res://Assets/Warrior/idle/Warrior_Idle_1.png" id="w_idle_1"]
+[ext_resource type="Texture2D" path="res://Assets/Warrior/idle/Warrior_Idle_2.png" id="w_idle_2"]
+[ext_resource type="Texture2D" path="res://Assets/Warrior/idle/Warrior_Idle_3.png" id="w_idle_3"]
+[ext_resource type="Texture2D" path="res://Assets/Warrior/idle/Warrior_Idle_4.png" id="w_idle_4"]
+[ext_resource type="Texture2D" path="res://Assets/Warrior/idle/Warrior_Idle_5.png" id="w_idle_5"]
+[ext_resource type="Texture2D" path="res://Assets/Warrior/idle/Warrior_Idle_6.png" id="w_idle_6"]
+[ext_resource type="Texture2D" path="res://Assets/Warrior/Run/Warrior_Run_1.png" id="w_run_1"]
+[ext_resource type="Texture2D" path="res://Assets/Warrior/Run/Warrior_Run_2.png" id="w_run_2"]
+[ext_resource type="Texture2D" path="res://Assets/Warrior/Run/Warrior_Run_3.png" id="w_run_3"]
+[ext_resource type="Texture2D" path="res://Assets/Warrior/Run/Warrior_Run_4.png" id="w_run_4"]
+[ext_resource type="Texture2D" path="res://Assets/Warrior/Run/Warrior_Run_5.png" id="w_run_5"]
+[ext_resource type="Texture2D" path="res://Assets/Warrior/Run/Warrior_Run_6.png" id="w_run_6"]
+[ext_resource type="Texture2D" path="res://Assets/Warrior/Run/Warrior_Run_7.png" id="w_run_7"]
+[ext_resource type="Texture2D" path="res://Assets/Warrior/Run/Warrior_Run_8.png" id="w_run_8"]
+
+[sub_resource type="CanvasItemMaterial" id="Mat_add"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="Gradient_light"]
+offsets = PackedFloat32Array(0, 0.3, 0.7, 1)
+colors = PackedColorArray(1, 0.97, 0.88, 1, 1, 0.9, 0.7, 0.85, 0.9, 0.7, 0.45, 0.25, 0.6, 0.45, 0.3, 0)
+
+[sub_resource type="GradientTexture2D" id="Tex_light"]
+gradient = SubResource("Gradient_light")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="SpriteFrames" id="Frames_warrior"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("w_idle_1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("w_idle_2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("w_idle_3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("w_idle_4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("w_idle_5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("w_idle_6")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("w_run_1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("w_run_2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("w_run_3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("w_run_4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("w_run_5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("w_run_6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("w_run_7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("w_run_8")
+}],
+"loop": true,
+"name": &"run",
+"speed": 12.0
+}]
+
+[sub_resource type="Gradient" id="Gradient_motes"]
+offsets = PackedFloat32Array(0, 0.2, 0.75, 1)
+colors = PackedColorArray(1, 0.85, 0.55, 0, 1, 0.9, 0.65, 0.9, 1, 0.8, 0.5, 0.6, 1, 0.75, 0.45, 0)
+
+[sub_resource type="StyleBoxEmpty" id="Style_empty"]
+
+[sub_resource type="Theme" id="Theme_menu"]
+default_font = ExtResource("12_ui_font")
+default_font_size = 20
+Button/colors/font_color = Color(0.6, 0.64, 0.66, 1)
+Button/colors/font_focus_color = Color(1, 0.9, 0.66, 1)
+Button/colors/font_hover_color = Color(1, 0.9, 0.66, 1)
+Button/colors/font_hover_pressed_color = Color(1, 0.97, 0.85, 1)
+Button/colors/font_pressed_color = Color(1, 0.97, 0.85, 1)
+Button/colors/font_outline_color = Color(0.03, 0.03, 0.05, 1)
+Button/constants/outline_size = 6
+Button/font_sizes/font_size = 30
+Button/styles/disabled = SubResource("Style_empty")
+Button/styles/focus = SubResource("Style_empty")
+Button/styles/hover = SubResource("Style_empty")
+Button/styles/hover_pressed = SubResource("Style_empty")
+Button/styles/normal = SubResource("Style_empty")
+Button/styles/pressed = SubResource("Style_empty")
+Label/colors/font_outline_color = Color(0.03, 0.03, 0.05, 1)
+Label/constants/outline_size = 4
+
+[sub_resource type="StyleBoxFlat" id="Style_panel"]
+content_margin_left = 28.0
+content_margin_top = 20.0
+content_margin_right = 28.0
+content_margin_bottom = 20.0
+bg_color = Color(0.04, 0.05, 0.06, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.55, 0.42, 0.25, 1)
+
+[node name="MainMenu" type="Node2D"]
+script = ExtResource("1_menu")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(320, 240)
+
+[node name="Sky" type="Parallax2D" parent="."]
+repeat_size = Vector2(640, 0)
+autoscroll = Vector2(-5, 0)
+repeat_times = 3
+modulate = Color(0.3, 0.36, 0.42, 1)
+
+[node name="Sprite" type="Sprite2D" parent="Sky"]
+texture = ExtResource("2_sky")
+centered = false
+
+[node name="Mist" type="Parallax2D" parent="."]
+repeat_size = Vector2(640, 0)
+autoscroll = Vector2(-2, 0)
+repeat_times = 3
+modulate = Color(0.36, 0.4, 0.45, 1)
+
+[node name="Sprite" type="Sprite2D" parent="Mist"]
+texture = ExtResource("3_mist")
+centered = false
+
+[node name="Mountains" type="Parallax2D" parent="."]
+repeat_size = Vector2(640, 0)
+repeat_times = 3
+modulate = Color(0.36, 0.41, 0.46, 1)
+
+[node name="Sprite" type="Sprite2D" parent="Mountains"]
+texture = ExtResource("4_mountains")
+centered = false
+
+[node name="HorizonGlow" type="Sprite2D" parent="."]
+modulate = Color(1, 0.8, 0.52, 0.85)
+material = SubResource("Mat_add")
+position = Vector2(470, 300)
+texture = ExtResource("7_glow")
+
+[node name="ForestBack" type="Parallax2D" parent="."]
+repeat_size = Vector2(640, 0)
+repeat_times = 3
+modulate = Color(0.26, 0.32, 0.34, 1)
+
+[node name="Sprite" type="Sprite2D" parent="ForestBack"]
+position = Vector2(640, -34)
+scale = Vector2(-1, 1)
+texture = ExtResource("5_forest_back")
+centered = false
+
+[node name="ForestFront" type="Parallax2D" parent="."]
+repeat_size = Vector2(640, 0)
+repeat_times = 3
+modulate = Color(0.24, 0.28, 0.3, 1)
+
+[node name="Sprite" type="Sprite2D" parent="ForestFront"]
+texture = ExtResource("6_forest_front")
+centered = false
+
+[node name="HorizonLight" type="PointLight2D" parent="."]
+position = Vector2(470, 300)
+color = Color(1, 0.78, 0.5, 1)
+energy = 1.1
+texture = SubResource("Tex_light")
+texture_scale = 3.2
+
+[node name="Warrior" type="AnimatedSprite2D" parent="."]
+modulate = Color(0.5, 0.5, 0.56, 1)
+position = Vector2(190, 452)
+scale = Vector2(2, 2)
+sprite_frames = SubResource("Frames_warrior")
+animation = &"idle"
+offset = Vector2(0, -21)
+
+[node name="Lantern" type="PointLight2D" parent="Warrior"]
+position = Vector2(4, -16)
+color = Color(1, 0.86, 0.62, 1)
+energy = 0.9
+texture = SubResource("Tex_light")
+texture_scale = 0.55
+
+[node name="FX" type="CanvasLayer" parent="."]
+layer = 1
+
+[node name="Rays" type="TextureRect" parent="FX"]
+modulate = Color(1, 0.86, 0.6, 0.55)
+material = SubResource("Mat_add")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("8_rays")
+expand_mode = 1
+stretch_mode = 0
+
+[node name="Motes" type="CPUParticles2D" parent="FX"]
+material = SubResource("Mat_add")
+position = Vector2(400, 300)
+amount = 48
+lifetime = 7.0
+preprocess = 7.0
+texture = ExtResource("10_dot")
+emission_shape = 3
+emission_rect_extents = Vector2(420, 220)
+direction = Vector2(0.4, -1)
+spread = 35.0
+gravity = Vector2(0, -3)
+initial_velocity_min = 4.0
+initial_velocity_max = 14.0
+scale_amount_min = 0.5
+scale_amount_max = 1.0
+color_ramp = SubResource("Gradient_motes")
+
+[node name="Vignette" type="TextureRect" parent="FX"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("9_vignette")
+expand_mode = 1
+stretch_mode = 0
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 2
+
+[node name="Root" type="Control" parent="UI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = SubResource("Theme_menu")
+
+[node name="Title" type="Label" parent="UI/Root"]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 34.0
+offset_right = 460.0
+offset_bottom = 114.0
+theme_override_colors/font_color = Color(0.98, 0.93, 0.8, 1)
+theme_override_colors/font_shadow_color = Color(1, 0.72, 0.38, 0.28)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/shadow_outline_size = 18
+theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("11_title_font")
+theme_override_font_sizes/font_size = 72
+text = "Into the Light"
+
+[node name="Subtitle" type="Label" parent="UI/Root"]
+layout_mode = 0
+offset_left = 46.0
+offset_top = 116.0
+offset_right = 460.0
+offset_bottom = 140.0
+theme_override_colors/font_color = Color(0.78, 0.66, 0.46, 1)
+text = "Sebelum cahayamu padam..."
+
+[node name="Menu" type="VBoxContainer" parent="UI/Root"]
+layout_mode = 0
+offset_left = 64.0
+offset_top = 186.0
+offset_right = 260.0
+offset_bottom = 316.0
+theme_override_constants/separation = 2
+
+[node name="Start" type="Button" parent="UI/Root/Menu"]
+layout_mode = 2
+text = "MULAI"
+alignment = 0
+
+[node name="Controls" type="Button" parent="UI/Root/Menu"]
+layout_mode = 2
+text = "KONTROL"
+alignment = 0
+
+[node name="Quit" type="Button" parent="UI/Root/Menu"]
+layout_mode = 2
+text = "KELUAR"
+alignment = 0
+
+[node name="Marker" type="Control" parent="UI/Root"]
+layout_mode = 0
+offset_left = 64.0
+offset_top = 204.0
+offset_right = 64.0
+offset_bottom = 204.0
+mouse_filter = 2
+
+[node name="Hint" type="Label" parent="UI/Root"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -34.0
+offset_right = 400.0
+offset_bottom = -12.0
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.5, 0.53, 0.55, 1)
+theme_override_font_sizes/font_size = 20
+text = "W/S  pilih     J / Space  konfirmasi"
+
+[node name="ControlsPanel" type="Control" parent="UI/Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 2
+
+[node name="Dim" type="ColorRect" parent="UI/Root/ControlsPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="Box" type="PanelContainer" parent="UI/Root/ControlsPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -170.0
+offset_top = -150.0
+offset_right = 170.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("Style_panel")
+
+[node name="VBox" type="VBoxContainer" parent="UI/Root/ControlsPanel/Box"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="Label" parent="UI/Root/ControlsPanel/Box/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.66, 1)
+theme_override_font_sizes/font_size = 30
+text = "KONTROL"
+horizontal_alignment = 1
+
+[node name="Grid" type="GridContainer" parent="UI/Root/ControlsPanel/Box/VBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/h_separation = 28
+theme_override_constants/v_separation = 2
+columns = 2
+
+[node name="K1" type="Label" parent="UI/Root/ControlsPanel/Box/VBox/Grid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.66, 1)
+text = "A / D"
+
+[node name="V1" type="Label" parent="UI/Root/ControlsPanel/Box/VBox/Grid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.84, 0.86, 1)
+text = "Bergerak"
+
+[node name="K2" type="Label" parent="UI/Root/ControlsPanel/Box/VBox/Grid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.66, 1)
+text = "Space"
+
+[node name="V2" type="Label" parent="UI/Root/ControlsPanel/Box/VBox/Grid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.84, 0.86, 1)
+text = "Lompat"
+
+[node name="K3" type="Label" parent="UI/Root/ControlsPanel/Box/VBox/Grid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.66, 1)
+text = "S + Space"
+
+[node name="V3" type="Label" parent="UI/Root/ControlsPanel/Box/VBox/Grid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.84, 0.86, 1)
+text = "Turun dari pijakan"
+
+[node name="K4" type="Label" parent="UI/Root/ControlsPanel/Box/VBox/Grid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.66, 1)
+text = "J"
+
+[node name="V4" type="Label" parent="UI/Root/ControlsPanel/Box/VBox/Grid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.84, 0.86, 1)
+text = "Serang"
+
+[node name="K5" type="Label" parent="UI/Root/ControlsPanel/Box/VBox/Grid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.66, 1)
+text = "Shift"
+
+[node name="V5" type="Label" parent="UI/Root/ControlsPanel/Box/VBox/Grid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.84, 0.86, 1)
+text = "Dash"
+
+[node name="K6" type="Label" parent="UI/Root/ControlsPanel/Box/VBox/Grid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.66, 1)
+text = "W"
+
+[node name="V6" type="Label" parent="UI/Root/ControlsPanel/Box/VBox/Grid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.84, 0.86, 1)
+text = "Buka peti"
+
+[node name="Tip" type="Label" parent="UI/Root/ControlsPanel/Box/VBox"]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.66, 0.46, 1)
+text = "Cahayamu terus meredup. Kumpulkan cahaya sebelum ia padam."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Back" type="Label" parent="UI/Root/ControlsPanel/Box/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.53, 0.55, 1)
+text = "J / Esc  kembali"
+horizontal_alignment = 1
+
+[node name="DifficultyPanel" type="Control" parent="UI/Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="UI/Root/DifficultyPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="Box" type="PanelContainer" parent="UI/Root/DifficultyPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -170.0
+offset_top = -150.0
+offset_right = 170.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("Style_panel")
+
+[node name="VBox" type="VBoxContainer" parent="UI/Root/DifficultyPanel/Box"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Header" type="Label" parent="UI/Root/DifficultyPanel/Box/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.66, 1)
+theme_override_font_sizes/font_size = 30
+text = "KESULITAN"
+horizontal_alignment = 1
+
+[node name="Options" type="VBoxContainer" parent="UI/Root/DifficultyPanel/Box/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Easy" type="Button" parent="UI/Root/DifficultyPanel/Box/VBox/Options"]
+layout_mode = 2
+text = "MUDAH"
+
+[node name="Normal" type="Button" parent="UI/Root/DifficultyPanel/Box/VBox/Options"]
+layout_mode = 2
+text = "NORMAL"
+
+[node name="Hard" type="Button" parent="UI/Root/DifficultyPanel/Box/VBox/Options"]
+layout_mode = 2
+text = "SULIT"
+
+[node name="Desc" type="Label" parent="UI/Root/DifficultyPanel/Box/VBox"]
+custom_minimum_size = Vector2(280, 66)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.66, 0.46, 1)
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Back" type="Label" parent="UI/Root/DifficultyPanel/Box/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.53, 0.55, 1)
+text = "Esc  kembali"
+horizontal_alignment = 1
+
+[node name="Fade" type="ColorRect" parent="UI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
