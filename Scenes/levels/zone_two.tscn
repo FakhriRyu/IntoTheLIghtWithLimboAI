@@ -1,13 +1,13 @@
 [gd_scene format=4 uid="uid://m76anex3axrv"]
 
-[ext_resource type="Script" path="res://Scripts/Core/level_music.gd" id="level_music_1"]
-[ext_resource type="PackedScene" path="res://Scenes/Items/light_brazier.tscn" id="brazier_1"]
 [ext_resource type="TileSet" uid="uid://cjgthgy87l8s4" path="res://Scenes/levels/new_tile_set.tres" id="1_0850n"]
 [ext_resource type="PackedScene" uid="uid://bk26vwm358w76" path="res://Scenes/levels/background.tscn" id="2_mxpd2"]
 [ext_resource type="PackedScene" uid="uid://6bwtmnfhpxbs" path="res://Scenes/player/player.tscn" id="3_dkyar"]
 [ext_resource type="PackedScene" uid="uid://c7i4jb6ld3xn0" path="res://Scenes/Enemy/NorcThex/norch_thex.tscn" id="4_e6e8q"]
 [ext_resource type="PackedScene" uid="uid://b7k3stab0ssr2" path="res://Scenes/UI/boss_health_bar.tscn" id="bossbar_1"]
+[ext_resource type="PackedScene" path="res://Scenes/Items/light_brazier.tscn" id="brazier_1"]
 [ext_resource type="PackedScene" uid="uid://c8h2ueapl4yr1" path="res://Scenes/UI/player_hud.tscn" id="hud_1"]
+[ext_resource type="Script" uid="uid://dsh05m6pt605i" path="res://Scripts/Core/level_music.gd" id="level_music_1"]
 
 [node name="zone_two" type="Node2D" unique_id=102063117]
 
@@ -52,12 +52,12 @@ position = Vector2(858, 303)
 [node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=856198546]
 color = Color(0.1, 0.11, 0.18, 1)
 
-[node name="LightBrazier" parent="." instance=ExtResource("brazier_1")]
+[node name="LightBrazier" parent="." unique_id=937118767 instance=ExtResource("brazier_1")]
 position = Vector2(300, 200)
 
-[node name="LightBrazier2" parent="." instance=ExtResource("brazier_1")]
+[node name="LightBrazier2" parent="." unique_id=856170534 instance=ExtResource("brazier_1")]
 position = Vector2(640, 330)
 
-[node name="LevelMusic" type="Node" parent="."]
+[node name="LevelMusic" type="Node" parent="." unique_id=941990019]
 script = ExtResource("level_music_1")
 track = "boss"

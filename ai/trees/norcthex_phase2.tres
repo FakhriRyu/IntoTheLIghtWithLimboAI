@@ -1,16 +1,76 @@
 [gd_resource type="BehaviorTree" format=3 uid="uid://b7nxthexp2bt1"]
 
-[ext_resource type="Script" uid="uid://wqywxfs4bm8n" path="res://ai/tasks/check_distance_to_target.gd" id="dist"]
-[ext_resource type="Script" path="res://ai/tasks/check_line_of_fire.gd" id="lof"]
-[ext_resource type="Script" uid="uid://do7pxa76ed5j6" path="res://ai/tasks/check_cooldown.gd" id="cd"]
-[ext_resource type="Script" uid="uid://dj1m34allavm5" path="res://ai/tasks/face_target.gd" id="face"]
 [ext_resource type="Script" uid="uid://s65uxjjqpcli" path="res://ai/tasks/animated_attack.gd" id="atk"]
-[ext_resource type="Script" path="res://ai/tasks/consume_agent_flag.gd" id="flag"]
-[ext_resource type="Script" uid="uid://dyxefr5b7rtck" path="res://ai/tasks/get_player_location.gd" id="getply"]
 [ext_resource type="Script" uid="uid://bij8aing6h0ob" path="res://ai/tasks/blink_away.gd" id="blink"]
+[ext_resource type="Script" uid="uid://do7pxa76ed5j6" path="res://ai/tasks/check_cooldown.gd" id="cd"]
+[ext_resource type="Script" uid="uid://wqywxfs4bm8n" path="res://ai/tasks/check_distance_to_target.gd" id="dist"]
+[ext_resource type="Script" uid="uid://dj1m34allavm5" path="res://ai/tasks/face_target.gd" id="face"]
+[ext_resource type="Script" uid="uid://b1smmk880eywh" path="res://ai/tasks/consume_agent_flag.gd" id="flag"]
+[ext_resource type="Script" uid="uid://dyxefr5b7rtck" path="res://ai/tasks/get_player_location.gd" id="getply"]
 [ext_resource type="Script" uid="uid://ulvv5it00no2" path="res://ai/tasks/check_target_in_area.gd" id="inarea"]
+[ext_resource type="Script" uid="uid://cw8dp0h04hpu2" path="res://ai/tasks/check_line_of_fire.gd" id="lof"]
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_1"]
+
+[sub_resource type="BTCondition" id="BTCondition_022"]
+script = ExtResource("flag")
+flag = &"panic_requested"
+
+[sub_resource type="BTAction" id="BTAction_023"]
+script = ExtResource("getply")
+
+[sub_resource type="BTAction" id="BTAction_024"]
+script = ExtResource("blink")
+cooldown_duration = 3.0
+
+[sub_resource type="BTSequence" id="BTSequence_025"]
+custom_name = "Panic Blink"
+children = [SubResource("BTCondition_022"), SubResource("BTAction_023"), SubResource("BTAction_024")]
+
+[sub_resource type="BTAction" id="BTAction_026"]
+script = ExtResource("getply")
+
+[sub_resource type="BTCondition" id="BTCondition_027"]
+script = ExtResource("inarea")
+detection_area_path = NodePath("DetectionAreaBoss")
+
+[sub_resource type="BTCondition" id="BTCondition_028"]
+script = ExtResource("cd")
+cooldown_var = &"ambush_cooldown_end"
+
+[sub_resource type="BTAction" id="BTAction_029"]
+script = ExtResource("blink")
+min_distance = 110.0
+max_distance = 220.0
+land_behind_target = true
+cooldown_duration = 7.0
+cooldown_var = &"ambush_cooldown_end"
+require_clear_shot = true
+
+[sub_resource type="BTAction" id="BTAction_030"]
+script = ExtResource("face")
+
+[sub_resource type="BTCondition" id="BTCondition_031"]
+script = ExtResource("lof")
+
+[sub_resource type="BTAction" id="BTAction_032"]
+script = ExtResource("atk")
+animation = &"shot"
+attack_method = &"shoot_arrow"
+fire_time = 0.45
+telegraph_method = &"show_arrow_warning"
+cooldown_var = &"ambush_shot_cooldown_end"
+
+[sub_resource type="BTSequence" id="BTSequence_033"]
+custom_name = "Blink Ambush"
+children = [SubResource("BTAction_026"), SubResource("BTCondition_027"), SubResource("BTCondition_028"), SubResource("BTAction_029"), SubResource("BTAction_030"), SubResource("BTCondition_031"), SubResource("BTAction_032")]
+
+[sub_resource type="BTAction" id="BTAction_034"]
+script = ExtResource("getply")
+
+[sub_resource type="BTCondition" id="BTCondition_035"]
+script = ExtResource("inarea")
+detection_area_path = NodePath("DetectionAreaBoss")
 
 [sub_resource type="BTCondition" id="BTCondition_001"]
 script = ExtResource("dist")
@@ -106,67 +166,6 @@ children = [SubResource("BTCondition_017"), SubResource("BTAction_018"), SubReso
 custom_name = "Attack"
 children = [SubResource("BTSequence_010"), SubResource("BTSequence_016"), SubResource("BTSequence_020")]
 
-[sub_resource type="BTCondition" id="BTCondition_022"]
-script = ExtResource("flag")
-flag = &"panic_requested"
-
-[sub_resource type="BTAction" id="BTAction_023"]
-script = ExtResource("getply")
-
-[sub_resource type="BTAction" id="BTAction_024"]
-script = ExtResource("blink")
-cooldown_duration = 3.0
-
-[sub_resource type="BTSequence" id="BTSequence_025"]
-custom_name = "Panic Blink"
-children = [SubResource("BTCondition_022"), SubResource("BTAction_023"), SubResource("BTAction_024")]
-
-[sub_resource type="BTAction" id="BTAction_026"]
-script = ExtResource("getply")
-
-[sub_resource type="BTCondition" id="BTCondition_027"]
-script = ExtResource("inarea")
-detection_area_path = NodePath("DetectionAreaBoss")
-
-[sub_resource type="BTCondition" id="BTCondition_028"]
-script = ExtResource("cd")
-cooldown_var = &"ambush_cooldown_end"
-
-[sub_resource type="BTAction" id="BTAction_029"]
-script = ExtResource("blink")
-min_distance = 110.0
-max_distance = 220.0
-land_behind_target = true
-require_clear_shot = true
-cooldown_duration = 7.0
-cooldown_var = &"ambush_cooldown_end"
-
-[sub_resource type="BTAction" id="BTAction_030"]
-script = ExtResource("face")
-
-[sub_resource type="BTCondition" id="BTCondition_031"]
-script = ExtResource("lof")
-
-[sub_resource type="BTAction" id="BTAction_032"]
-script = ExtResource("atk")
-animation = &"shot"
-attack_method = &"shoot_arrow"
-fire_time = 0.45
-telegraph_method = &"show_arrow_warning"
-cooldown_duration = 0.0
-cooldown_var = &"ambush_shot_cooldown_end"
-
-[sub_resource type="BTSequence" id="BTSequence_033"]
-custom_name = "Blink Ambush"
-children = [SubResource("BTAction_026"), SubResource("BTCondition_027"), SubResource("BTCondition_028"), SubResource("BTAction_029"), SubResource("BTAction_030"), SubResource("BTCondition_031"), SubResource("BTAction_032")]
-
-[sub_resource type="BTAction" id="BTAction_034"]
-script = ExtResource("getply")
-
-[sub_resource type="BTCondition" id="BTCondition_035"]
-script = ExtResource("inarea")
-detection_area_path = NodePath("DetectionAreaBoss")
-
 [sub_resource type="BTSequence" id="BTSequence_036"]
 custom_name = "Attack"
 children = [SubResource("BTAction_034"), SubResource("BTCondition_035"), SubResource("BTProbabilitySelector_021")]
@@ -211,10 +210,10 @@ cooldown_var = &"reposition_cooldown_end"
 script = ExtResource("blink")
 min_distance = 140.0
 max_distance = 520.0
-clear_shot_weight = 12.0
-require_clear_shot = true
 cooldown_duration = 2.5
 cooldown_var = &"reposition_cooldown_end"
+clear_shot_weight = 12.0
+require_clear_shot = true
 
 [sub_resource type="BTSequence" id="BTSequence_048"]
 custom_name = "Reposition"
