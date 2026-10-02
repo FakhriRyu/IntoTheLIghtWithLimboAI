@@ -1,0 +1,244 @@
+[gd_resource type="BehaviorTree" format=3 uid="uid://b7nxthexp2bt1"]
+
+[ext_resource type="Script" uid="uid://wqywxfs4bm8n" path="res://ai/tasks/check_distance_to_target.gd" id="dist"]
+[ext_resource type="Script" path="res://ai/tasks/check_line_of_fire.gd" id="lof"]
+[ext_resource type="Script" uid="uid://do7pxa76ed5j6" path="res://ai/tasks/check_cooldown.gd" id="cd"]
+[ext_resource type="Script" uid="uid://dj1m34allavm5" path="res://ai/tasks/face_target.gd" id="face"]
+[ext_resource type="Script" uid="uid://s65uxjjqpcli" path="res://ai/tasks/animated_attack.gd" id="atk"]
+[ext_resource type="Script" path="res://ai/tasks/consume_agent_flag.gd" id="flag"]
+[ext_resource type="Script" uid="uid://dyxefr5b7rtck" path="res://ai/tasks/get_player_location.gd" id="getply"]
+[ext_resource type="Script" uid="uid://bij8aing6h0ob" path="res://ai/tasks/blink_away.gd" id="blink"]
+[ext_resource type="Script" uid="uid://ulvv5it00no2" path="res://ai/tasks/check_target_in_area.gd" id="inarea"]
+
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_1"]
+
+[sub_resource type="BTCondition" id="BTCondition_001"]
+script = ExtResource("dist")
+min_distance = 120.0
+max_distance = 700.0
+
+[sub_resource type="BTCondition" id="BTCondition_002"]
+script = ExtResource("lof")
+
+[sub_resource type="BTCondition" id="BTCondition_003"]
+script = ExtResource("cd")
+cooldown_var = &"volley_cooldown_end"
+
+[sub_resource type="BTAction" id="BTAction_004"]
+script = ExtResource("face")
+
+[sub_resource type="BTAction" id="BTAction_005"]
+script = ExtResource("atk")
+animation = &"shot"
+attack_method = &"shoot_volley"
+fire_time = 0.8
+telegraph_method = &"show_volley_warning"
+cooldown_duration = 5.0
+cooldown_var = &"volley_cooldown_end"
+
+[sub_resource type="BBNode" id="BBNode_006"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTPlayAnimation" id="BTPlayAnimation_007"]
+animation_player = SubResource("BBNode_006")
+animation_name = &"idle"
+
+[sub_resource type="BTWait" id="BTWait_008"]
+duration = 1.1
+
+[sub_resource type="BTSequence" id="BTSequence_009"]
+custom_name = "Reload"
+children = [SubResource("BTPlayAnimation_007"), SubResource("BTWait_008")]
+
+[sub_resource type="BTSequence" id="BTSequence_010"]
+custom_name = "Volley"
+children = [SubResource("BTCondition_001"), SubResource("BTCondition_002"), SubResource("BTCondition_003"), SubResource("BTAction_004"), SubResource("BTAction_005"), SubResource("BTSequence_009")]
+
+[sub_resource type="BTCondition" id="BTCondition_011"]
+script = ExtResource("dist")
+min_distance = 150.0
+max_distance = 700.0
+
+[sub_resource type="BTCondition" id="BTCondition_012"]
+script = ExtResource("lof")
+
+[sub_resource type="BTCondition" id="BTCondition_013"]
+script = ExtResource("cd")
+cooldown_var = &"shot_cooldown_end"
+
+[sub_resource type="BTAction" id="BTAction_014"]
+script = ExtResource("face")
+
+[sub_resource type="BTAction" id="BTAction_015"]
+script = ExtResource("atk")
+animation = &"shot"
+attack_method = &"shoot_arrow"
+fire_time = 0.8
+telegraph_method = &"show_arrow_warning"
+cooldown_duration = 1.0
+cooldown_var = &"shot_cooldown_end"
+
+[sub_resource type="BTSequence" id="BTSequence_016"]
+custom_name = "Aimed Shot"
+children = [SubResource("BTCondition_011"), SubResource("BTCondition_012"), SubResource("BTCondition_013"), SubResource("BTAction_014"), SubResource("BTAction_015")]
+
+[sub_resource type="BTCondition" id="BTCondition_017"]
+script = ExtResource("cd")
+cooldown_var = &"trap_cooldown_end"
+
+[sub_resource type="BTAction" id="BTAction_018"]
+script = ExtResource("face")
+
+[sub_resource type="BTAction" id="BTAction_019"]
+script = ExtResource("atk")
+animation = &"trapscream"
+attack_method = &"spawn_trap"
+fire_time = 0.6
+cooldown_duration = 4.5
+cooldown_var = &"trap_cooldown_end"
+
+[sub_resource type="BTSequence" id="BTSequence_020"]
+custom_name = "Trap"
+children = [SubResource("BTCondition_017"), SubResource("BTAction_018"), SubResource("BTAction_019")]
+
+[sub_resource type="BTProbabilitySelector" id="BTProbabilitySelector_021"]
+custom_name = "Attack"
+children = [SubResource("BTSequence_010"), SubResource("BTSequence_016"), SubResource("BTSequence_020")]
+
+[sub_resource type="BTCondition" id="BTCondition_022"]
+script = ExtResource("flag")
+flag = &"panic_requested"
+
+[sub_resource type="BTAction" id="BTAction_023"]
+script = ExtResource("getply")
+
+[sub_resource type="BTAction" id="BTAction_024"]
+script = ExtResource("blink")
+cooldown_duration = 3.0
+
+[sub_resource type="BTSequence" id="BTSequence_025"]
+custom_name = "Panic Blink"
+children = [SubResource("BTCondition_022"), SubResource("BTAction_023"), SubResource("BTAction_024")]
+
+[sub_resource type="BTAction" id="BTAction_026"]
+script = ExtResource("getply")
+
+[sub_resource type="BTCondition" id="BTCondition_027"]
+script = ExtResource("inarea")
+detection_area_path = NodePath("DetectionAreaBoss")
+
+[sub_resource type="BTCondition" id="BTCondition_028"]
+script = ExtResource("cd")
+cooldown_var = &"ambush_cooldown_end"
+
+[sub_resource type="BTAction" id="BTAction_029"]
+script = ExtResource("blink")
+min_distance = 110.0
+max_distance = 220.0
+land_behind_target = true
+require_clear_shot = true
+cooldown_duration = 7.0
+cooldown_var = &"ambush_cooldown_end"
+
+[sub_resource type="BTAction" id="BTAction_030"]
+script = ExtResource("face")
+
+[sub_resource type="BTCondition" id="BTCondition_031"]
+script = ExtResource("lof")
+
+[sub_resource type="BTAction" id="BTAction_032"]
+script = ExtResource("atk")
+animation = &"shot"
+attack_method = &"shoot_arrow"
+fire_time = 0.45
+telegraph_method = &"show_arrow_warning"
+cooldown_duration = 0.0
+cooldown_var = &"ambush_shot_cooldown_end"
+
+[sub_resource type="BTSequence" id="BTSequence_033"]
+custom_name = "Blink Ambush"
+children = [SubResource("BTAction_026"), SubResource("BTCondition_027"), SubResource("BTCondition_028"), SubResource("BTAction_029"), SubResource("BTAction_030"), SubResource("BTCondition_031"), SubResource("BTAction_032")]
+
+[sub_resource type="BTAction" id="BTAction_034"]
+script = ExtResource("getply")
+
+[sub_resource type="BTCondition" id="BTCondition_035"]
+script = ExtResource("inarea")
+detection_area_path = NodePath("DetectionAreaBoss")
+
+[sub_resource type="BTSequence" id="BTSequence_036"]
+custom_name = "Attack"
+children = [SubResource("BTAction_034"), SubResource("BTCondition_035"), SubResource("BTProbabilitySelector_021")]
+
+[sub_resource type="BTAction" id="BTAction_037"]
+script = ExtResource("getply")
+
+[sub_resource type="BTCondition" id="BTCondition_038"]
+script = ExtResource("dist")
+max_distance = 130.0
+
+[sub_resource type="BTCondition" id="BTCondition_039"]
+script = ExtResource("cd")
+cooldown_var = &"blink_cooldown_end"
+
+[sub_resource type="BTAction" id="BTAction_040"]
+script = ExtResource("blink")
+cooldown_duration = 4.0
+
+[sub_resource type="BTSequence" id="BTSequence_041"]
+custom_name = "Keep Distance"
+children = [SubResource("BTAction_037"), SubResource("BTCondition_038"), SubResource("BTCondition_039"), SubResource("BTAction_040")]
+
+[sub_resource type="BTAction" id="BTAction_042"]
+script = ExtResource("getply")
+
+[sub_resource type="BTCondition" id="BTCondition_043"]
+script = ExtResource("inarea")
+detection_area_path = NodePath("DetectionAreaBoss")
+
+[sub_resource type="BTCondition" id="BTCondition_044"]
+script = ExtResource("lof")
+
+[sub_resource type="BTInvert" id="BTInvert_045"]
+children = [SubResource("BTCondition_044")]
+
+[sub_resource type="BTCondition" id="BTCondition_046"]
+script = ExtResource("cd")
+cooldown_var = &"reposition_cooldown_end"
+
+[sub_resource type="BTAction" id="BTAction_047"]
+script = ExtResource("blink")
+min_distance = 140.0
+max_distance = 520.0
+clear_shot_weight = 12.0
+require_clear_shot = true
+cooldown_duration = 2.5
+cooldown_var = &"reposition_cooldown_end"
+
+[sub_resource type="BTSequence" id="BTSequence_048"]
+custom_name = "Reposition"
+children = [SubResource("BTAction_042"), SubResource("BTCondition_043"), SubResource("BTInvert_045"), SubResource("BTCondition_046"), SubResource("BTAction_047")]
+
+[sub_resource type="BBNode" id="BBNode_049"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTPlayAnimation" id="BTPlayAnimation_050"]
+animation_player = SubResource("BBNode_049")
+animation_name = &"idle"
+
+[sub_resource type="BTRandomWait" id="BTRandomWait_051"]
+min_duration = 0.2
+max_duration = 0.5
+
+[sub_resource type="BTSequence" id="BTSequence_052"]
+custom_name = "Idle"
+children = [SubResource("BTPlayAnimation_050"), SubResource("BTRandomWait_051")]
+
+[sub_resource type="BTSelector" id="BTSelector_053"]
+children = [SubResource("BTSequence_025"), SubResource("BTSequence_033"), SubResource("BTSequence_036"), SubResource("BTSequence_041"), SubResource("BTSequence_048"), SubResource("BTSequence_052")]
+
+[resource]
+blackboard_plan = SubResource("BlackboardPlan_1")
+root_task = SubResource("BTSelector_053")

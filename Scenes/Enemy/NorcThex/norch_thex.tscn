@@ -6,6 +6,11 @@
 [ext_resource type="BehaviorTree" uid="uid://db2xwnah7lxn1" path="res://ai/trees/norcthex.tres" id="3_xfwvu"]
 [ext_resource type="Script" uid="uid://cbfskp64h0a3n" path="res://Scripts/Enemy/Norcthex/health.gd" id="4_health"]
 [ext_resource type="Script" uid="uid://d325d0v7tiqqv" path="res://Scripts/Enemy/Norcthex/hurtbox.gd" id="5_hurtbox"]
+[ext_resource type="BehaviorTree" uid="uid://b7nxthexp2bt1" path="res://ai/trees/norcthex_phase2.tres" id="6_phase2"]
+[ext_resource type="Script" path="res://Scripts/Enemy/Norcthex/states/dormant.gd" id="7_dormant"]
+[ext_resource type="Script" path="res://Scripts/Enemy/Norcthex/states/phase_shift.gd" id="8_phaseshift"]
+[ext_resource type="Script" path="res://Scripts/Enemy/Norcthex/states/stagger.gd" id="9_stagger"]
+[ext_resource type="Script" path="res://Scripts/Enemy/Norcthex/states/dead.gd" id="10_dead"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_b1msh"]
 radius = 18.0
@@ -161,8 +166,6 @@ _data = {
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_b1msh"]
 size = Vector2(1150.75, 343)
 
-[sub_resource type="BlackboardPlan" id="BlackboardPlan_xfwvu"]
-
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_hurt"]
 radius = 18.0
 height = 60.0
@@ -198,9 +201,25 @@ position = Vector2(3, -60)
 shape = SubResource("RectangleShape2D_b1msh")
 debug_color = Color(0.6851317, 0.49491215, 0.22544667, 0.41960785)
 
-[node name="BTPlayer" type="BTPlayer" parent="." unique_id=826916787]
+[node name="LimboHSM" type="LimboHSM" parent="."]
+
+[node name="Dormant" type="LimboState" parent="LimboHSM"]
+script = ExtResource("7_dormant")
+
+[node name="Phase1" type="BTState" parent="LimboHSM"]
 behavior_tree = ExtResource("3_xfwvu")
-blackboard_plan = SubResource("BlackboardPlan_xfwvu")
+
+[node name="PhaseShift" type="LimboState" parent="LimboHSM"]
+script = ExtResource("8_phaseshift")
+
+[node name="Phase2" type="BTState" parent="LimboHSM"]
+behavior_tree = ExtResource("6_phase2")
+
+[node name="Stagger" type="LimboState" parent="LimboHSM"]
+script = ExtResource("9_stagger")
+
+[node name="Dead" type="LimboState" parent="LimboHSM"]
+script = ExtResource("10_dead")
 
 [node name="Health" type="Node" parent="." unique_id=1044219876]
 script = ExtResource("4_health")

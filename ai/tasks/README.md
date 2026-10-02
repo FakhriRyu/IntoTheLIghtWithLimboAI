@@ -164,24 +164,84 @@ Opsional, task ini juga bisa memanggil method kedua lebih dulu (`telegraph_metho
 
 ### 11. blink_away.gd
 **Type:** BTAction  
-**Fungsi:** Menghilang lalu muncul kembali di jarak aman dari target (blink/teleport). Dibuat untuk musuh yang **tidak punya animasi jalan** tapi tetap perlu menjaga jarak. Urutannya: animasi menghilang ➜ pindah posisi ➜ animasi muncul ➜ set cooldown. Ketinggian (`y`) dipertahankan supaya agent tetap berpijak di lantai yang sama, dan titik mendarat selalu dicek ada lantainya.
+**Fungsi:** Menghilang lalu muncul kembali di **titik acak yang aman** di arena (blink/teleport). Dibuat untuk musuh yang **tidak punya animasi jalan** tapi tetap perlu berpindah posisi. Urutannya: animasi menghilang ➜ pilih titik & pindah ➜ animasi muncul ➜ set cooldown. Ketinggian (`y`) dipertahankan supaya agent tetap berpijak di lantai setinggi sekarang.
 
-Selama task ini berjalan, agent ditandai **tidak bisa dihentikan** lewat `agent.set_uninterruptible(true)` (dipanggil di `_enter`, dimatikan lagi di `_exit`). Agent tetap menerima damage, tapi tidak boleh membatalkan blink — ini yang mencegah player mengunci musuh dengan serangan beruntun.
+**Cara memilih titik:** seluruh arena dipindai tiap `scan_step` piksel. Titik dijadikan kandidat kalau jaraknya ke target ada di antara `min_distance`..`max_distance`, cukup jauh dari posisi sekarang (`min_travel`), dan **aman**. Lalu satu kandidat dipilih **acak berbobot**: bisa mundur, maju melewati target, atau ke sisi lain arena.
+- Titik dengan jalur tembak bersih ke target lebih sering terpilih (`clear_shot_weight`). Dicek lewat `agent.has_line_of_fire_from(pos)` kalau ada.
+- Titik di dekat blink terakhir peluangnya dikurangi (`recent_*`), jadi agent tidak bolak-balik ke tempat yang sama.
+- `require_clear_shot` mewajibkan jalur tembak bersih (untuk blink yang tujuannya menembak). Kalau tidak ada titik yang memenuhi, syaratnya dilonggarkan bertahap: sisi mana pun untuk mode sergap, lalu tanpa syarat jalur tembak. Kalau tetap tidak ada, agent muncul lagi di tempat semula.
+
+**Titik aman** = badan agent muat di sana (cek `intersect_shape` dengan collision shape agent: tidak masuk ke dalam tembok/ledge), ada ruang kosong di atas kepala (`headroom`) dan di kiri-kanan badan (`elbow_room`, supaya tidak terjepit di ceruk sempit), serta ada lantai selebar pijakan tepat di bawah kaki (raycast memakai `collision_mask` agent sendiri, maksimal `max_drop` di bawah kaki).
+
+Selama task ini berjalan, agent ditandai **tidak bisa dihentikan** lewat `agent.set_uninterruptible(true)` (dipanggil di `_enter`, dimatikan lagi di `_exit`). Agent tetap menerima damage, tapi tidak boleh membatalkan blink. Ini yang mencegah player mengunci musuh dengan serangan beruntun.
 
 **Parameters:**
 - `target_var` (StringName): Variable blackboard yang menyimpan target (default: "target")
 - `animation_player_path` (NodePath): Path ke AnimationPlayer agent (default: "AnimationPlayer")
-- `out_animation` (StringName): Animasi saat menghilang (default: "fadeaway")
-- `in_animation` (StringName): Animasi saat muncul kembali (default: "fadein")
-- `blink_distance` (float): Jarak dari target tempat agent muncul kembali (default: 260.0)
-- `cooldown_duration` (float): Durasi cooldown setelah blink (default: 5.0)
-- `ground_probe` (float): Sejauh apa mencari lantai di titik tujuan (default: 320.0). Kalau tujuannya jurang, jarak blink diperpendek atau dibalik arah supaya agent tidak jatuh
-- `cooldown_var` (StringName): Variable blackboard untuk waktu cooldown berakhir (default: "blink_cooldown_end")
+- `out_animation` / `in_animation` (StringName): Animasi menghilang / muncul (default: "fadeaway" / "fadein")
+- `min_distance` / `max_distance` (float): Rentang jarak horizontal titik tujuan dari target (default: 160 / 480)
+- `min_travel` (float): Jarak minimal dari posisi agent sekarang (default: 96)
+- `land_behind_target` (bool): Hanya muncul di sisi seberang target, untuk menyergap dari belakang (default: false)
+- `cooldown_duration` (float) / `cooldown_var` (StringName): Cooldown setelah blink (default: 5.0 / "blink_cooldown_end")
+- `arena_area_path` (NodePath): Area2D penanda lebar arena. Batasnya direkam sekali saat setup, jadi tidak ikut bergeser saat agent berpindah (default: "DetectionAreaBoss")
+- `scan_step` (float): Jarak antar titik yang dipindai (default: 8)
+- `clear_shot_weight` (float): Pengali peluang titik yang punya jalur tembak bersih (default: 4)
+- `require_clear_shot` (bool): Wajibkan jalur tembak bersih (default: false)
+- `recent_count` / `recent_radius` / `recent_weight`: Berapa titik terakhir diingat, radius, dan pengali peluangnya (default: 3 / 64 / 0.15)
+- `max_drop` (float): Jarak maksimal lantai di bawah kaki (default: 24)
+- `foothold_half_width` (float): Setengah lebar pijakan yang wajib ada lantainya (default: 12)
+- `headroom` (float): Ruang kosong wajib di atas badan (default: 24)
+- `elbow_room` (float): Ruang kosong wajib di kiri dan kanan badan (default: 32)
 
 **Returns:**
 - `RUNNING`: Selama proses blink berlangsung
 - `SUCCESS`: Setelah animasi muncul selesai (dan cooldown diset)
 - `FAILURE`: Jika target tidak valid atau animasinya tidak ditemukan
+
+---
+
+### 12. check_line_of_fire.gd
+**Type:** BTCondition  
+**Fungsi:** Mengecek apakah agent punya jalur tembak bersih ke target dengan memanggil method bool milik agent (default `has_line_of_fire`). Pada Norc'Thex method itu mengecek sudut bidikan (maks. `max_aim_angle_deg`) dan melakukan raycast ke layer world, sehingga bos tidak lagi menembaki dinding. Bungkus dengan `BTInvert` untuk branch "tidak ada jalur tembak" (pasang trap / reposition).
+
+**Parameters:**
+- `check_method` (StringName): Nama method pada agent yang mengembalikan bool (default: "has_line_of_fire")
+
+**Returns:**
+- `SUCCESS`: Jika jalur tembak bersih
+- `FAILURE`: Jika terhalang tembok, sudut terlalu curam, atau method tidak ada
+
+---
+
+### 13. consume_agent_flag.gd
+**Type:** BTCondition  
+**Fungsi:** Mengecek properti bool milik agent lalu langsung mematikannya (sekali pakai). Dipakai supaya kejadian di luar tree, mis. state HSM `Stagger` Norc'Thex yang menyalakan `panic_requested`, bisa memicu satu branch tepat satu kali tanpa bergantung pada scope blackboard antar `BTState`.
+
+**Parameters:**
+- `flag` (StringName): Nama properti bool pada agent
+
+**Returns:**
+- `SUCCESS`: Jika flag bernilai true (flag lalu diset false)
+- `FAILURE`: Jika flag false atau tidak ada
+
+---
+
+## Norc'Thex: LimboHSM + Behavior Tree
+
+Norc'Thex memakai `LimboHSM` untuk mode bos, dan behavior tree (lewat node `BTState`) untuk memilih jurus di tiap fase:
+
+```
+LimboHSM
+├── Dormant     menunggu player masuk arena, meraung        ─engage─▶ Phase1
+├── Phase1      BTState: ai/trees/norcthex.tres             ─stagger─▶ Stagger, ─phase_shift─▶ PhaseShift
+├── PhaseShift  HP ≤ 50%: meraung + trap, tidak bisa disela ─phase_done─▶ Phase2
+├── Phase2      BTState: ai/trees/norcthex_phase2.tres      ─stagger─▶ Stagger
+├── Stagger     poise habis (3 pukulan beruntun): knockback ─recover_p1/p2─▶ Phase1/Phase2 (+Panic Blink)
+└── Dead        (ANYSTATE ─die─▶)
+```
+
+Fase 1: Panic Blink, Trap (dekat), Aimed Shot (perlu line of fire), Trap saat tidak ada line of fire, Keep Distance, Reposition, Idle.
+Fase 2: Panic Blink, Blink Ambush, `BTProbabilitySelector` (Volley 3 panah + reload, Aimed Shot, Trap ×5), Keep Distance, Reposition, Idle.
 
 ---
 

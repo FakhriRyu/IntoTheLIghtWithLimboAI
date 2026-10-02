@@ -14,11 +14,21 @@ signal run_ended
 
 ## Scene awal run baru setelah mati
 @export_file("*.tscn") var run_start_scene: String = "res://Scenes/levels/tower.tscn"
+## Lama bermain (detik) sampai cahaya di Normal menyusut dari 40 ke 25 detik
+@export var normal_ramp_time: float = 480.0
 
+const MAIN_MENU_SCENE := "res://Scenes/UI/main_menu.tscn"
 const BASE_MAX_LIGHT := 100.0
-## Cahaya berkurang sebanyak ini per detik sebelum dikali decay_mult.
-## 100 / 4 = ±25 detik dari penuh sampai padam.
-const BASE_DECAY := 4.0
+
+enum Difficulty { EASY, NORMAL, HARD }
+## Lama cahaya penuh sampai padam (detik) per kesulitan: [awal run, setelah normal_ramp_time].
+## Upgrade decay_mult / max_light_bonus tetap berlaku di atasnya.
+const LIGHT_SECONDS := {
+	Difficulty.EASY: [40.0, 40.0],
+	Difficulty.NORMAL: [40.0, 25.0],
+	Difficulty.HARD: [25.0, 25.0],
+}
+const DIFFICULTY_NAMES := ["Mudah", "Normal", "Sulit"]
 ## Waktu tenang di awal tiap area sebelum cahaya mulai meredup
 const LEVEL_GRACE := 3.0
 ## Cahaya yang tersisa saat diselamatkan "Sinar Terakhir"
@@ -42,6 +52,10 @@ const DEFAULT_STATS := {
 	"last_light": 0,
 }
 
+## Dipilih di main menu; tidak di-reset antar run (lihat Settings)
+var difficulty: Difficulty = Difficulty.NORMAL
+## Lama bermain di run ini. Hanya bertambah saat player hidup dan game tidak di-pause.
+var run_time: float = 0.0
 var level: int = 1
 var xp: int = 0
 var light: float = BASE_MAX_LIGHT
@@ -71,6 +85,7 @@ func reset_run() -> void:
 	level = 1
 	xp = 0
 	kills = 0
+	run_time = 0.0
 	hp = -1
 	upgrades.clear()
 	stats = DEFAULT_STATS.duplicate()
@@ -169,6 +184,24 @@ func upgrade_count(id: String) -> int:
 	return int(upgrades.get(id, 0))
 
 
+# ---------------------------------------------------------------- kesulitan
+
+func difficulty_name() -> String:
+	return DIFFICULTY_NAMES[difficulty]
+
+
+## Obor pengisi cahaya hanya muncul di Mudah dan Normal
+func torches_enabled() -> bool:
+	return difficulty != Difficulty.HARD
+
+
+## Lama cahaya penuh sampai padam (tanpa upgrade) pada titik run sekarang
+func light_duration() -> float:
+	var range_s: Array = LIGHT_SECONDS[difficulty]
+	var t := clampf(run_time / maxf(normal_ramp_time, 1.0), 0.0, 1.0)
+	return lerpf(range_s[0], range_s[1], t)
+
+
 # ---------------------------------------------------------------- cahaya
 
 func max_light() -> float:
@@ -190,10 +223,11 @@ func add_light(amount: float) -> void:
 func drain_light(delta: float) -> void:
 	if _depleted:
 		return
+	run_time += delta
 	if grace_timer > 0.0:
 		grace_timer -= delta
 		return
-	light -= BASE_DECAY * maxf(float(stats["decay_mult"]), 0.1) * delta
+	light -= BASE_MAX_LIGHT / light_duration() * maxf(float(stats["decay_mult"]), 0.1) * delta
 	if light <= 0.0:
 		light = 0.0
 		if last_light_charges > 0:
@@ -241,6 +275,13 @@ func end_run() -> void:
 		restart_run()
 	else:
 		run_ended.emit()
+
+
+## Tinggalkan run dan kembali ke main menu (dari menu jeda / layar akhir run)
+func quit_to_menu() -> void:
+	reset_run()
+	get_tree().paused = false
+	get_tree().call_deferred("change_scene_to_file", MAIN_MENU_SCENE)
 
 
 func restart_run() -> void:
