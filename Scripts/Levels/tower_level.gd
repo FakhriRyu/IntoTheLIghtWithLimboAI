@@ -33,6 +33,18 @@ extends Node2D
 ## Peti harta yang bisa dibuka di lantai istirahat
 @export var chest_scene: PackedScene = preload("res://Scenes/Items/chest.tscn")
 
+## Duri di permukaan batu (semua kesulitan)
+@export var spike_scene: PackedScene = preload("res://Scenes/Items/spikes.tscn")
+@export_range(0.0, 1.0) var spike_chance_landing: float = 0.6
+@export_range(0.0, 1.0) var spike_chance_block: float = 0.35
+## Jarak minimal (baris) antar kelompok duri
+@export var spike_min_rows: int = 8
+
+## Obor pengisi cahaya, hanya di Mudah & Normal (RunState.torches_enabled)
+@export var torch_scene: PackedScene = preload("res://Scenes/Items/wall_torch.tscn")
+## Jarak minimal (baris) antar obor: [Mudah, Normal]
+@export var torch_min_rows: Array[int] = [9, 26]
+
 @export var exit_scene: PackedScene = preload("res://Scenes/levels/cave_exit.tscn")
 ## Scene setelah menara ini. Kosong = generate menara baru.
 @export_file("*.tscn") var next_scene: String = "res://Scenes/levels/zone_two.tscn"
@@ -137,13 +149,15 @@ func _ready() -> void:
 
 	_place_player()
 	_place_exit()
+	var spike_count: int = _place_spikes(rng)
 	var enemy_count: int = _place_enemies(rng)
 	_place_decor(rng)
+	var torch_count: int = _place_torches(rng)
 	_setup_view()
 
-	print("[TowerLevel] seed %d | %d ms | %d percobaan | %d platform | %d musuh | tile tak cocok %d" % [
+	print("[TowerLevel] seed %d | %d ms | %d percobaan | %d platform | %d musuh | %d duri | %d obor | tile tak cocok %d" % [
 		used_seed, Time.get_ticks_msec() - t0, result.get("attempts", 0),
-		result["features"].size(), enemy_count, fallback])
+		result["features"].size(), enemy_count, spike_count, torch_count, fallback])
 
 
 func _process(_delta: float) -> void:
@@ -343,12 +357,111 @@ func _surface_cells(r: Rect2i, reach: Dictionary, spawn: Vector2i) -> Array:
 		var c := Vector2i(x, y)
 		if not reach.has(c) or not reach.has(c + Vector2i(-1, 0)) or not reach.has(c + Vector2i(1, 0)):
 			continue
+		if _keep_clear.has(c):
+			continue
 		if Vector2(c).distance_to(Vector2(spawn)) < min_enemy_distance:
 			continue
 		if not generator._col_clear(x, y - 1, y):
 			continue
 		out.append(c)
 	return out
+
+
+# ---------------------------------------------------------------- duri & obor
+
+## Kelompok duri 1-3 tile di tengah permukaan batu yang lebar (lantai istirahat
+## dan blok >= 5 tile), bukan di papan. Kedua sisinya disisakan >= 2 tile aman
+## dan lebar maksimal 3 tile, jadi selalu bisa dilompati.
+func _place_spikes(rng: RandomNumberGenerator) -> int:
+	if spike_scene == null:
+		return 0
+	var g := generator
+	var spawn: Vector2i = result["spawn_cell"]
+	var exit_cell: Vector2i = result["exit_cell"]
+	var reach: Dictionary = result["reachable"]
+	var last_y: int = 1000000
+	var count: int = 0
+	# dari bawah ke atas, supaya jarak antar kelompok bisa dijaga
+	var feats: Array = result["features"].filter(func(f: Dictionary) -> bool:
+		return f["kind"] != TowerGenerator.KIND_PLANK)
+	feats.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return a["rect"].position.y > b["rect"].position.y)
+	for f: Dictionary in feats:
+		var r: Rect2i = f["rect"]
+		var y: int = r.position.y - 1
+		if absi(last_y - y) < spike_min_rows:
+			continue
+		var chance: float = spike_chance_landing if f["kind"] == TowerGenerator.KIND_LANDING else spike_chance_block
+		if rng.randf() > chance:
+			continue
+		var lo: int = maxi(r.position.x, g.inner_left(y))
+		var hi: int = mini(r.end.x - 1, g.inner_right(y))
+		var n: int = rng.randi_range(1, 3)
+		if hi - lo + 1 < n + 4:
+			n = hi - lo + 1 - 4
+		if n < 1:
+			continue
+		var x0: int = rng.randi_range(lo + 2, hi - 2 - n + 1)
+		var ok: bool = true
+		for x in range(x0 - 2, x0 + n + 2):
+			var c := Vector2i(x, y)
+			if not g.is_standing(x, y) or not g.is_solid(x, y + 1) or not reach.has(c) \
+					or _keep_clear.has(c) or g.is_solid(x, y - 1) or g.is_solid(x, y - 2):
+				ok = false
+				break
+			if Vector2(c).distance_to(Vector2(spawn)) < 6.0 or Vector2(c).distance_to(Vector2(exit_cell)) < 6.0:
+				ok = false
+				break
+		if not ok:
+			continue
+		var spike := spike_scene.instantiate() as Spikes
+		spike.width_tiles = n
+		spike.position = Vector2((x0 + n * 0.5) * TILE, (y + 1) * TILE)
+		add_child(spike)
+		for x in range(x0 - 1, x0 + n + 1):
+			_keep_clear[Vector2i(x, y)] = true
+		last_y = y
+		count += 1
+	return count
+
+
+## Obor di dinding belakang, menempel ke lantai istirahat dan blok batu.
+## Mudah: rapat (±tiap lantai istirahat). Normal: jarang. Sulit: tidak ada.
+func _place_torches(rng: RandomNumberGenerator) -> int:
+	if torch_scene == null or not RunState.torches_enabled():
+		return 0
+	var g := generator
+	var easy: bool = RunState.difficulty == RunState.Difficulty.EASY
+	var min_rows: int = torch_min_rows[0 if easy else 1]
+	var reach: Dictionary = result["reachable"]
+	var last_y: int = 1000000
+	var count: int = 0
+	var feats: Array = result["features"].filter(func(f: Dictionary) -> bool:
+		# Normal hanya di lantai istirahat; Mudah juga di blok batu
+		return f["kind"] == TowerGenerator.KIND_LANDING or (easy and f["kind"] == TowerGenerator.KIND_BLOCK))
+	feats.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return a["rect"].position.y > b["rect"].position.y)
+	for f: Dictionary in feats:
+		var r: Rect2i = f["rect"]
+		var y: int = r.position.y - 1
+		if absi(last_y - y) < min_rows:
+			continue
+		var cells: Array[Vector2i] = []
+		for x in range(maxi(r.position.x, g.inner_left(y)), mini(r.end.x, g.inner_right(y) + 1)):
+			var c := Vector2i(x, y)
+			if g.is_standing(x, y) and reach.has(c) and not _keep_clear.has(c) and not _has_prop(c) \
+					and _area_open(x, y - 1, 1, 2):
+				cells.append(c)
+		if cells.is_empty():
+			continue
+		var cell: Vector2i = cells[rng.randi_range(0, cells.size() - 1)]
+		var torch: Node2D = torch_scene.instantiate()
+		torch.position = cell_to_floor_pos(cell)
+		add_child(torch)
+		_keep_clear[cell] = true
+		last_y = y
+		count += 1
+	return count
 
 
 # ---------------------------------------------------------------- dekorasi

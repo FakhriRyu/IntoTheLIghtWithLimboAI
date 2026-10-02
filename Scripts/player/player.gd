@@ -111,6 +111,15 @@ var _fall_speed: float = 0.0
 ## Sisa waktu turun menembus papan one-way
 var _drop_timer: float = 0.0
 
+## Pentalan saat menyentuh duri: lompatan kecil, laju horizontal dibatasi
+const HAZARD_HOP_VELOCITY := -200.0
+const HAZARD_MIN_PUSH := 70.0
+const HAZARD_MAX_PUSH := 260.0
+## Batas lama terpental duri, jaga-jaga kalau tidak pernah mendarat
+const HAZARD_MAX_TIME := 0.8
+## Naik tiap knockback baru, supaya knockback lama tidak mengakhiri hurt milik yang baru
+var _knockback_id: int = 0
+
 ## Nilai dasar sebelum dikali modifier upgrade dari RunState.
 ## Disimpan sekali supaya modifier tidak berlipat ganda tiap kali diterapkan.
 var _base_speed: float
@@ -474,8 +483,15 @@ func _on_damaged(amount: int, source_position: Vector2) -> void:
 	if OS.is_debug_build():
 		print("Player took ", amount, " damage!")
 
-	is_hurt = true
 	knockback_direction = (global_position - source_position).normalized()
+	_enter_hurt()
+
+	# Apply knockback
+	_apply_knockback()
+
+
+func _enter_hurt() -> void:
+	is_hurt = true
 
 	# Serangan yang terpotong karena kena pukul tidak pernah sampai ke
 	# animation_finished, jadi reset rantainya di sini. Tanpa ini combo_index
@@ -484,19 +500,44 @@ func _on_damaged(amount: int, source_position: Vector2) -> void:
 	combo_window = 0.0
 	attack_buffer_timer = 0.0
 
-	# Transition to hurt state
 	state_machine.dispatch(TRANSITION_HURT)
-
-	# Apply knockback
-	_apply_knockback()
 
 
 func _apply_knockback() -> void:
 	"""Apply knockback as a single impulse, then wait before ending hurt state."""
+	_knockback_id += 1
+	var id := _knockback_id
 	velocity = Vector2(knockback_direction.x * knockback_force, -100)
 	await get_tree().create_timer(0.2).timeout
-	if is_hurt:
+	if is_hurt and id == _knockback_id:
 		_end_hurt_state()
+
+
+## Dipanggil duri: lompatan kecil ke arah dir_x yang cukup jauh (distance px)
+## untuk keluar dari deretan duri. Kontrol dikunci sampai mendarat.
+## Menggantikan knockback biasa kalau duri barusan juga memberi damage.
+func hazard_knockback(dir_x: float, distance: float) -> void:
+	if health == null or not health.is_alive():
+		return
+	if not is_hurt:
+		_enter_hurt()
+	_knockback_id += 1
+	var id := _knockback_id
+
+	var air_time := 2.0 * -HAZARD_HOP_VELOCITY / maxf(get_gravity().y, 1.0)
+	var push := clampf(distance / air_time, HAZARD_MIN_PUSH, HAZARD_MAX_PUSH)
+	velocity = Vector2(signf(dir_x) * push, HAZARD_HOP_VELOCITY)
+
+	var t := 0.0
+	while t < HAZARD_MAX_TIME:
+		await get_tree().physics_frame
+		if id != _knockback_id or not is_hurt:
+			return
+		t += get_physics_process_delta_time()
+		# beberapa frame awal dilewati: player masih menempel di lantai saat baru melompat
+		if t > 0.1 and is_on_floor():
+			break
+	_end_hurt_state()
 
 
 func _end_hurt_state() -> void:

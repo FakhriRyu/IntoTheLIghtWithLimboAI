@@ -32,6 +32,10 @@ extends Node2D
 @export var chest_scene: PackedScene = preload("res://Scenes/Items/chest.tscn")
 @export_range(0.0, 1.0) var chest_chance_per_side_room: float = 0.6
 
+## Duri di lantai rata (semua kesulitan)
+@export var spike_scene: PackedScene = preload("res://Scenes/Items/spikes.tscn")
+@export_range(0.0, 1.0) var spike_chance_per_room: float = 0.3
+
 @export var exit_scene: PackedScene = preload("res://Scenes/levels/cave_exit.tscn")
 ## Scene setelah gua ini. Kosong = generate gua baru.
 @export_file("*.tscn") var next_scene: String = ""
@@ -51,6 +55,8 @@ const RUBBLE: Array[Vector2i] = [Vector2i(0, 4), Vector2i(2, 4), Vector2i(0, 10)
 var generator: CaveGenerator
 var result: Dictionary
 var used_seed: int = 0
+## Cell berduri (dan tetangganya): musuh dan peti tidak ditaruh di sini
+var _hazard := {}
 
 
 func _ready() -> void:
@@ -72,13 +78,14 @@ func _ready() -> void:
 
 	_place_player()
 	_place_exit()
+	var spike_count: int = _place_spikes(rng)
 	var enemy_count: int = _place_enemies(rng)
 	var chest_count: int = _place_chests(rng)
 	_place_decor(rng)
 	_setup_view()
 
-	print("[CaveLevel] seed %d | %d ms | %d ruang di jalur | %d musuh | %d peti | tile tak cocok %d" % [
-		used_seed, Time.get_ticks_msec() - t0, result["path"].size(), enemy_count, chest_count, fallback])
+	print("[CaveLevel] seed %d | %d ms | %d ruang di jalur | %d musuh | %d peti | %d duri | tile tak cocok %d" % [
+		used_seed, Time.get_ticks_msec() - t0, result["path"].size(), enemy_count, chest_count, spike_count, fallback])
 
 
 # ---------------------------------------------------------------- konversi
@@ -133,7 +140,7 @@ func _place_enemies(rng: RandomNumberGenerator) -> int:
 	var by_room := {}
 	for c in reach.keys():
 		var cell: Vector2i = c
-		if protected.has(cell):
+		if protected.has(cell) or _hazard.has(cell):
 			continue
 		if Vector2(cell).distance_to(Vector2(spawn)) < min_enemy_distance:
 			continue
@@ -168,6 +175,62 @@ func _place_enemies(rng: RandomNumberGenerator) -> int:
 	return count
 
 
+## Duri 1-2 tile di lantai rata, dengan >= 2 tile aman di kedua sisi dan ruang
+## kepala cukup untuk melompatinya. Tidak di cell tangga (protected).
+func _place_spikes(rng: RandomNumberGenerator) -> int:
+	if spike_scene == null:
+		return 0
+	var g := generator
+	var spawn: Vector2i = result["spawn_cell"]
+	var exit_cell: Vector2i = result["exit_cell"]
+	var protected: Dictionary = result["protected"]
+	var reach: Dictionary = result["reachable"]
+
+	var by_room := {}
+	for c in reach.keys():
+		var cell: Vector2i = c
+		var room := Vector2i(cell.x / CaveGenerator.ROOM_W, cell.y / CaveGenerator.ROOM_H)
+		if not by_room.has(room):
+			by_room[room] = []
+		by_room[room].append(cell)
+
+	var count: int = 0
+	var rooms: Array = by_room.keys()
+	rooms.sort()       # urutan stabil supaya hasil per seed deterministik
+	for room in rooms:
+		if rng.randf() > spike_chance_per_room:
+			continue
+		var cells: Array = by_room[room]
+		cells.sort()
+		var n: int = rng.randi_range(1, 2)
+		var options: Array = cells.filter(func(c: Vector2i) -> bool:
+			return _spike_fits(c, n, spawn, exit_cell, protected, reach))
+		if options.is_empty():
+			continue
+		var cell: Vector2i = options[rng.randi_range(0, options.size() - 1)]
+		var spike := spike_scene.instantiate() as Spikes
+		spike.width_tiles = n
+		spike.position = Vector2((cell.x + n * 0.5) * TILE, (cell.y + 1) * TILE)
+		add_child(spike)
+		for x in range(cell.x - 1, cell.x + n + 1):
+			_hazard[Vector2i(x, cell.y)] = true
+		count += 1
+	return count
+
+
+func _spike_fits(c: Vector2i, n: int, spawn: Vector2i, exit_cell: Vector2i,
+		protected: Dictionary, reach: Dictionary) -> bool:
+	if Vector2(c).distance_to(Vector2(spawn)) < 8.0 or Vector2(c).distance_to(Vector2(exit_cell)) < 6.0:
+		return false
+	for x in range(c.x - 2, c.x + n + 2):
+		var o := Vector2i(x, c.y)
+		if not reach.has(o) or protected.has(o) or not generator.is_standing(x, c.y):
+			return false
+		if not generator._col_clear(x, c.y - 3, c.y):
+			return false
+	return true
+
+
 func _roll_group_size(rng: RandomNumberGenerator) -> int:
 	var total: float = 0.0
 	for w in group_size_weights:
@@ -200,7 +263,7 @@ func _place_chests(rng: RandomNumberGenerator) -> int:
 		for y in range(r.position.y, r.end.y):
 			for x in range(r.position.x, r.end.x):
 				var c := Vector2i(x, y)
-				if reach.has(c) and not protected.has(c) and generator.is_standing(x, y) \
+				if reach.has(c) and not protected.has(c) and not _hazard.has(c) and generator.is_standing(x, y) \
 						and generator._col_clear(x, y - 1, y):
 					cells.append(c)
 		if cells.is_empty():
@@ -219,7 +282,7 @@ func _place_decor(rng: RandomNumberGenerator) -> void:
 	var g := generator
 	for y in range(1, g.height - 4):
 		for x in range(1, g.width - 1):
-			if g.is_solid(x, y) or protected.has(Vector2i(x, y)):
+			if g.is_solid(x, y) or protected.has(Vector2i(x, y)) or _hazard.has(Vector2i(x, y)):
 				continue
 			# stalaktit: menggantung dari langit-langit, dengan ruang kosong di bawahnya
 			if g.is_solid(x, y - 1) and g._col_clear(x, y, y + 3) and rng.randf() < stalactite_chance:

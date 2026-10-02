@@ -1,0 +1,94 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/Items/light_brazier.gd" id="1_brazier"]
+[ext_resource type="Texture2D" path="res://Assets/Tiles/torchs/torcia.png" id="2_torch"]
+
+[sub_resource type="AtlasTexture" id="Atlas_torch_0"]
+atlas = ExtResource("2_torch")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_torch_1"]
+atlas = ExtResource("2_torch")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_torch_2"]
+atlas = ExtResource("2_torch")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_torch_3"]
+atlas = ExtResource("2_torch")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_torch_4"]
+atlas = ExtResource("2_torch")
+region = Rect2(128, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="Atlas_torch_5"]
+atlas = ExtResource("2_torch")
+region = Rect2(160, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_torch"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_torch_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_torch_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_torch_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_torch_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_torch_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_torch_5")
+}],
+"loop": true,
+"name": &"default",
+"speed": 10.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_torch"]
+radius = 48.0
+
+[sub_resource type="Gradient" id="Gradient_glow"]
+offsets = PackedFloat32Array(0, 0.4, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.5, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_glow"]
+gradient = SubResource("Gradient_glow")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[node name="WallTorch" type="Area2D"]
+z_index = -2
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_brazier")
+refill_rate = 8.0
+snap_to_floor = false
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+position = Vector2(-1, -46)
+scale = Vector2(1.5, 1.5)
+sprite_frames = SubResource("SpriteFrames_torch")
+autoplay = "default"
+
+[node name="Light" type="PointLight2D" parent="."]
+position = Vector2(0, -64)
+color = Color(1, 0.72, 0.38, 1)
+energy = 1.5
+texture = SubResource("GradientTexture2D_glow")
+texture_scale = 1.6
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -34)
+shape = SubResource("CircleShape2D_torch")
