@@ -10,6 +10,10 @@ Sumber (semua CC0, lihat Assets/audio/CREDITS.md) diekstrak ke satu folder:
   swishes/    Swishes Sound Pack (artisticdude)       swishes.zip
   wolf/       Wolf Monster Sound (CaveboyTup), Dog Growl (bonebrah), Dog Grunt (qubodup)
   kenney/     Kenney RPG Audio (Audio/*.ogg)
+  boss/       Norc'Thex: crow.ogg (fvcalderan), crow_caw.wav (zeroisnotnull),
+              wings_flap_large.ogg (AntumDeluge), teleport.wav (Ogrebane),
+              172206__fins__teleport.wav (fins), dark_magic/*.flac (qubodup),
+              Bow.wav (artisticdude), arrow-grab-from-quiver-01.wav (Vehicle)
 
 Pemakaian:  python3 tools/build_sfx.py <folder_sumber>
 Keluaran:   Assets/audio/sfx/real/*.wav  (butuh ffmpeg)
@@ -85,14 +89,18 @@ RECIPES = {
     "frog_croak": ([L("creature/burble_01.ogg")], 0.8),
     "frog_hurt": ([L("creature/burp_02.ogg", pitch=1.2)], 0.6),
     "frog_death": ([L("creature/burble_02.ogg", pitch=0.85)], 1.0),
-    # --- bos Norc'Thex
-    "boss_roar_0": ([L("rpgsfx/creature_roar_02.ogg", pitch=0.8)], 1.4),
-    "boss_roar_1": ([L("rpgsfx/creature_roar_03.ogg", pitch=0.8)], 1.5),
-    "boss_hurt_0": ([L("rpgsfx/creature_hurt_01.ogg", pitch=0.8)], 0.8),
-    "boss_hurt_1": ([L("rpgsfx/creature_hurt_02.ogg", pitch=0.8)], 0.9),
-    "boss_death": ([L("rpgsfx/creature_die_01.ogg", pitch=0.75),
-                    L("creature/roar_02.ogg", gain=-6, delay=0.15, pitch=0.7)], 2.0),
-    "arrow_shot": ([L("swishes/swish-5.wav", pitch=1.2), L("kenney/chop.ogg", gain=-12, pitch=1.4)], 0.35),
+    # --- bos Norc'Thex: makhluk gagak bertopeng tengkorak, bersenjata crossbow
+    "boss_crossbow_load": ([L("boss/arrow-grab-from-quiver-01.wav"), L("kenney/metalClick.ogg", gain=-4, delay=0.25)], 0.6),
+    "boss_crossbow": ([L("kenney/metalClick.ogg", pitch=0.8), L("boss/Bow.wav", delay=0.01),
+                       L("swishes/swish-5.wav", gain=-8, delay=0.04, pitch=1.2)], 0.55),
+    "boss_scream": ([L("boss/crow.ogg", pitch=0.62), L("boss/crow_caw.wav", gain=-2, delay=0.05, pitch=0.5),
+                     L("boss/wings_flap_large.ogg", gain=-6, length=0.5)], 1.2),
+    "boss_hurt_0": ([L("boss/crow.ogg", pitch=0.8, length=0.35)], 0.35),
+    "boss_hurt_1": ([L("boss/crow_caw.wav", pitch=0.7, length=0.4)], 0.4),
+    "boss_vanish": ([L("boss/dark_magic/fout-02.flac"), L("boss/wings_flap_large.ogg", gain=-5, length=0.5)], 1.1),
+    "boss_appear": ([L("boss/172206__fins__teleport.wav", pitch=0.7), L("boss/wings_flap_large.ogg", gain=-6, length=0.5)], 0.8),
+    "boss_death": ([L("boss/crow.ogg", pitch=0.5), L("boss/crow_caw.wav", gain=-3, delay=0.25, pitch=0.42),
+                    L("boss/dark_magic/fout-01.flac", gain=-3, delay=0.4)], 2.6),
     "trap_snap": ([L("rpgsfx/metal_01.ogg"), L("rpgsfx/chain_01.ogg", gain=-6)], 0.6),
 }
 

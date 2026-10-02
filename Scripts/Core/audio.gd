@@ -27,7 +27,7 @@ const ENEMY_VOICES := {
 	&"skull_wolf": {&"attack": &"wolf_growl", &"hurt": &"wolf_hurt", &"death": &"wolf_death"},
 	&"skull_wolf_fsm": {&"attack": &"wolf_growl", &"hurt": &"wolf_hurt", &"death": &"wolf_death"},
 	&"frogo": {&"attack": &"frog_croak", &"hurt": &"frog_hurt", &"death": &"frog_death"},
-	&"norch_thex": {&"attack": &"boss_roar", &"hurt": &"boss_hurt", &"death": &"boss_death"},
+	&"norch_thex": {&"attack": &"boss_scream", &"hurt": &"boss_hurt", &"death": &"boss_death"},
 }
 
 ## Sampel rekaman CC0 yang sudah diolah (lihat tools/build_sfx.py)
@@ -57,10 +57,13 @@ const SFX := {
 	&"frog_croak": [REAL + "frog_croak.wav"],
 	&"frog_hurt": [REAL + "frog_hurt.wav"],
 	&"frog_death": [REAL + "frog_death.wav"],
-	&"boss_roar": [REAL + "boss_roar_0.wav", REAL + "boss_roar_1.wav"],
+	&"boss_scream": [REAL + "boss_scream.wav"],
+	&"boss_crossbow": [REAL + "boss_crossbow.wav"],
+	&"boss_crossbow_load": [REAL + "boss_crossbow_load.wav"],
+	&"boss_vanish": [REAL + "boss_vanish.wav"],
+	&"boss_appear": [REAL + "boss_appear.wav"],
 	&"boss_hurt": [REAL + "boss_hurt_0.wav", REAL + "boss_hurt_1.wav"],
 	&"boss_death": [REAL + "boss_death.wav"],
-	&"arrow_shot": [REAL + "arrow_shot.wav"],
 	&"trap_snap": [REAL + "trap_snap.wav"],
 	&"pickup_light": [
 		"res://Assets/audio/sfx/kenney/glass_001.ogg",
@@ -141,6 +144,15 @@ func _process(_delta: float) -> void:
 		var idx := AudioServer.get_bus_index(MUSIC_BUS)
 		if idx != -1:
 			AudioServer.set_bus_volume_db(idx, _music_bus_db + (PAUSE_DUCK_DB if paused else 0.0))
+
+
+## Volume dasar bus Music (dipanggil Settings). Peredaman saat pause tetap
+## dihitung dari nilai ini.
+func set_music_volume_db(db: float) -> void:
+	_music_bus_db = db
+	var idx := AudioServer.get_bus_index(MUSIC_BUS)
+	if idx != -1:
+		AudioServer.set_bus_volume_db(idx, _music_bus_db + (PAUSE_DUCK_DB if _ducked else 0.0))
 
 
 ## Hentikan dan lepas stream saat game ditutup, supaya playback Ogg tidak
@@ -289,7 +301,8 @@ func enemy_voice(enemy: Node, event: StringName, volume_db: float = 0.0) -> void
 	var sfx_name: StringName = ENEMY_VOICES[kind].get(event, &"")
 	if sfx_name == &"":
 		return
-	if enemy is Node2D:
+	# bos selalu terdengar penuh, sejauh apa pun dari kamera
+	if enemy is Node2D and not enemy.is_in_group(&"boss"):
 		play_sfx_at(sfx_name, (enemy as Node2D).global_position, volume_db, 0.06)
 	else:
 		play_sfx(sfx_name, volume_db, 0.06)

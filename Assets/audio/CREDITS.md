@@ -30,4 +30,11 @@ Diolah dengan `tools/build_sfx.py` (trim, geser nada, layering, normalisasi) dar
 | [Wolf Monster Sound](https://opengameart.org/content/wolf-monster-sound) | CaveboyTup | geraman & mati serigala |
 | [Dog Growl](https://opengameart.org/content/dog-growl) | bonebrah | geraman serigala |
 | [Dog Grunt](https://opengameart.org/content/dog-grunt) | qubodup | serigala kena pukul |
-| [RPG Audio](https://kenney.nl/assets/rpg-audio) | Kenney | sayatan (knifeSlice, chop), langkah kaki, mendarat |
+| [RPG Audio](https://kenney.nl/assets/rpg-audio) | Kenney | sayatan (knifeSlice, chop), langkah kaki, mendarat, klik crossbow |
+| [Crow](https://opengameart.org/content/crow) | fvcalderan | Norc'Thex: pekikan, kena pukul, mati |
+| [Crow caw](https://opengameart.org/content/crow-caw) | zeroisnotnull | Norc'Thex: pekikan, kena pukul, mati |
+| [Large Wings Flap](https://opengameart.org/content/large-wings-flap) | AntumDeluge | Norc'Thex: kepakan sayap |
+| [Teleport](https://opengameart.org/content/teleport) | fins | Norc'Thex: muncul kembali |
+| [3 dark magic spells](https://opengameart.org/content/3-dark-magic-spells) | qubodup | Norc'Thex: menghilang, hancur saat mati |
+| [Battle Sound Effects](https://opengameart.org/content/battle-sound-effects) (Bow.wav, opsi lisensi CC0) | artisticdude | Norc'Thex: tembakan crossbow |
+| [Fantasy Sound Effects (Tinysized)](https://opengameart.org/content/fantasy-sound-effects-tinysized-sfx) | Vehicle | Norc'Thex: mengokang crossbow |
