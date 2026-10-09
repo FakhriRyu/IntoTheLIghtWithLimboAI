@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://h8j502w2kh7k" path="res://Scripts/Benchmark/ai_benchmark.gd" id="1_bench"]
+
+[node name="AIBenchmark" type="Node2D"]
+script = ExtResource("1_bench")
