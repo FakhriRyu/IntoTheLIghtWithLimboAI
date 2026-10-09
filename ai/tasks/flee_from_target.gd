@@ -63,7 +63,8 @@ func _tick(delta: float) -> Status:
 	# Update posisi agent
 	if agent is CharacterBody2D:
 		agent.velocity.x = velocity.x
-		agent.move_and_slide()
+		# Tidak memanggil move_and_slide() di sini: agent sudah bergerak sendiri di
+		# _physics_process, jadi memanggilnya lagi membuat agent bergerak dua kali per tick
 		
 		# Flip sprite berdasarkan arah gerak (hadap ke arah kabur)
 		if agent.has_method("update_facing"):
