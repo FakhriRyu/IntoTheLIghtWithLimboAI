@@ -16,9 +16,9 @@ extends "res://Scripts/Cutscene/prolog_cutscene.gd"
 const MENU_SCENE := "res://Scenes/UI/main_menu.tscn"
 const END_DIR := "res://Assets/cutscene/ending/"
 ## Gambar rumah sakit (dibuat khusus untuk ending), sisanya dari folder prolog
-const HOSPITAL_IMAGES := ["h01_room", "h02_wake", "h03_photo", "h04_hold", "por_elian_rs"]
+const HOSPITAL_IMAGES := ["h01_room", "h02_wake", "h03_photo", "h04_hold"]
 const END_IMAGES := ["p07", "p09", "p12", "p13_plate", "p14", "por_fiora", "por_elian",
-		"h01_room", "h02_wake", "h03_photo", "h04_hold", "por_elian_rs"]
+		"h01_room", "h02_wake", "h03_photo", "h04_hold"]
 
 const END_SCN := {
 	&"end_skull": {"img": "p09", "cam_a": Vector3(0.54, 0.36, 1.18), "cam_b": Vector3(0.5, 0.45, 1.0), "dur": 6.0},
@@ -37,8 +37,6 @@ const END_SPEAKERS := {
 	"Fiora": {"name": "FIORA", "por": "por_fiora", "col": Color(1.0, 0.79, 0.29), "side": 0, "blip": "blip_fiora"},
 	# di kastil Elian hanya suara: potretnya siluet dengan tanda tanya
 	"Elian (suara)": {"name": "ELIAN?", "por": "por_elian", "col": Color(0.6, 0.63, 0.75), "side": 1, "blip": "blip_elian", "sil": true},
-	# terakhir kali terdengar, kini dengan wajah dari foto
-	"Ayah": {"name": "ELIAN", "por": "por_elian_rs", "col": Color(1.0, 0.62, 0.24), "side": 1, "blip": "blip_elian", "fade": true},
 }
 
 var _card_ready: bool = false
@@ -200,12 +198,7 @@ func _run() -> void:
 	if await _wait(0.2): return
 	_p["I"] = _panel(&"photo", Rect2(40, 26, 1200, 510))
 	if await _wait(1.6): return
-	_play("shimmer")
-	var card := _name_card(Vector2(760, 250), "ELIAN", "AYAH FIORA")
-	if await _wait(1.8): return
 	if await _say("Fiora", "Ayah..."): return
-	_hide_node(card)
-	if await _say("Fiora", "Jadi selama ini suara itu suaramu. Kau sudah lama pergi... tapi kau tetap datang menjemputku."): return
 
 	# --- Fiora memeluk foto
 	_dlg.hide_box()
@@ -213,8 +206,7 @@ func _run() -> void:
 	if await _wait(0.2): return
 	_p["J"] = _panel(&"hold", Rect2(40, 26, 1200, 510))
 	if await _wait(1.6): return
-	if await _say("Ayah", "Sekarang kau sudah bangun. Hiduplah, Fiora."): return
-	if await _say("Fiora", "Terima kasih, Ayah. ...Aku pulang."): return
+	if await _say("Fiora", "...Aku pulang."): return
 	_exit_panel("J", "up")
 
 	# --- judul dan ringkasan run
