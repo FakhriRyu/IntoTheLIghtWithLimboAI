@@ -25,7 +25,7 @@ animation_name = &"move"
 
 [sub_resource type="BTAction" id="BTAction_l5hgd"]
 script = ExtResource("2_fbkr3")
-flee_speed = 80.0
+flee_speed = 160.0
 
 [sub_resource type="BTSequence" id="BTSequence_fo450"]
 custom_name = "Flee"
@@ -76,6 +76,7 @@ animation_name = &"move"
 [sub_resource type="BTAction" id="BTAction_p3hs1"]
 script = ExtResource("3_b4flw")
 approach_distance = 54.0
+speed = 60.0
 
 [sub_resource type="BTSequence" id="BTSequence_l5hgd"]
 custom_name = "Chase"
