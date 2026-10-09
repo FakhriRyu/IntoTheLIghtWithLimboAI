@@ -75,8 +75,9 @@ versi Godot, CPU, OS, dan jenis build.
 |---|---|
 | `ai_us_per_musuh_mean/median/p95/p99/max` | Waktu CPU satu kali update AI satu musuh (mikrodetik) |
 | `ai_ms_per_tick_total_mean/p95` | Total waktu AI semua musuh dalam satu physics tick (milidetik) |
-| `physics_ms_mean/p95` | Waktu seluruh physics step (termasuk AI dan `move_and_slide`) |
-| `process_ms_mean`, `frame_ms_mean/p95/max`, `fps_mean/min` | Waktu frame dan FPS |
+| `physics_ms_mean`, `process_ms_mean` | Rata-rata waktu physics step (termasuk AI dan `move_and_slide`) dan process step. Monitor Godot ini hanya diperbarui sekitar sekali per detik, jadi hanya rata-ratanya yang dilaporkan |
+| `frame_ms_mean/p95/max` | Waktu antar frame, diukur langsung dari `delta` tiap frame |
+| `fps_mean`, `fps_1pct_low` | FPS rata-rata (1000 / frame_ms_mean) dan FPS 1% terendah (1000 / frame_ms p99) |
 | `memori_kb_per_musuh` | Kenaikan memori statis setelah memunculkan musuh, dibagi N |
 | `memori_puncak_mb` | Puncak memori statis sejak program jalan |
 | `node_per_musuh`, `objek_per_musuh` | Tambahan node/objek per musuh |
