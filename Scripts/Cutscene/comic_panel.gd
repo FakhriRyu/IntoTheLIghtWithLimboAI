@@ -371,11 +371,18 @@ func _draw_add(c: CanvasItem) -> void:
 		&"room":
 			# cahaya pagi dari jendela + layar monitor jantung
 			var pu := 0.85 + 0.15 * sin(time * 1.3)
-			_glow(c, Vector2(_inner.x * 0.85, _inner.y * 0.2), _inner.x * 0.55, Color(1.0, 0.92, 0.75), 0.2 * pu)
-			_motes(c, Vector2(1100, 300), 400, 260, 30, 19.0, Color(1.0, 0.94, 0.8), 2.0)
-		&"photo", &"hold":
+			_glow(c, map(Vector2(240, 330)), 300.0 * _s, Color(1.0, 0.92, 0.75), 0.25 * pu)
+			_glow(c, map(Vector2(150, 545)), 50.0 * _s, Color(1.0, 0.85, 0.55), 0.35 * flick(time, 2.0))
+			# garis monitor jantung berkedip pelan
+			_glow(c, map(Vector2(515, 405)), 40.0 * _s, Color(0.4, 1.0, 0.6), 0.25 + 0.2 * sin(time * 5.0))
+			_motes(c, Vector2(300, 400), 250, 250, 30, 19.0, Color(1.0, 0.94, 0.8), 2.0)
+		&"photo":
+			_lantern(c, Vector2(1300, 420), 0.9, 21.0)
+			_motes(c, Vector2(1300, 380), 160, 200, 18, 23.0)
+		&"hold":
 			var pu := 0.85 + 0.15 * sin(time * 1.6)
-			_glow(c, Vector2(_inner.x * 0.5, _inner.y * 0.3), _inner.x * 0.7, Color(1.0, 0.88, 0.66), 0.14 * pu)
+			_glow(c, map(Vector2(420, 260)), 500.0 * _s, Color(1.0, 0.92, 0.72), 0.22 * pu)
+			_motes(c, Vector2(700, 300), 400, 260, 40, 25.0, Color(1.0, 0.94, 0.8), 2.2)
 		&"end_skull":
 			# mata kehijauan berkedip makin lemah lalu padam
 			var life := 1.0 - clampf((time - 0.8) / 1.6, 0.0, 1.0)

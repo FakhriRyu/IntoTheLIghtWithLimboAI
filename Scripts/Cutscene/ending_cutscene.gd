@@ -27,10 +27,10 @@ const END_SCN := {
 	&"alone": {"img": "p13_plate", "cam_a": Vector3(0.6, 0.5, 1.3), "cam_b": Vector3(0.66, 0.5, 1.12), "dur": 10.0},
 	&"end_hands": {"img": "p12", "cam_a": Vector3(0.5, 0.6, 1.02), "cam_b": Vector3(0.5, 0.58, 1.2), "dur": 6.0},
 	&"end_light": {"img": "p14", "cam_a": Vector3(0.5, 0.5, 1.0), "cam_b": Vector3(0.5, 0.62, 1.35), "dur": 9.0},
-	&"room": {"img": "h01_room", "cam_a": Vector3(0.5, 0.5, 1.0), "cam_b": Vector3(0.42, 0.55, 1.15), "dur": 8.0},
+	&"room": {"img": "h01_room", "cam_a": Vector3(0.5, 0.5, 1.0), "cam_b": Vector3(0.58, 0.6, 1.2), "dur": 8.0},
 	&"wake": {"img": "h02_wake", "cam_a": Vector3(0.5, 0.45, 1.25), "cam_b": Vector3(0.5, 0.5, 1.05), "dur": 6.0},
-	&"photo": {"img": "h03_photo", "cam_a": Vector3(0.5, 0.45, 1.2), "cam_b": Vector3(0.5, 0.4, 1.05), "dur": 9.0},
-	&"hold": {"img": "h04_hold", "cam_a": Vector3(0.5, 0.5, 1.02), "cam_b": Vector3(0.5, 0.55, 1.18), "dur": 8.0},
+	&"photo": {"img": "h03_photo", "cam_a": Vector3(0.4, 0.5, 1.0), "cam_b": Vector3(0.52, 0.42, 1.25), "dur": 7.0},
+	&"hold": {"img": "h04_hold", "cam_a": Vector3(0.5, 0.5, 1.0), "cam_b": Vector3(0.62, 0.42, 1.2), "dur": 8.0},
 }
 
 const END_SPEAKERS := {
@@ -180,7 +180,8 @@ func _run() -> void:
 	_ecg.stop()
 	_amb.mode = &"dust"
 	if await _wait(0.9): return
-	_p["G"] = _panel(&"room", Rect2(40, 26, 1200, 510))
+	# gambar kamar berbentuk persegi, jadi panelnya juga hampir persegi
+	_p["G"] = _panel(&"room", Rect2(355, 20, 570, 520))
 	if await _wait(3.0): return
 
 	# --- mata terbuka, pandangan masih buram
