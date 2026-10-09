@@ -52,6 +52,7 @@ const ARENA_WIDTH := 1600.0
 ## kejar, serang) dan bukan diam menunggu.
 const ENGAGE_WIDTH := 600.0
 const OUT_DIR := "user://ai_benchmark"
+const MIN_DURATION_SEC := 2.0
 
 ## NPC yang dibahas skripsi. wolf_fsm tetap tersedia lewat --variants=wolf_fsm.
 @export var variants: PackedStringArray = ["goblin_fsm", "wolf_bt", "norcthex_p1", "norcthex_p2"]
@@ -127,6 +128,11 @@ func _parse_cmdline() -> void:
 			"raw": write_raw = value != "false"
 			"quit": quit_when_done = value != "false"
 			_: push_warning("ai_benchmark: opsi tidak dikenal '%s'" % arg)
+	# Monitor fisika/process Godot baru diperbarui sekitar sekali per detik;
+	# pengukuran yang lebih pendek tidak akan mendapat sampel sama sekali
+	if duration_sec < MIN_DURATION_SEC:
+		push_warning("ai_benchmark: duration %.2f dtk dinaikkan ke minimum %.1f dtk" % [duration_sec, MIN_DURATION_SEC])
+		duration_sec = MIN_DURATION_SEC
 
 
 # --- Arena ---

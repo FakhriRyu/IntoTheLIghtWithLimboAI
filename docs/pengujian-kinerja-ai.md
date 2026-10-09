@@ -56,7 +56,7 @@ Di macOS, `godot` adalah `/Applications/Godot.app/Contents/MacOS/Godot`.
 | `--counts=` | `1,10,50,100` | Jumlah musuh per run |
 | `--boss-max=` | `1` | Batas jumlah Norc'Thex |
 | `--warmup=` | `2` | Detik pemanasan sebelum mengukur |
-| `--duration=` | `10` | Detik pengukuran |
+| `--duration=` | `10` | Detik pengukuran (minimal 2, supaya monitor fisika/process sempat diperbarui) |
 | `--reps=` | `3` | Ulangan per kombinasi |
 | `--seed=` | `12345` | Seed acak (ditambah nomor ulangan) |
 | `--raw` | mati | Simpan juga data mentah per tick |
