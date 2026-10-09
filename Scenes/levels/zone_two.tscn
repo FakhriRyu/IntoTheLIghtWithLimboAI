@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://Scenes/Items/light_brazier.tscn" id="brazier_1"]
 [ext_resource type="PackedScene" uid="uid://c8h2ueapl4yr1" path="res://Scenes/UI/player_hud.tscn" id="hud_1"]
 [ext_resource type="Script" uid="uid://dsh05m6pt605i" path="res://Scripts/Core/level_music.gd" id="level_music_1"]
+[ext_resource type="Script" path="res://Scripts/Levels/boss_victory.gd" id="boss_victory_1"]
 
 [node name="zone_two" type="Node2D" unique_id=102063117]
 
@@ -61,3 +62,6 @@ position = Vector2(640, 330)
 [node name="LevelMusic" type="Node" parent="." unique_id=941990019]
 script = ExtResource("level_music_1")
 track = "boss"
+
+[node name="BossVictory" type="Node" parent="."]
+script = ExtResource("boss_victory_1")

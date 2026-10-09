@@ -9,6 +9,7 @@ const MAIN_MENU := "res://Scenes/UI/main_menu.tscn"
 const PROLOG := "res://Scenes/Cutscene/prolog_cutscene.tscn"
 const TOWER := "res://Scenes/levels/tower.tscn"
 const ZONE_TWO := "res://Scenes/levels/zone_two.tscn"
+const ENDING := "res://Scenes/Cutscene/ending_cutscene.tscn"
 const GOBLIN := preload("res://Scenes/Enemy/goblin/goblin.tscn")
 const PICKUP := preload("res://Scenes/Items/pickup.tscn")
 const CHEST := preload("res://Scenes/Items/chest.tscn")
@@ -276,16 +277,23 @@ func _run() -> void:
 		await wait(2.5)
 		boss.health.take_damage(boss.health.current_health)
 	var boss_gone := await wait_until(func(): return not is_instance_valid(boss), 6.0)
-	await wait(4.0)
-	var after_scene := scene_path()
-	var ending := after_scene != before_scene
+	var t12 := await wait_until(func(): return scene_path() == ENDING, 6.0)
+	var ending := t12 > 0
 	record(12, "Kemenangan", "Mengalahkan Norc'Thex",
 		"Cutscene penutup ditampilkan sebagai akhir permainan",
-		"Bos mati dan dihapus: %s; scene setelah 4 detik: %s; cutscene penutup: %s" % [
-			"ya" if boss_gone > 0 else "tidak", after_scene.get_file(), "ada" if ending else "belum ada (fitur ending belum dibuat)"],
+		"Bos mati dan dihapus: %s; %s" % [
+			"ya" if boss_gone > 0 else "tidak",
+			("cutscene penutup dimuat %.2f detik setelah node bos dihapus" % t12) if ending
+				else "scene tetap " + scene_path().get_file() + " (cutscene penutup tidak dimuat)"],
 		ending)
 
-	# 7. Kematian pemain (terakhir, karena mengakhiri run)
+	# 7. Kematian pemain (terakhir, karena mengakhiri run).
+	# Kemenangan sudah memindahkan game ke cutscene penutup, jadi muat ulang Zone Two.
+	if scene_path() != ZONE_TWO:
+		await wait(1.0)
+		get_tree().change_scene_to_file(ZONE_TWO)
+		await wait_until(func(): return scene_path() == ZONE_TWO and player() != null, 5.0)
+		await wait(0.5)
 	p = player()
 	var ros := find_by_script(get_tree().root, "run_over_screen.gd")
 	p.health.take_damage(p.health.current_health)

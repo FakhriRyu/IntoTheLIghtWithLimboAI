@@ -18,6 +18,8 @@ const IMAGES := ["p01a", "p01b", "p02", "p03", "p04", "p05", "p06", "p07", "p08"
 		"p10", "p11", "p12", "p13", "p13_plate", "p14", "por_fiora", "por_elian"]
 const SOUNDS := ["beep", "drip", "thump", "clink", "whoosh", "rumble", "crack", "shimmer",
 		"sting", "blip_fiora", "blip_elian", "blip_unknown"]
+## Gambar yang datanya (Image) disimpan untuk efek "luruh" per sel di ComicPanel
+const DATA_IMAGES := ["p13", "p09"]
 const LIGHT_WHITE := Color(1.0, 0.96, 0.86)
 const PAPER := Color(0.957, 0.937, 0.894)
 ## Lama menahan Esc untuk melewati cutscene
@@ -148,8 +150,8 @@ func _restore_window() -> void:
 func _load_resources() -> void:
 	var tex := {}
 	var data := {}
-	for n in IMAGES:
-		var t := load(IMG_DIR + n + ".jpg") as Texture2D
+	for n in _image_names():
+		var t := load(_image_path(n)) as Texture2D
 		if t == null:
 			push_warning("Prolog: gambar %s tidak ada" % n)
 			continue
@@ -159,7 +161,7 @@ func _load_resources() -> void:
 			continue
 		if img.is_compressed():
 			img.decompress()
-		if n == "p13":
+		if n in DATA_IMAGES:
 			data[n] = img.duplicate()
 		# mipmap supaya gambar besar tetap halus saat diperkecil
 		img.generate_mipmaps()
@@ -316,6 +318,26 @@ func _loop_to(p: AudioStreamPlayer, v: float, fade: float) -> void:
 	create_tween().tween_property(p, "volume_db", db, fade)
 
 
+# ================================================================ data adegan
+# Cutscene lain (mis. ending_cutscene.gd) mewarisi script ini dan menimpa
+# fungsi-fungsi berikut untuk memakai gambar, panel, dan pembicara sendiri.
+
+func _image_names() -> Array:
+	return IMAGES
+
+
+func _image_path(n: String) -> String:
+	return IMG_DIR + n + ".jpg"
+
+
+func _scene_def(id: StringName) -> Dictionary:
+	return SCN[id]
+
+
+func _speaker(who: String) -> Dictionary:
+	return SPEAKERS[who]
+
+
 # ================================================================ input
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -362,14 +384,14 @@ func _wait(sec: float) -> bool:
 func _say(who: String, text: String) -> bool:
 	if _done:
 		return true
-	_dlg.show_line(SPEAKERS[who], text, auto_advance)
+	_dlg.show_line(_speaker(who), text, auto_advance)
 	await _advanced
 	return _done
 
 
 func _panel(id: StringName, rect: Rect2, enter: String = "pop", z: int = 0, opts: Dictionary = {}) -> ComicPanel:
 	var p := ComicPanel.new()
-	var o: Dictionary = SCN[id].duplicate()
+	var o: Dictionary = _scene_def(id).duplicate()
 	o.merge(opts, true)
 	_panels.add_child(p)
 	p.setup(id, rect, o, _res)

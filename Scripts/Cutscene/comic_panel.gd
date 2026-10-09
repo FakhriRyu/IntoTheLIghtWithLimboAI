@@ -49,12 +49,23 @@ var _image_layer: Layer
 var _s: float = 1.0
 var _src := Rect2()
 var _cur: Texture2D
-## Data efek Elian memudar (sel-sel gambar yang lepas satu per satu)
+## Data efek luruh (sel-sel gambar yang lepas satu per satu): Elian memudar di
+## prolog, tengkorak Norc'Thex hancur di ending
 var _cells: Array = []
 const CELL := 16.0
 const FADE_ELLIPSE := Rect2(1105, 370, 262, 430)  # pusat x,y dan jari-jari x,y
 const FADE_START := 0.6
 const FADE_LEN := 3.4
+const SKULL_ELLIPSE := Rect2(632, 424, 940, 650)
+const SKULL_START := 2.4
+const SKULL_LEN := 3.2
+## Latar gelap di belakang tengkorak (dipakai saat sel tengkorak lepas)
+const SKULL_BG := Color(0.07, 0.035, 0.1)
+var _fade_start: float = FADE_START
+var _fade_len: float = FADE_LEN
+var _ember := Color(1.0, 0.77, 0.47)
+## Retakan tengkorak: tiap retakan = deretan titik dari mata keluar
+var _cracks: Array = []
 
 
 ## opts: img, cam_a, cam_b, dur, delay, shape (titik 0..1)
@@ -102,13 +113,24 @@ func setup(id: StringName, rect: Rect2, opts: Dictionary, shared: Dictionary) ->
 		_layers.append(l)
 	_image_layer = _layers[0]
 
-	if scene_id == &"eyes":
+	if is_eyes():
 		var m := ShaderMaterial.new()
 		m.shader = res.blur_shader
 		_image_layer.material = m
 	if scene_id == &"fade":
-		_prep_fade()
+		_prep_fade("p13", FADE_ELLIPSE)
+	if scene_id == &"end_skull":
+		_fade_start = SKULL_START
+		_fade_len = SKULL_LEN
+		_ember = Color(0.62, 0.4, 1.0)
+		_prep_fade("p09", SKULL_ELLIPSE)
+		_prep_cracks()
 	_update_cam()
+
+
+## Panel bergambar buram yang perlahan jelas (mata baru terbuka)
+func is_eyes() -> bool:
+	return scene_id == &"eyes" or scene_id == &"wake"
 
 
 func _process(delta: float) -> void:
@@ -149,7 +171,15 @@ func _view(tex: Texture2D, a: Vector3, b: Vector3, p: float) -> void:
 
 
 func _update_cam() -> void:
-	if scene_id == &"eyes":
+	if scene_id == &"wake":
+		# ending: pandangan Fiora dari ranjang, buram lalu jelas
+		_view(_tex, _cam_a, _cam_b, (time - _cam_delay) / _cam_dur)
+		var wm := _image_layer.material as ShaderMaterial
+		var ww := clampf((time - 0.8) / 2.6, 0.0, 1.0)
+		wm.set_shader_parameter("lod", lerpf(3.6, 0.0, ww))
+		wm.set_shader_parameter("brightness", lerpf(0.5, 1.0, ww))
+		return
+	if is_eyes():
 		# mata tertutup dulu, lalu berkedip ke gambar mata terbuka
 		if time < EYES_SWAP:
 			_view(res.tex.p01a, Vector3(0.5, 0.5, 1.0), Vector3(0.5, 0.5, 1.08), time / 6.0)
@@ -276,7 +306,7 @@ func _draw_layer(c: CanvasItem, kind: int) -> void:
 	match kind:
 		L_IMAGE:
 			c.draw_texture_rect_region(_cur, Rect2(Vector2.ZERO, _inner), _src)
-			if scene_id == &"fade":
+			if scene_id == &"fade" or scene_id == &"end_skull":
 				_draw_fade_plate(c)
 		L_ADD:
 			_draw_add(c)
@@ -335,6 +365,62 @@ func _draw_add(c: CanvasItem) -> void:
 			_glow(c, map(Vector2(1105, 330)), 380.0 * _s, Color(1.0, 0.78, 0.5), 0.32 * sin(dp * PI))
 			_draw_fade_sparks(c)
 			_lantern(c, Vector2(762, 482), 1.3, 8.0)
+		&"wake":
+			var pu := 0.8 + 0.2 * sin(time * 2.0)
+			_glow(c, Vector2(_inner.x * 0.8, _inner.y * 0.1), _inner.x * 0.6, Color(1.0, 0.9, 0.7), 0.18 * pu)
+		&"room":
+			# cahaya pagi dari jendela + layar monitor jantung
+			var pu := 0.85 + 0.15 * sin(time * 1.3)
+			_glow(c, map(Vector2(240, 330)), 300.0 * _s, Color(1.0, 0.92, 0.75), 0.25 * pu)
+			_glow(c, map(Vector2(150, 545)), 50.0 * _s, Color(1.0, 0.85, 0.55), 0.35 * flick(time, 2.0))
+			# garis monitor jantung berkedip pelan
+			_glow(c, map(Vector2(515, 405)), 40.0 * _s, Color(0.4, 1.0, 0.6), 0.25 + 0.2 * sin(time * 5.0))
+			_motes(c, Vector2(300, 400), 250, 250, 30, 19.0, Color(1.0, 0.94, 0.8), 2.0)
+		&"photo":
+			_lantern(c, Vector2(1300, 420), 0.9, 21.0)
+			_motes(c, Vector2(1300, 380), 160, 200, 18, 23.0)
+		&"hold":
+			var pu := 0.85 + 0.15 * sin(time * 1.6)
+			_glow(c, map(Vector2(420, 260)), 500.0 * _s, Color(1.0, 0.92, 0.72), 0.22 * pu)
+			_motes(c, Vector2(700, 300), 400, 260, 40, 25.0, Color(1.0, 0.94, 0.8), 2.2)
+		&"end_skull":
+			# mata kehijauan berkedip makin lemah lalu padam
+			var life := 1.0 - clampf((time - 0.8) / 1.6, 0.0, 1.0)
+			var dip := 0.35 if vnoise(time * 14.0, 2.0, 6.0) > 0.6 else 1.0
+			var e := map(Vector2(688, 245))
+			_glow(c, e, 240.0 * _s, TEAL, 0.5 * life * dip)
+			_glow(c, e, 60.0 * _s, Color(0.86, 1.0, 0.98), 0.6 * life * dip)
+			_draw_fade_sparks(c)
+		&"end_fog":
+			# kegelapan mundur, lentera Fiora makin terang
+			var p := clampf(time / 4.0, 0.0, 1.0)
+			_lantern(c, Vector2(762, 482), 1.2 + p * 1.0, 8.0)
+			_glow(c, map(Vector2(762, 400)), 900.0 * _s, Color(1.0, 0.86, 0.6), 0.12 * p)
+			_motes(c, Vector2(762, 400), 600, 260, 40, 15.0)
+		&"end_tower":
+			var o := map(Vector2(450, 70))
+			var pu := 0.9 + 0.1 * sin(time * 2.4)
+			var grow := 1.0 + clampf(time / 5.0, 0.0, 1.0) * 0.8
+			_glow(c, o, 300.0 * _s * grow, Color(1.0, 0.94, 0.78), 0.6 * pu)
+			_glow(c, o, 90.0 * _s * grow, Color(1.0, 1.0, 0.94), 0.7 * pu)
+			_lantern(c, Vector2(480, 1225), 0.8, 3.0)
+			_motes(c, Vector2(450, 600), 200, 560, 60, 9.0, Color(1.0, 0.94, 0.78), 2.6)
+		&"alone":
+			# tempat Elian berdiri: tinggal cahaya hangat yang berdenyut pelan
+			_glow(c, map(Vector2(1105, 380)), 300.0 * _s, Color(1.0, 0.78, 0.5), 0.14 + 0.06 * sin(time * 1.5))
+			_motes(c, Vector2(1105, 380), 200, 300, 24, 17.0)
+			_lantern(c, Vector2(762, 482), 1.3, 8.0)
+		&"end_hands":
+			var p := clampf((time - 0.8) / 2.5, 0.0, 1.0)
+			_lantern(c, Vector2(690, 470), 1.4 + p * 1.6, 7.0)
+			_glow(c, map(Vector2(690, 470)), 120.0 * _s, Color(1.0, 0.98, 0.9), 0.5 * p)
+			_motes(c, Vector2(690, 470), 520, 300, 60, 11.0)
+		&"end_light":
+			var pu := 0.85 + 0.15 * sin(time * 1.6)
+			var p := clampf((time - 2.0) / 5.0, 0.0, 1.0)
+			_glow(c, map(Vector2(800, 0)), 700.0 * _s * (1.0 + p), Color(1.0, 0.96, 0.84), (0.3 + 0.4 * p) * pu)
+			_glow(c, map(Vector2(800, 520)), 260.0 * _s, Color(1.0, 0.98, 0.92), 0.5 * p)
+			_motes(c, Vector2(800, 360), 260, 360, 60, 13.0, Color(1.0, 0.94, 0.78), 2.6)
 		&"finale":
 			var pu := 0.85 + 0.15 * sin(time * 1.6)
 			_glow(c, map(Vector2(800, 0)), 700.0 * _s, Color(1.0, 0.96, 0.84), 0.3 * pu)
@@ -345,6 +431,17 @@ func _draw_add(c: CanvasItem) -> void:
 
 func _draw_mix(c: CanvasItem) -> void:
 	match scene_id:
+		&"wake":
+			# kelopak mata: tertutup, terbuka pelan, berkedip sekali
+			var l := 1.0
+			if time > 0.6:
+				l = 1.0 - ease_io(clampf((time - 0.6) / 1.4, 0.0, 1.0))
+			if time > 2.6 and time < 2.9:
+				l = 0.6 * sin((time - 2.6) / 0.3 * PI)
+			_vignette(c, 0.4)
+			_lids(c, l)
+		&"room":
+			_vignette(c, 0.3)
 		&"eyes":
 			var T := EYES_SWAP
 			_vignette(c, 0.6 if time < T else 0.45)
@@ -377,13 +474,20 @@ func _draw_mix(c: CanvasItem) -> void:
 			_smoke(c, 0.55, 8.0, Color(0.07, 0.024, 0.118))
 		&"fade":
 			_draw_fade_bits(c)
+		&"end_skull":
+			_draw_cracks(c)
+			_draw_fade_bits(c)
+			_vignette(c, 0.4)
+		&"end_fog":
+			var p := clampf(time / 4.0, 0.0, 1.0)
+			_smoke(c, 0.75 * (1.0 - p), 2.0)
+			_vignette(c, 0.45 - p * 0.25)
 
 
 # ---------------------------------------------------------------- Elian memudar
 
-func _prep_fade() -> void:
-	var img: Image = res.img_data.get("p13", null)
-	var e := FADE_ELLIPSE
+func _prep_fade(img_name: String, e: Rect2) -> void:
+	var img: Image = res.img_data.get(img_name, null)
 	var ih := float(img.get_height()) if img else 672.0
 	var y := maxf(0.0, e.position.y - e.size.y)
 	while y < minf(ih, e.position.y + e.size.y):
@@ -403,7 +507,7 @@ func _prep_fade() -> void:
 
 
 func _fade_p() -> float:
-	return clampf((time - FADE_START) / FADE_LEN, 0.0, 1.0) * 1.12
+	return clampf((time - _fade_start) / _fade_len, 0.0, 1.0) * 1.12
 
 
 ## Sel yang sudah lepas digantikan latar buram (tempat Elian berdiri tadi)
@@ -411,11 +515,14 @@ func _draw_fade_plate(c: CanvasItem) -> void:
 	var p := _fade_p()
 	if p <= 0.0:
 		return
-	var plate: Texture2D = res.tex.p13_plate
+	var plate: Texture2D = res.tex.get("p13_plate", null) if scene_id == &"fade" else null
 	for cell in _cells:
 		if cell[2] < p:
 			var src := Rect2(cell[0] - 1.0, cell[1] - 1.0, CELL + 2.0, CELL + 2.0)
-			c.draw_texture_rect_region(plate, Rect2(map(src.position), src.size * _s), src)
+			if plate:
+				c.draw_texture_rect_region(plate, Rect2(map(src.position), src.size * _s), src)
+			else:
+				c.draw_rect(Rect2(map(src.position), src.size * _s), SKULL_BG)
 
 
 func _cell_motion(cell: Array, age: float) -> Vector2:
@@ -436,7 +543,7 @@ func _draw_fade_bits(c: CanvasItem) -> void:
 		var r := CELL * _s * (1.05 - age * 0.75)
 		var m := minf(1.0, age * 1.6)
 		var base: Color = cell[3]
-		var col := base.lerp(Color(1.0, 0.77, 0.47), m)
+		var col := base.lerp(_ember, m)
 		col.a = (1.0 - age) * 0.85
 		c.draw_circle(pos, r, col)
 
@@ -452,4 +559,45 @@ func _draw_fade_sparks(c: CanvasItem) -> void:
 		if age <= 0.0 or age >= 1.0:
 			continue
 		var pos := map(_cell_motion(cell, age))
-		_glow(c, pos, CELL * _s * 1.2, Color(1.0, 0.75, 0.43), (1.0 - age) * 0.8)
+		_glow(c, pos, CELL * _s * 1.2, _ember, (1.0 - age) * 0.8)
+
+
+# ---------------------------------------------------------------- tengkorak retak
+
+const CRACK_ORIGIN := Vector2(688, 245)
+const CRACK_TIME := 1.8
+
+
+func _prep_cracks() -> void:
+	for i in range(9):
+		var ang := TAU * (i + hash2(i, 1, 12.0) * 0.6) / 9.0
+		var pts := PackedVector2Array([CRACK_ORIGIN + Vector2.from_angle(ang) * 40.0])
+		var len := 160.0 + hash2(i, 2, 12.0) * 260.0
+		var steps := 7
+		for k in range(1, steps + 1):
+			ang += (hash2(i, k, 13.0) - 0.5) * 0.9
+			pts.append(pts[-1] + Vector2.from_angle(ang) * len / steps)
+		_cracks.append(pts)
+
+
+## Retakan merambat dari mata ke luar, lalu hilang saat tengkorak luruh
+func _draw_cracks(c: CanvasItem) -> void:
+	var grow := clampf(time / CRACK_TIME, 0.0, 1.0)
+	var a := 1.0 - clampf((time - _fade_start) / 0.8, 0.0, 1.0)
+	if grow <= 0.0 or a <= 0.0:
+		return
+	for pts: PackedVector2Array in _cracks:
+		var n := pts.size()
+		var upto := grow * (n - 1)
+		var line := PackedVector2Array()
+		for k in range(n):
+			if k <= upto:
+				line.append(map(pts[k]))
+			else:
+				var f := upto - floorf(upto)
+				line.append(map(pts[k - 1].lerp(pts[k], f)))
+				break
+		if line.size() < 2:
+			continue
+		c.draw_polyline(line, Color(0.05, 0.02, 0.08, a), maxf(3.0, 7.0 * _s), true)
+		c.draw_polyline(line, Color(0.62, 0.4, 1.0, a * 0.8), maxf(1.0, 2.0 * _s), true)
