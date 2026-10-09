@@ -15,7 +15,7 @@ extends Node2D
 ##
 ## Jalankan dari editor (F6 pada scene ini) atau tanpa jendela:
 ##   godot --headless res://Scenes/Benchmark/ai_benchmark.tscn -- \
-##       --variants=wolf_bt,wolf_fsm --counts=1,10,50,100 --duration=10 --reps=3
+##       --variants=goblin_fsm,wolf_bt --counts=1,10,50,100 --duration=10 --reps=3
 ## Lihat docs/pengujian-kinerja-ai.md untuk semua opsi.
 
 const VARIANTS := {
@@ -53,7 +53,8 @@ const ARENA_WIDTH := 1600.0
 const ENGAGE_WIDTH := 600.0
 const OUT_DIR := "user://ai_benchmark"
 
-@export var variants: PackedStringArray = ["wolf_bt", "wolf_fsm", "goblin_fsm", "norcthex_p1", "norcthex_p2"]
+## NPC yang dibahas skripsi. wolf_fsm tetap tersedia lewat --variants=wolf_fsm.
+@export var variants: PackedStringArray = ["goblin_fsm", "wolf_bt", "norcthex_p1", "norcthex_p2"]
 @export var counts: PackedInt32Array = [1, 10, 50, 100]
 ## Bos tidak masuk akal dimunculkan puluhan; jumlahnya dibatasi ini
 @export var boss_max_count: int = 1

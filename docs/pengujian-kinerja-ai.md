@@ -7,11 +7,13 @@ untuk menjawab rumusan masalah no. 2 (kinerja Behavior Tree dan Finite State Mac
 
 | Varian (`--variants`) | Musuh | Metode | Catatan |
 |---|---|---|---|
-| `wolf_bt` | Skull Wolf | BT (BTPlayer) | Versi yang dipakai di game |
-| `wolf_fsm` | Skull Wolf | FSM (LimboHSM) | Versi pembanding, aset dan fisika sama |
 | `goblin_fsm` | Goblin | FSM (LimboHSM) | |
+| `wolf_bt` | Skull Wolf | BT (BTPlayer) | |
 | `norcthex_p1` | Norc'Thex fase 1 | Hibrida: LimboHSM + BTState | Bos dibangunkan dengan 1 damage |
 | `norcthex_p2` | Norc'Thex fase 2 | Hibrida: LimboHSM + BTState | HP diturunkan di bawah 50% lewat jalur damage biasa, pengukuran dimulai setelah masuk Phase2 |
+
+Tambahan di luar cakupan skripsi: `wolf_fsm` (Skull Wolf versi FSM dari scene uji lama)
+hanya dijalankan bila diminta lewat `--variants=wolf_fsm`.
 
 Bos dibatasi 1 instance (`--boss-max`), karena di game hanya ada satu.
 
@@ -42,7 +44,7 @@ Dari terminal tanpa jendela (lebih stabil untuk waktu CPU AI):
 
 ```bash
 godot --headless --path . res://Scenes/Benchmark/ai_benchmark.tscn -- \
-    --variants=wolf_bt,wolf_fsm,goblin_fsm,norcthex_p1,norcthex_p2 \
+    --variants=goblin_fsm,wolf_bt,norcthex_p1,norcthex_p2 \
     --counts=1,10,50,100 --warmup=2 --duration=10 --reps=3
 ```
 
@@ -50,7 +52,7 @@ Di macOS, `godot` adalah `/Applications/Godot.app/Contents/MacOS/Godot`.
 
 | Opsi | Default | Arti |
 |---|---|---|
-| `--variants=` | semua | Daftar varian, dipisah koma |
+| `--variants=` | `goblin_fsm,wolf_bt,norcthex_p1,norcthex_p2` | Daftar varian, dipisah koma |
 | `--counts=` | `1,10,50,100` | Jumlah musuh per run |
 | `--boss-max=` | `1` | Batas jumlah Norc'Thex |
 | `--warmup=` | `2` | Detik pemanasan sebelum mengukur |
@@ -83,11 +85,9 @@ versi Godot, CPU, OS, dan jenis build.
 
 ## Hal yang perlu diperhatikan saat menulis Bab 4
 
-- **Kesetaraan perilaku.** Skull Wolf FSM saat ini hanya punya Idle, Chase, Hurt, Dead,
-  sedangkan versi BT punya Flee, Attack (terkaman), Chase, Hold, Chill. Selisih waktu
-  sebagian berasal dari perilaku yang lebih banyak, bukan hanya dari metodenya.
-- **`print()` di state FSM.** State Idle dan Chase Skull Wolf FSM mencetak teks setiap
-  kali masuk state. `print` relatif mahal dan ikut terukur sebagai waktu AI FSM.
+- **Musuh yang dibandingkan berbeda.** Goblin (FSM) dan Skull Wolf (BT) punya perilaku
+  yang berbeda, jadi selisih waktu AI mencerminkan metode sekaligus kerumitan perilaku
+  masing-masing. Sebutkan jumlah state/cabang tiap musuh saat membahas hasilnya.
 - **Resolusi timer 1 mikrodetik.** Satu sampel per musuh dibulatkan ke mikrodetik, jadi
   median/p95 tampak berkelompok (mis. 8,91). Rata-rata dari ribuan sampel tetap teliti.
 - **Jalankan dengan N yang sama** saat membandingkan. Waktu per musuh pada N=1 cenderung
