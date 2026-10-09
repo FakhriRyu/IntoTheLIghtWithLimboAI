@@ -151,7 +151,7 @@ func _load_resources() -> void:
 	var tex := {}
 	var data := {}
 	for n in _image_names():
-		var t := load(IMG_DIR + n + ".jpg") as Texture2D
+		var t := load(_image_path(n)) as Texture2D
 		if t == null:
 			push_warning("Prolog: gambar %s tidak ada" % n)
 			continue
@@ -324,6 +324,10 @@ func _loop_to(p: AudioStreamPlayer, v: float, fade: float) -> void:
 
 func _image_names() -> Array:
 	return IMAGES
+
+
+func _image_path(n: String) -> String:
+	return IMG_DIR + n + ".jpg"
 
 
 func _scene_def(id: StringName) -> Dictionary:

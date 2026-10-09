@@ -3,15 +3,22 @@ extends "res://Scripts/Cutscene/prolog_cutscene.gd"
 ## di Zone Two (lihat BossVictory), lalu kembali ke main menu.
 ##
 ## Memakai gaya dan sistem yang sama dengan prolog (panel komik, kotak dialog,
-## teks efek suara, judul emas) dan gambar dari Assets/cutscene/prolog/,
-## dengan kamera dan efek baru: tengkorak Norc'Thex retak lalu luruh,
-## kegelapan mundur, cahaya menara melebar, Fiora sadar di dunia nyata.
+## teks efek suara, judul emas). Bagian kastil memakai gambar dari
+## Assets/cutscene/prolog/ dengan kamera dan efek baru (tengkorak Norc'Thex
+## retak lalu luruh, kabut mundur, cahaya menara melebar). Selama di kastil
+## Elian hanya berupa suara tanpa wajah. Jati dirinya baru terungkap saat
+## Fiora bangun sendirian di rumah sakit dan melihat foto masa kecilnya
+## bersama ayahnya yang sudah lama meninggal: Elian adalah ayahnya
+## (gambar baru di Assets/cutscene/ending/).
 ##
 ## Kontrol sama dengan prolog. Jalankan dengan "-- --auto" untuk dialog otomatis.
 
 const MENU_SCENE := "res://Scenes/UI/main_menu.tscn"
-const END_IMAGES := ["p01a", "p01b", "p07", "p09", "p12", "p13_plate", "p14",
-		"por_fiora", "por_elian"]
+const END_DIR := "res://Assets/cutscene/ending/"
+## Gambar rumah sakit (dibuat khusus untuk ending), sisanya dari folder prolog
+const HOSPITAL_IMAGES := ["h01_room", "h02_wake", "h03_photo", "h04_hold", "por_elian_rs"]
+const END_IMAGES := ["p07", "p09", "p12", "p13_plate", "p14", "por_fiora", "por_elian",
+		"h01_room", "h02_wake", "h03_photo", "h04_hold", "por_elian_rs"]
 
 const END_SCN := {
 	&"end_skull": {"img": "p09", "cam_a": Vector3(0.54, 0.36, 1.18), "cam_b": Vector3(0.5, 0.45, 1.0), "dur": 6.0},
@@ -20,13 +27,18 @@ const END_SCN := {
 	&"alone": {"img": "p13_plate", "cam_a": Vector3(0.6, 0.5, 1.3), "cam_b": Vector3(0.66, 0.5, 1.12), "dur": 10.0},
 	&"end_hands": {"img": "p12", "cam_a": Vector3(0.5, 0.6, 1.02), "cam_b": Vector3(0.5, 0.58, 1.2), "dur": 6.0},
 	&"end_light": {"img": "p14", "cam_a": Vector3(0.5, 0.5, 1.0), "cam_b": Vector3(0.5, 0.62, 1.35), "dur": 9.0},
-	&"wake": {},
+	&"room": {"img": "h01_room", "cam_a": Vector3(0.5, 0.5, 1.0), "cam_b": Vector3(0.42, 0.55, 1.15), "dur": 8.0},
+	&"wake": {"img": "h02_wake", "cam_a": Vector3(0.5, 0.45, 1.25), "cam_b": Vector3(0.5, 0.5, 1.05), "dur": 6.0},
+	&"photo": {"img": "h03_photo", "cam_a": Vector3(0.5, 0.45, 1.2), "cam_b": Vector3(0.5, 0.4, 1.05), "dur": 9.0},
+	&"hold": {"img": "h04_hold", "cam_a": Vector3(0.5, 0.5, 1.02), "cam_b": Vector3(0.5, 0.55, 1.18), "dur": 8.0},
 }
 
 const END_SPEAKERS := {
 	"Fiora": {"name": "FIORA", "por": "por_fiora", "col": Color(1.0, 0.79, 0.29), "side": 0, "blip": "blip_fiora"},
-	"Elian (suara)": {"name": "ELIAN", "por": "por_elian", "col": Color(1.0, 0.62, 0.24), "side": 1, "blip": "blip_elian", "fade": true},
-	"Suara": {"name": "???", "por": "por_elian", "col": Color(0.6, 0.63, 0.75), "side": 1, "blip": "blip_unknown", "sil": true},
+	# di kastil Elian hanya suara: potretnya siluet dengan tanda tanya
+	"Elian (suara)": {"name": "ELIAN?", "por": "por_elian", "col": Color(0.6, 0.63, 0.75), "side": 1, "blip": "blip_elian", "sil": true},
+	# terakhir kali terdengar, kini dengan wajah dari foto
+	"Ayah": {"name": "ELIAN", "por": "por_elian_rs", "col": Color(1.0, 0.62, 0.24), "side": 1, "blip": "blip_elian", "fade": true},
 }
 
 var _card_ready: bool = false
@@ -34,6 +46,10 @@ var _card_ready: bool = false
 
 func _image_names() -> Array:
 	return END_IMAGES
+
+
+func _image_path(n: String) -> String:
+	return (END_DIR + n + ".jpg") if n in HOSPITAL_IMAGES else super(n)
 
 
 func _scene_def(id: StringName) -> Dictionary:
@@ -127,10 +143,10 @@ func _run() -> void:
 	if await _wait(1.0): return
 	if await _say("Fiora", "Elian? Aku masih bisa mendengarmu... tapi di mana kau?"): return
 	if await _say("Elian (suara)", "Di tempat yang sama seperti dulu. Di dalam cahaya yang kau bawa."): return
-	if await _say("Fiora", "Ingatanku... semuanya kembali. Aku ingat kenapa aku tertidur."): return
-	if await _say("Elian (suara)", "Kalau begitu kau juga tahu: waktunya kau pulang."): return
+	if await _say("Fiora", "Siapa kau sebenarnya, Elian? Kenapa kau tahu namaku?"): return
+	if await _say("Elian (suara)", "Kau akan tahu saat kau membuka mata. Waktunya kau pulang."): return
 
-	# --- ingatan: saat Elian menyerahkan lentera, kini menyala penuh
+	# --- ingatan: lentera yang dulu diserahkan Elian kini menyala penuh
 	_dlg.hide_box()
 	_exit_panel("D", "left")
 	if await _wait(0.2): return
@@ -160,21 +176,49 @@ func _run() -> void:
 	_loop_to(_rain, 0.0, 1.5)
 	if await _wait(2.2): return
 
-	# --- bangun sungguhan: monitor jantung berdetak lagi, mata terbuka
+	# --- rumah sakit: monitor jantung, Fiora terbaring sendirian
 	_ecg.start()
 	if await _wait(2.6): return
-	if await _say("Suara", "Fiora? Fiora, kau dengar aku? Dia sadar!"): return
 	_ecg.stop()
-	_dlg.hide_box()
-	_amb.mode = &"light"
+	_amb.mode = &"dust"
 	if await _wait(0.9): return
-	_p["G"] = _panel(&"wake", Rect2(190, 100, 900, 390))
-	if await _wait(3.4): return
-	if await _say("Fiora", "...Aku pulang."): return
+	_p["G"] = _panel(&"room", Rect2(40, 26, 1200, 510))
+	if await _wait(3.0): return
+
+	# --- mata terbuka, pandangan masih buram
+	_exit_panel("G", "up")
+	if await _wait(0.2): return
+	_p["H"] = _panel(&"wake", Rect2(190, 60, 900, 440))
+	if await _wait(3.6): return
+	if await _say("Fiora", "...Elian?"): return
+	if await _say("Fiora", "(tidak ada siapa-siapa di kamar itu)"): return
+
+	# --- foto di meja samping ranjang: Fiora kecil bersama ayahnya
+	_dlg.hide_box()
+	_exit_panel("H", "up")
+	_amb.mode = &"light"
+	if await _wait(0.2): return
+	_p["I"] = _panel(&"photo", Rect2(40, 26, 1200, 510))
+	if await _wait(1.6): return
+	_play("shimmer")
+	var card := _name_card(Vector2(760, 250), "ELIAN", "AYAH FIORA")
+	if await _wait(1.8): return
+	if await _say("Fiora", "Ayah..."): return
+	_hide_node(card)
+	if await _say("Fiora", "Jadi selama ini suara itu suaramu. Kau sudah lama pergi... tapi kau tetap datang menjemputku."): return
+
+	# --- Fiora memeluk foto
+	_dlg.hide_box()
+	_exit_panel("I", "left")
+	if await _wait(0.2): return
+	_p["J"] = _panel(&"hold", Rect2(40, 26, 1200, 510))
+	if await _wait(1.6): return
+	if await _say("Ayah", "Sekarang kau sudah bangun. Hiduplah, Fiora."): return
+	if await _say("Fiora", "Terima kasih, Ayah. ...Aku pulang."): return
+	_exit_panel("J", "up")
 
 	# --- judul dan ringkasan run
 	_dlg.hide_box()
-	_exit_panel("G", "up")
 	if await _wait(0.3): return
 	_play("sting")
 	_show_title()

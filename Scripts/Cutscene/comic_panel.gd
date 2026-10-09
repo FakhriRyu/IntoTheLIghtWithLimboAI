@@ -128,7 +128,7 @@ func setup(id: StringName, rect: Rect2, opts: Dictionary, shared: Dictionary) ->
 	_update_cam()
 
 
-## Panel mata (prolog: bangun di dasar kastil, ending: bangun sungguhan)
+## Panel bergambar buram yang perlahan jelas (mata baru terbuka)
 func is_eyes() -> bool:
 	return scene_id == &"eyes" or scene_id == &"wake"
 
@@ -171,6 +171,14 @@ func _view(tex: Texture2D, a: Vector3, b: Vector3, p: float) -> void:
 
 
 func _update_cam() -> void:
+	if scene_id == &"wake":
+		# ending: pandangan Fiora dari ranjang, buram lalu jelas
+		_view(_tex, _cam_a, _cam_b, (time - _cam_delay) / _cam_dur)
+		var wm := _image_layer.material as ShaderMaterial
+		var ww := clampf((time - 0.8) / 2.6, 0.0, 1.0)
+		wm.set_shader_parameter("lod", lerpf(3.6, 0.0, ww))
+		wm.set_shader_parameter("brightness", lerpf(0.5, 1.0, ww))
+		return
 	if is_eyes():
 		# mata tertutup dulu, lalu berkedip ke gambar mata terbuka
 		if time < EYES_SWAP:
@@ -358,11 +366,16 @@ func _draw_add(c: CanvasItem) -> void:
 			_draw_fade_sparks(c)
 			_lantern(c, Vector2(762, 482), 1.3, 8.0)
 		&"wake":
-			if time >= EYES_SWAP:
-				var pu := 0.8 + 0.2 * sin(time * 2.0)
-				_glow(c, Vector2(_inner.x * 0.5, _inner.y * 0.2), _inner.x * 0.5, Color(1.0, 0.86, 0.6), 0.16 * pu)
-				_glow(c, Vector2(_inner.x * 0.32, _inner.y * 0.55), _inner.x * 0.1, Color(1.0, 0.85, 0.6), 0.08 * pu)
-				_glow(c, Vector2(_inner.x * 0.68, _inner.y * 0.55), _inner.x * 0.1, Color(1.0, 0.85, 0.6), 0.08 * pu)
+			var pu := 0.8 + 0.2 * sin(time * 2.0)
+			_glow(c, Vector2(_inner.x * 0.8, _inner.y * 0.1), _inner.x * 0.6, Color(1.0, 0.9, 0.7), 0.18 * pu)
+		&"room":
+			# cahaya pagi dari jendela + layar monitor jantung
+			var pu := 0.85 + 0.15 * sin(time * 1.3)
+			_glow(c, Vector2(_inner.x * 0.85, _inner.y * 0.2), _inner.x * 0.55, Color(1.0, 0.92, 0.75), 0.2 * pu)
+			_motes(c, Vector2(1100, 300), 400, 260, 30, 19.0, Color(1.0, 0.94, 0.8), 2.0)
+		&"photo", &"hold":
+			var pu := 0.85 + 0.15 * sin(time * 1.6)
+			_glow(c, Vector2(_inner.x * 0.5, _inner.y * 0.3), _inner.x * 0.7, Color(1.0, 0.88, 0.66), 0.14 * pu)
 		&"end_skull":
 			# mata kehijauan berkedip makin lemah lalu padam
 			var life := 1.0 - clampf((time - 0.8) / 1.6, 0.0, 1.0)
@@ -411,7 +424,18 @@ func _draw_add(c: CanvasItem) -> void:
 
 func _draw_mix(c: CanvasItem) -> void:
 	match scene_id:
-		&"eyes", &"wake":
+		&"wake":
+			# kelopak mata: tertutup, terbuka pelan, berkedip sekali
+			var l := 1.0
+			if time > 0.6:
+				l = 1.0 - ease_io(clampf((time - 0.6) / 1.4, 0.0, 1.0))
+			if time > 2.6 and time < 2.9:
+				l = 0.6 * sin((time - 2.6) / 0.3 * PI)
+			_vignette(c, 0.4)
+			_lids(c, l)
+		&"room":
+			_vignette(c, 0.3)
+		&"eyes":
 			var T := EYES_SWAP
 			_vignette(c, 0.6 if time < T else 0.45)
 			var l := 0.0
