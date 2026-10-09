@@ -171,7 +171,13 @@ func _run() -> void:
 
 	# 6. Damage ke pemain: biarkan Goblin menyerang
 	var php: int = p.health.current_health
+	var gob_dist := -1.0
+	if is_instance_valid(gob):
+		gob_dist = absf(gob.global_position.x - p.global_position.x)
 	var t6 := await wait_until(func(): return p.health.current_health < php, 8.0)
+	if t6 < 0:
+		print("diag #6: jarak goblin awal %.0f, goblin valid %s, state %s, HP goblin %s" % [gob_dist, is_instance_valid(gob),
+			gob.state_machine.get_active_state().name if is_instance_valid(gob) else "-", gob.health.current_health if is_instance_valid(gob) else "-"])
 	record(6, "Damage ke pemain", "Diam di dekat Goblin sampai Goblin menyerang",
 		"HP pemain berkurang",
 		("HP pemain %d → %d setelah %.1f detik" % [php, p.health.current_health, t6]) if t6 > 0 else "HP tidak berkurang dalam 8 detik",

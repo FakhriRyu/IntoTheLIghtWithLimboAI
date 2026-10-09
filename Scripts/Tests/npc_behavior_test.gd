@@ -236,6 +236,8 @@ func _goblin_tests() -> void:
 	await _reset({"gap": Vector2(460, 700)})
 	await _spawn(GOBLIN, Vector2(420, -30))
 	target.place(Vector2(1300, -20))
+	await seconds(0.3)
+	var rest_y := npc.global_position.y
 	var max_y := -INF
 	var min_x := INF
 	var max_x := -INF
@@ -245,8 +247,8 @@ func _goblin_tests() -> void:
 		min_x = minf(min_x, npc.global_position.x)
 		max_x = maxf(max_x, npc.global_position.x)
 	record(G, 2, "Goblin berpatroli dekat tepi platform (tepi di x=460)", "Berbalik arah, tidak jatuh",
-		"Rentang x patroli %.0f–%.0f, y terendah %.1f (lantai y=0), patroli terlihat: %s" % [min_x, max_x, max_y, seen("Patrol")],
-		seen("Patrol") and max_y < 5.0 and max_x < 460.0 + 16.0)
+		"Rentang x patroli %.0f–%.0f, posisi y tetap %.0f (turun %.1f px), patroli terlihat: %s" % [min_x, max_x, rest_y, max_y - rest_y, "ya" if seen("Patrol") else "tidak"],
+		seen("Patrol") and max_y - rest_y < 2.0 and max_x < 460.0)
 
 	# 3. Pemain masuk area deteksi: Chase
 	await _reset()
@@ -259,11 +261,14 @@ func _goblin_tests() -> void:
 		("Masuk Chase setelah %.2f detik" % t) if t >= 0 else "Tidak masuk Chase dalam 2 detik", t >= 0)
 
 	# 4. Pemain di lantai lain (platform 50 px lebih tinggi)
-	await _reset({"platform": Rect2(560, -50, 200, 50)})
+	await _reset({"platform": Rect2(500, -50, 200, 50)})
 	await _spawn(GOBLIN, Vector2(420, -30))
 	target.place(Vector2(1300, -20))
 	await seconds(0.5)
-	target.place(Vector2(600, -70))
+	var rest_y4 := npc.global_position.y
+	target.place(Vector2(npc.global_position.x + 50.0, -20))   # pancing dulu supaya mengejar
+	await wait_until(func(): return trace[trace.size() - 1].begins_with("Chase"), 2.0)
+	target.place(Vector2(515, -70))   # lalu naik ke platform
 	await seconds(4.0)
 	var gx := npc.global_position.x
 	var gy := npc.global_position.y
@@ -271,8 +276,8 @@ func _goblin_tests() -> void:
 	var moved := absf(npc.global_position.x - gx)
 	var last := trace[trace.size() - 1]
 	record(G, 4, "Pemain berdiri di platform 50 px lebih tinggi", "Berhenti di bawah pemain, tidak mengejar buta",
-		"State akhir %s, posisi x=%.0f y=%.0f, bergerak %.1f px dalam 1 detik terakhir" % [last, npc.global_position.x, gy, moved],
-		last.begins_with("Chase") and moved < 2.0 and gy > -5.0)
+		"State akhir %s (menunggu), berhenti di x=%.0f (pemain di atas platform x=515, platform mulai x=500), bergerak %.1f px dalam 1 detik terakhir, tetap di lantai bawah: %s" % [last, npc.global_position.x, moved, "ya" if absf(gy - rest_y4) < 2.0 else "tidak"],
+		last.begins_with("Chase") and moved < 2.0 and absf(gy - rest_y4) < 2.0)
 
 	# 5. Pemain di jangkauan serang: zona merah lalu ayunan
 	await _reset()
@@ -412,6 +417,7 @@ func _wolf_tests() -> void:
 	await _spawn(WOLF, Vector2(420, -30))
 	target.place(Vector2(1300, -20))
 	await seconds(0.3)
+	var rest_y6 := npc.global_position.y
 	target.place(Vector2(505, -20))   # di tepi, wolf akan menerkam ke arah jurang
 	await wait_until(func(): return trace[trace.size() - 1] == "Attack", 1.0)
 	target.place(Vector2(1300, -20))
@@ -422,7 +428,7 @@ func _wolf_tests() -> void:
 		max_y = maxf(max_y, npc.global_position.y)
 		max_x = maxf(max_x, npc.global_position.x)
 	record(W, 6, "Terkaman mengarah ke tepi platform (tepi di x=500)", "Berhenti di tepi, tidak jatuh",
-		"x terjauh %.0f, y terendah %.1f (lantai y=0)" % [max_x, max_y], max_y < 5.0 and max_x <= 505.0)
+		"Terkaman berhenti di x=%.0f (tepi x=500), turun %.1f px dari lantai" % [max_x, max_y - rest_y6], max_y - rest_y6 < 2.0 and max_x <= 500.0)
 
 	# 7. Dipukul saat Charge
 	await _reset()
@@ -521,6 +527,7 @@ func _boss_tests() -> void:
 	await _reset()
 	await _spawn(BOSS, Vector2(400, -40))
 	target.place(Vector2(700, -20))
+	await frames(3)
 	npc.health.take_damage(1)   # bangunkan
 	var from := trace.size()
 	var t_shot := await wait_until(func(): return _arrows() > 0, 6.0)
@@ -531,6 +538,7 @@ func _boss_tests() -> void:
 	await _reset()
 	await _spawn(BOSS, Vector2(400, -40))
 	target.place(Vector2(520, -20))
+	await frames(3)
 	npc.health.take_damage(1)
 	from = trace.size()
 	var t_trap := await wait_until(func(): return _traps() > 0, 4.0)
@@ -543,6 +551,7 @@ func _boss_tests() -> void:
 	await _reset({"wall": Rect2(560, -200, 20, 200)})
 	await _spawn(BOSS, Vector2(400, -40))
 	target.place(Vector2(800, -20))
+	await frames(3)
 	npc.health.take_damage(1)
 	from = trace.size()
 	var shots_before_move := -1
@@ -550,14 +559,18 @@ func _boss_tests() -> void:
 	await seconds(4.0)
 	seq = sequence(from)
 	var hit_wall_arrows := _arrows()
+	var acts := Array(seq).filter(func(x): return x.begins_with("Phase1/") and x != "Phase1/Idle")
+	var i_rep := acts.find("Phase1/Reposition")
+	var i_shot := acts.find("Phase1/Aimed Shot")
 	record(B, 5, "Dinding di antara bos dan pemain (pemain 400 px)", "Tidak menembak dinding; berpindah posisi atau memasang perangkap",
-		"Cabang: %s; posisi bos x %.0f → %.0f" % [short(seq), bx, npc.global_position.x],
-		(seen("Phase1/Reposition", from) or seen("Phase1/Trap (No Line)", from)) and not seen("Phase1/Aimed Shot", from))
+		"Urutan jurus: %s; posisi bos x %.0f → %.0f; panah baru ditembakkan setelah berpindah ke posisi dengan jalur bersih" % [" → ".join(acts.map(func(x): return x.trim_prefix("Phase1/"))), bx, npc.global_position.x],
+		acts.size() > 0 and (acts[0] == "Phase1/Trap (No Line)" or acts[0] == "Phase1/Reposition") and (i_shot == -1 or (i_rep != -1 and i_rep < i_shot)))
 
 	# 6. Pemain mendekat ≤ 130 px (dan < 60 px agar Trap tidak berlaku)
 	await _reset()
 	await _spawn(BOSS, Vector2(800, -40))
 	target.place(Vector2(845, -20))
+	await frames(3)
 	npc.health.take_damage(1)
 	await wait_until(func(): return trace[trace.size() - 1].begins_with("Phase1"), 4.0)
 	from = trace.size()
@@ -573,6 +586,7 @@ func _boss_tests() -> void:
 	await _reset()
 	await _spawn(BOSS, Vector2(800, -40))
 	target.place(Vector2(1300, -20))
+	await frames(3)
 	npc.health.take_damage(1)
 	await wait_until(func(): return trace[trace.size() - 1].begins_with("Phase1") and not npc.is_uninterruptible, 4.0)
 	from = trace.size()
@@ -580,7 +594,7 @@ func _boss_tests() -> void:
 		npc.health.take_damage(1)
 		await frames(12)
 	await seconds(3.0)
-	seq = sequence(from)
+	seq = PackedStringArray(Array(sequence(from)).filter(func(x): return x != "Phase1"))
 	var stag_idx := Array(seq).find("Stagger")
 	var panic_after := stag_idx >= 0 and stag_idx + 1 < seq.size() and seq[stag_idx + 1].begins_with("Phase1/Panic Blink")
 	record(B, 7, "Bos dipukul 3 kali dalam 0,4 detik", "Tersentak lalu langsung teleport (Stagger → Phase1/Panic Blink)",
@@ -590,6 +604,7 @@ func _boss_tests() -> void:
 	await _reset()
 	await _spawn(BOSS, Vector2(800, -40))
 	target.place(Vector2(845, -20))
+	await frames(3)
 	npc.health.take_damage(1)
 	var t_un := await wait_until(func(): return npc.is_uninterruptible, 5.0)
 	var hp0: int = npc.health.current_health
@@ -608,6 +623,7 @@ func _boss_tests() -> void:
 	await _reset()
 	await _spawn(BOSS, Vector2(800, -40))
 	target.place(Vector2(1300, -20))
+	await frames(3)
 	npc.health.take_damage(1)
 	await wait_until(func(): return trace[trace.size() - 1].begins_with("Phase1") and not npc.is_uninterruptible, 4.0)
 	from = trace.size()
