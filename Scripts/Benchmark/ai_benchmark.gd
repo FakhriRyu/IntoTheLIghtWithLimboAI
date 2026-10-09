@@ -52,6 +52,7 @@ const ARENA_WIDTH := 1600.0
 ## kejar, serang) dan bukan diam menunggu.
 const ENGAGE_WIDTH := 600.0
 const OUT_DIR := "user://ai_benchmark"
+const MIN_DURATION_SEC := 2.0
 
 ## NPC yang dibahas skripsi. wolf_fsm tetap tersedia lewat --variants=wolf_fsm.
 @export var variants: PackedStringArray = ["goblin_fsm", "wolf_bt", "norcthex_p1", "norcthex_p2"]
@@ -76,9 +77,12 @@ var _phase_text: String = ""
 var _ai_samples_us: PackedFloat32Array = []       # per musuh per tick
 var _ai_frame_us: PackedFloat32Array = []         # total semua musuh per tick
 var _frame_ms: PackedFloat32Array = []            # delta _process
+# Monitor bawaan Performance hanya diperbarui sekitar sekali per detik, jadi
+# nilainya hanya dicatat saat berubah (bukan tiap frame) dan dilaporkan rata-ratanya
 var _process_ms: PackedFloat32Array = []          # Performance.TIME_PROCESS
 var _physics_ms: PackedFloat32Array = []          # Performance.TIME_PHYSICS_PROCESS
-var _fps: PackedFloat32Array = []
+var _last_process_raw: float = 0.0
+var _last_physics_raw: float = 0.0
 ## Rata-rata |velocity.x| musuh: bukti AI benar-benar aktif selama diukur
 var _speed_sum: float = 0.0
 var _speed_samples: int = 0
@@ -124,6 +128,11 @@ func _parse_cmdline() -> void:
 			"raw": write_raw = value != "false"
 			"quit": quit_when_done = value != "false"
 			_: push_warning("ai_benchmark: opsi tidak dikenal '%s'" % arg)
+	# Monitor fisika/process Godot baru diperbarui sekitar sekali per detik;
+	# pengukuran yang lebih pendek tidak akan mendapat sampel sama sekali
+	if duration_sec < MIN_DURATION_SEC:
+		push_warning("ai_benchmark: duration %.2f dtk dinaikkan ke minimum %.1f dtk" % [duration_sec, MIN_DURATION_SEC])
+		duration_sec = MIN_DURATION_SEC
 
 
 # --- Arena ---
@@ -243,7 +252,6 @@ func _run_one(variant: String, info: Dictionary, scene: PackedScene, n: int, rep
 	var frame := _stats(_frame_ms)
 	var proc := _stats(_process_ms)
 	var phys := _stats(_physics_ms)
-	var fps := _stats(_fps)
 	var row := {
 		"variant": variant,
 		"musuh": info.label,
@@ -265,9 +273,8 @@ func _run_one(variant: String, info: Dictionary, scene: PackedScene, n: int, rep
 		"frame_ms_max": frame.max,
 		"process_ms_mean": proc.mean,
 		"physics_ms_mean": phys.mean,
-		"physics_ms_p95": phys.p95,
-		"fps_mean": fps.mean,
-		"fps_min": fps.min,
+		"fps_mean": 1000.0 / frame.mean if frame.mean > 0.0 else 0.0,
+		"fps_1pct_low": 1000.0 / frame.p99 if frame.p99 > 0.0 else 0.0,
 		"memori_kb_per_musuh": (mem_spawned - mem_before) / 1024.0 / n,
 		"memori_puncak_mb": mem_peak / 1048576.0,
 		"node_per_musuh": (nodes_spawned - nodes_before) / n,
@@ -279,7 +286,7 @@ func _run_one(variant: String, info: Dictionary, scene: PackedScene, n: int, rep
 
 	print("%-18s %-6s N=%-4d #%d  AI %7.2f us/musuh (p95 %7.2f) | AI total %6.3f ms/tick | frame %6.2f ms | fisika %6.2f ms | %5.0f fps | %6.1f KB/musuh | gerak %5.1f px/s" % [
 		info.label, info.method, n, rep, ai.mean, ai.p95, ai_frame.mean / 1000.0,
-		frame.mean, phys.mean, fps.mean, row.memori_kb_per_musuh, row.gerak_px_per_s_mean])
+		frame.mean, phys.mean, row.fps_mean, row.memori_kb_per_musuh, row.gerak_px_per_s_mean])
 
 	if write_raw:
 		_write_raw(started, variant, n, rep)
@@ -385,14 +392,19 @@ func _tick_ai(delta: float) -> void:
 				_speed_samples += 1
 	if _measuring:
 		_ai_frame_us.append(total)
-		_physics_ms.append(Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0)
+		var phys_raw := Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS)
+		if phys_raw != _last_physics_raw:
+			_last_physics_raw = phys_raw
+			_physics_ms.append(phys_raw * 1000.0)
 
 
 func _process(delta: float) -> void:
 	if _measuring:
 		_frame_ms.append(delta * 1000.0)
-		_process_ms.append(Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0)
-		_fps.append(Performance.get_monitor(Performance.TIME_FPS))
+		var proc_raw := Performance.get_monitor(Performance.TIME_PROCESS)
+		if proc_raw != _last_process_raw:
+			_last_process_raw = proc_raw
+			_process_ms.append(proc_raw * 1000.0)
 	if Engine.get_process_frames() % 15 == 0:
 		_update_hud()
 
@@ -414,7 +426,10 @@ func _clear_samples() -> void:
 	_frame_ms.clear()
 	_process_ms.clear()
 	_physics_ms.clear()
-	_fps.clear()
+	# Nilai monitor yang sedang tampil masih milik detik sebelum pengukuran
+	# (pemanasan/spawn); hanya pembaruan setelah ini yang dihitung
+	_last_process_raw = Performance.get_monitor(Performance.TIME_PROCESS)
+	_last_physics_raw = Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS)
 	_speed_sum = 0.0
 	_speed_samples = 0
 
@@ -493,7 +508,7 @@ func _write_raw(started: String, variant: String, n: int, rep: int) -> void:
 	var f := FileAccess.open(path, FileAccess.WRITE)
 	if f == null:
 		return
-	f.store_line("tick,ai_total_us,physics_ms")
+	f.store_line("tick,ai_total_us")
 	for i in _ai_frame_us.size():
-		f.store_line("%d,%.1f,%.4f" % [i, _ai_frame_us[i], _physics_ms[i] if i < _physics_ms.size() else 0.0])
+		f.store_line("%d,%.1f" % [i, _ai_frame_us[i]])
 	f.close()
