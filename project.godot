@@ -14,7 +14,8 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 [application]
 
-config/name="IntoTheLightLIMBO"
+config/name="Into the Light"
+config/version="1.0.0"
 run/main_scene="res://Scenes/UI/main_menu.tscn"
 config/features=PackedStringArray("4.7", "Mobile")
 config/icon="uid://lakgrdr4mj7k"
@@ -31,6 +32,7 @@ window/size/viewport_width=640
 window/size/viewport_height=480
 window/stretch/mode="viewport"
 window/stretch/aspect="expand"
+window/handheld/orientation=4
 
 [input]
 
@@ -97,3 +99,4 @@ pointing/emulate_touch_from_mouse=true
 
 textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="mobile"
+textures/vram_compression/import_etc2_astc=true
