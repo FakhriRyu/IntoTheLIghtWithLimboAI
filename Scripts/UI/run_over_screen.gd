@@ -41,8 +41,11 @@ func _on_run_ended() -> void:
 	level_value.text = str(RunState.level)
 	kills_value.text = str(RunState.kills)
 	_build_upgrades()
-	hint.text = "%s / Space  pilih     %s / %s  ganti" % [
-		Settings.key_name(&"Attack"), Settings.key_name(&"Left"), Settings.key_name(&"Right")]
+	if Settings.touch_controls():
+		hint.text = "Ketuk tombol untuk memilih"
+	else:
+		hint.text = "%s / Space  pilih     %s / %s  ganti" % [
+			Settings.key_name(&"Attack"), Settings.key_name(&"Left"), Settings.key_name(&"Right")]
 
 	root.visible = true
 	buttons.visible = false
