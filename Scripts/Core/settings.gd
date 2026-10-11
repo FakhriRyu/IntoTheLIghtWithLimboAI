@@ -87,6 +87,17 @@ func _apply_fullscreen() -> void:
 		DisplayServer.window_set_mode(mode)
 
 
+# ---------------------------------------------------------------- layar sentuh
+
+## Tombol sentuh di layar dipakai di Android/iOS (termasuk browser di HP).
+## Untuk mencobanya di PC: jalankan game dengan argumen `-- --touch`.
+## Tidak memakai DisplayServer.is_touchscreen_available() karena project
+## mengaktifkan emulate_touch_from_mouse, sehingga PC pun dianggap layar sentuh.
+func touch_controls() -> bool:
+	return OS.has_feature("mobile") or OS.has_feature("web_android") \
+			or OS.has_feature("web_ios") or "--touch" in OS.get_cmdline_user_args()
+
+
 # ---------------------------------------------------------------- kesulitan
 
 func set_difficulty(d: int) -> void:

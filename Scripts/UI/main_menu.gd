@@ -4,7 +4,8 @@ extends Node2D
 ## cahaya sementara layar memutih, lalu run baru dimulai dari RunState.run_start_scene.
 ##
 ## Navigasi: W/S atau panah untuk memilih, J / Space / Enter untuk memilih,
-## Esc untuk kembali dari panel kontrol / kesulitan. Mouse dan sentuhan juga bisa.
+## Esc untuk kembali dari panel kontrol / kesulitan. Mouse dan sentuhan juga bisa:
+## di HP, ketuk di luar panel untuk kembali, dan tombol Back Android = Esc.
 
 ## Warna layar saat "masuk ke cahaya", juga warna awal transisi ke level
 const LIGHT_WHITE := Color(1.0, 0.96, 0.86)
@@ -21,6 +22,16 @@ const DIFFICULTY_DESC := [
 	"Cahaya mulai 40 detik, makin singkat\nsampai 25 detik. Obor lebih jarang.",
 	"Cahaya hanya bertahan 25 detik.\nTanpa obor.",
 ]
+## Ikon tombol sentuh untuk tiap baris panel kontrol (K1..K6) di HP
+const TOUCH_ICONS := [
+	["kiri", "kanan"],
+	["Jump"],
+	["bawah", "Jump"],
+	["Sword"],
+	["Dash"],
+	["atas"],
+]
+const TOUCH_ICON_DIR := "res://Assets/button/"
 
 @onready var warrior: AnimatedSprite2D = $Warrior
 @onready var lantern: PointLight2D = $Warrior/Lantern
@@ -40,6 +51,7 @@ const DIFFICULTY_DESC := [
 @onready var difficulty_panel: Control = $UI/Root/DifficultyPanel
 @onready var difficulty_options: VBoxContainer = $UI/Root/DifficultyPanel/Box/VBox/Options
 @onready var difficulty_desc: Label = $UI/Root/DifficultyPanel/Box/VBox/Desc
+@onready var difficulty_box: Control = $UI/Root/DifficultyPanel/Box
 
 @onready var start_button: Button = $UI/Root/Menu/Start
 @onready var controls_button: Button = $UI/Root/Menu/Controls
@@ -57,6 +69,8 @@ var _base_horizon: float
 var _base_glow_alpha: float
 var _base_rays_alpha: float
 var _marker_tween: Tween
+## Layar sentuh: kesulitan yang sudah diketuk sekali (ketukan kedua memulai run)
+var _armed_difficulty: int = -1
 
 
 func _ready() -> void:
@@ -80,6 +94,7 @@ func _ready() -> void:
 	controls_panel.visible = false
 	controls_panel.gui_input.connect(_on_controls_panel_input)
 	difficulty_panel.visible = false
+	difficulty_panel.gui_input.connect(_on_difficulty_panel_input)
 	for i in range(difficulty_options.get_child_count()):
 		var b := difficulty_options.get_child(i) as Button
 		_difficulty_buttons.append(b)
@@ -89,6 +104,8 @@ func _ready() -> void:
 			if difficulty_panel.visible and not b.has_focus():
 				b.grab_focus())
 	_refresh_key_labels()
+	if Settings.touch_controls():
+		_setup_touch_labels()
 
 	warrior.play(&"idle")
 	Audio.play_music(&"cave", 2.0)
@@ -146,7 +163,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		_difficulty_input(event)
 		return
 	if controls_panel.visible:
-		if event.is_action_pressed("ui_cancel") or event.is_action_pressed("Attack") \
+		if _is_back(event) or event.is_action_pressed("Attack") \
 				or event.is_action_pressed("Jump") or event.is_action_pressed("ui_accept"):
 			get_viewport().set_input_as_handled()
 			_close_controls()
@@ -215,15 +232,16 @@ func _on_start_pressed() -> void:
 	difficulty_panel.visible = true
 	difficulty_panel.modulate.a = 0.0
 	_difficulty_buttons[Settings.difficulty].grab_focus()
+	_armed_difficulty = Settings.difficulty
 	create_tween().tween_property(difficulty_panel, "modulate:a", 1.0, 0.2)
 
 
 func _difficulty_input(event: InputEvent) -> void:
 	if _starting:
 		return
-	if difficulty_panel.modulate.a < 1.0 and not event.is_action_pressed("ui_cancel"):
+	if difficulty_panel.modulate.a < 1.0 and not _is_back(event):
 		return
-	if event.is_action_pressed("ui_cancel"):
+	if _is_back(event):
 		_close_difficulty()
 	elif event.is_action_pressed("Up") or event.is_action_pressed("Down"):
 		var focused := get_viewport().gui_get_focus_owner() as Button
@@ -238,6 +256,20 @@ func _difficulty_input(event: InputEvent) -> void:
 	else:
 		return
 	get_viewport().set_input_as_handled()
+
+
+## Esc, atau tombol Back Android (terdaftar di aksi Pause)
+func _is_back(event: InputEvent) -> bool:
+	return event.is_action_pressed("ui_cancel") or event.is_action_pressed("Pause")
+
+
+## Ketuk/klik di luar kotak kesulitan = kembali
+func _on_difficulty_panel_input(event: InputEvent) -> void:
+	if _starting or difficulty_panel.modulate.a < 1.0:
+		return
+	if event is InputEventMouseButton and event.pressed \
+			and not difficulty_box.get_global_rect().has_point(event.global_position):
+		_close_difficulty()
 
 
 func _on_difficulty_focused(i: int) -> void:
@@ -259,6 +291,12 @@ func _close_difficulty() -> void:
 
 func _on_difficulty_chosen(i: int) -> void:
 	if _starting or not difficulty_panel.visible or difficulty_panel.modulate.a < 1.0:
+		return
+	# di HP ketukan pertama hanya memilih (penjelasan kesulitan tampil),
+	# ketukan kedua pada pilihan yang sama baru memulai run
+	if Settings.touch_controls() and _armed_difficulty != i:
+		_armed_difficulty = i
+		_difficulty_buttons[i].grab_focus()
 		return
 	_starting = true
 	Settings.set_difficulty(i)
@@ -330,6 +368,34 @@ func _refresh_key_labels() -> void:
 	key_grid.get_node("K5").text = k.call(&"Dash")
 	key_grid.get_node("K6").text = k.call(&"Up")
 	hint.text = "%s/%s  pilih     %s / Space  konfirmasi" % [k.call(&"Up"), k.call(&"Down"), k.call(&"Attack")]
+
+
+## Di HP panel kontrol menampilkan ikon tombol sentuh, bukan tombol keyboard
+func _setup_touch_labels() -> void:
+	hint.text = "Ketuk untuk memilih"
+	$UI/Root/ControlsPanel/Box/VBox/Back.text = "Ketuk untuk kembali"
+	$UI/Root/DifficultyPanel/Box/VBox/Back.text = "Ketuk lagi untuk mulai"
+	# baris ikon 32 px lebih tinggi dari teks; perbesar kotak panel kontrol
+	var box := $UI/Root/ControlsPanel/Box as Control
+	box.offset_top = -200.0
+	box.offset_bottom = 200.0
+	for i in range(TOUCH_ICONS.size()):
+		var label := key_grid.get_node("K%d" % (i + 1)) as Label
+		var icons := HBoxContainer.new()
+		icons.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		for n: String in TOUCH_ICONS[i]:
+			var icon := TextureRect.new()
+			icon.texture = load(TOUCH_ICON_DIR + n + ".png")
+			icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			icons.add_child(icon)
+		key_grid.add_child(icons)
+		key_grid.move_child(icons, label.get_index())
+		key_grid.remove_child(label)
+		label.queue_free()
+	# baris teks di kolom kanan rata tengah terhadap ikon
+	for c in key_grid.get_children():
+		if c is Label:
+			c.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 
 
 func _on_controls_panel_input(event: InputEvent) -> void:

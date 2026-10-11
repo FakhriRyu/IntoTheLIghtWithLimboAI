@@ -4,6 +4,11 @@ extends CanvasLayer
 ## chip level + garis XP. Tombol jeda di pojok kanan atas membuka PauseMenu.
 ## Tekstur dibuat oleh tools/build_ui_art.py.
 ## Dipasang sebagai anak dari scene level; player dicari otomatis lewat group "player".
+## Di HP, HUD juga memasang tombol sentuh (TouchControls) dan memperbesar tombol jeda.
+
+const TouchControls := preload("res://Scripts/UI/touch_controls.gd")
+## Pembesaran tombol jeda di layar sentuh supaya mudah diketuk
+const TOUCH_PAUSE_SCALE := 2.0
 
 ## Nama yang ditampilkan di atas health bar
 @export var character_name: String = "FIORA"
@@ -43,6 +48,11 @@ var _pulse: float = 0.0
 func _ready() -> void:
 	name_label.text = character_name
 	pause_button.pressed.connect(pause_menu.open)
+	if Settings.touch_controls():
+		# membesar dari pojok kanan atas, tetap menempel di tepi layar
+		pause_button.pivot_offset = Vector2(pause_button.size.x, 0)
+		pause_button.scale = Vector2.ONE * TOUCH_PAUSE_SCALE
+		add_child(TouchControls.new())
 	_find_player()
 
 
