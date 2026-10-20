@@ -8,6 +8,7 @@ extends Control
 ## Assets/cutscene/prolog/.
 ##
 ## Kontrol: J / Space / Enter / klik = lanjut dialog, tahan Esc = lewati.
+## Di HP: ketuk = lanjut, tahan pojok kanan atas (atau tombol Back) = lewati.
 ## Jalankan dengan argumen "-- --auto" untuk memutar dialog otomatis.
 
 const DESIGN := Vector2(1280, 720)
@@ -98,6 +99,8 @@ var _skip_bar: ColorRect
 var _p := {}
 var _done: bool = false
 var _skip_time: float = 0.0
+## Layar sentuh: jari sedang menahan area "lewati" di pojok kanan atas
+var _skip_touch: bool = false
 var _voices: Array[AudioStreamPlayer] = []
 var _next_voice: int = 0
 var _rain: AudioStreamPlayer
@@ -250,6 +253,18 @@ func _build_stage() -> void:
 	_skip_bar.size = Vector2(0, 3)
 	_skip_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_stage.add_child(_skip_bar)
+	if Settings.touch_controls():
+		_skip_label.text = "Tahan di sini untuk lewati"
+		# area tahan lebih besar dari tulisannya supaya mudah kena jari;
+		# menahan input di sini juga mencegah dialog ikut maju
+		var hold := Control.new()
+		hold.position = Vector2(900, 0)
+		hold.size = Vector2(380, 90)
+		hold.gui_input.connect(func(event: InputEvent) -> void:
+			if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+				_skip_touch = event.pressed)
+		hold.mouse_exited.connect(func() -> void: _skip_touch = false)
+		_stage.add_child(hold)
 
 
 func _layer_control() -> Control:
@@ -345,8 +360,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	var adv := event.is_action_pressed("ui_accept") or event.is_action_pressed("Attack") \
 			or event.is_action_pressed("Jump")
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		adv = true
+	# klik mouse di PC juga datang sebagai sentuhan (emulate_touch_from_mouse),
+	# jadi cukup sentuhan saja supaya satu klik tidak maju dua kali
 	if event is InputEventScreenTouch and event.pressed:
 		adv = true
 	if adv:
@@ -354,10 +369,18 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
+## Root menahan input mouse/sentuh (MOUSE_FILTER_STOP), jadi ketukan dan klik
+## tidak sampai ke _unhandled_input; teruskan dari sini.
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch:
+		_unhandled_input(event)
+
+
 func _process(delta: float) -> void:
 	if _done:
 		return
-	var holding := Input.is_action_pressed("ui_cancel") or (InputMap.has_action("Pause") and Input.is_action_pressed("Pause"))
+	var holding := _skip_touch or Input.is_action_pressed("ui_cancel") \
+			or (InputMap.has_action("Pause") and Input.is_action_pressed("Pause"))
 	_skip_time = clampf(_skip_time + (delta if holding else -delta * 2.0), 0.0, SKIP_HOLD)
 	_skip_bar.size.x = 260.0 * _skip_time / SKIP_HOLD
 	_skip_bar.position.x = 1270.0 - _skip_bar.size.x

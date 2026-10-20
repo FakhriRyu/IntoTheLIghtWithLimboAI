@@ -1,7 +1,7 @@
 extends CanvasLayer
 ## Layar pilih upgrade: game di-pause, tiga kartu acak muncul, player memilih satu.
 ## Muncul saat naik level atau saat peti berisi relik (RunState.pending_picks).
-## Navigasi: kiri/kanan (A/D atau panah), pilih dengan Space/Enter/J atau klik.
+## Navigasi: kiri/kanan (A/D atau panah), pilih dengan Space/Enter/J, klik, atau ketuk kartunya.
 ## Tiap kartu: ikon upgrade dalam wajik berwarna rarity, nama, deskripsi (angka
 ## disorot hijau), dan penanda tumpukan. Tekstur dibuat oleh tools/build_ui_art.py.
 
@@ -87,8 +87,11 @@ func _show_next() -> void:
 		title.text = "NAIK LEVEL!"
 		subtitle.text = "Lv %d  -  pilih satu upgrade" % RunState.level
 
-	hint.text = "%s / %s  pilih     %s / Space  ambil" % [
-		Settings.key_name(&"Left"), Settings.key_name(&"Right"), Settings.key_name(&"Attack")]
+	if Settings.touch_controls():
+		hint.text = "Ketuk kartu untuk mengambil"
+	else:
+		hint.text = "%s / %s  pilih     %s / Space  ambil" % [
+			Settings.key_name(&"Left"), Settings.key_name(&"Right"), Settings.key_name(&"Attack")]
 	_build_cards(choices)
 	Audio.play_sfx(&"level_up", 0.0, 0.0)
 	root.visible = true

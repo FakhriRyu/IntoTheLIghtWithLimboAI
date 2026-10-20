@@ -68,21 +68,30 @@ func _show_main(focus_index: int = 0) -> void:
 	_page = "main"
 	_confirm_quit = false
 	title.text = "JEDA"
+	var touch := Settings.touch_controls()
+	var quit := _button("Menu Utama", func() -> void: pass)
+	quit.pressed.connect(_on_quit_pressed.bind(quit))
 	var buttons: Array[Button] = [
 		_button("Lanjutkan", close),
 		_button("Pengaturan", _show_settings),
-		_button("Kontrol", _show_controls),
-		_button("Menu Utama", _on_quit_pressed),
 	]
+	# ganti tombol keyboard tidak berguna di HP
+	if not touch:
+		buttons.append(_button("Kontrol", _show_controls))
+	buttons.append(quit)
 	for b in buttons:
 		body.add_child(b)
 	# konfirmasi keluar batal kalau pilihan pindah
-	buttons[3].focus_exited.connect(func() -> void:
+	quit.focus_exited.connect(func() -> void:
 		_confirm_quit = false
-		buttons[3].text = "Menu Utama"
-		buttons[3].remove_theme_color_override("font_focus_color"))
-	_set_hint("%s/%s  pilih     %s / Enter  ok     Esc  lanjut" % [
-		Settings.key_name(&"Up"), Settings.key_name(&"Down"), Settings.key_name(&"Attack")])
+		quit.text = "Menu Utama"
+		quit.remove_theme_color_override("font_focus_color")
+		quit.remove_theme_color_override("font_color"))
+	if touch:
+		_set_hint("Ketuk untuk memilih")
+	else:
+		_set_hint("%s/%s  pilih     %s / Enter  ok     Esc  lanjut" % [
+			Settings.key_name(&"Up"), Settings.key_name(&"Down"), Settings.key_name(&"Attack")])
 	buttons[clampi(focus_index, 0, buttons.size() - 1)].grab_focus.call_deferred()
 
 
@@ -103,8 +112,11 @@ func _show_settings() -> void:
 		body.add_child(fs)
 	body.add_child(_spacer())
 	body.add_child(_button("Kembali", _show_main.bind(1)))
-	_set_hint("%s/%s  ubah volume     Esc  kembali" % [
-		Settings.key_name(&"Left"), Settings.key_name(&"Right")])
+	if Settings.touch_controls():
+		_set_hint("Geser slider untuk mengubah volume")
+	else:
+		_set_hint("%s/%s  ubah volume     Esc  kembali" % [
+			Settings.key_name(&"Left"), Settings.key_name(&"Right")])
 	first.grab_focus.call_deferred()
 
 
@@ -255,14 +267,14 @@ func _on_focus_moved() -> void:
 		Audio.play_sfx(&"card_move", -8.0, 0.03)
 
 
-func _on_quit_pressed() -> void:
-	var b := get_viewport().gui_get_focus_owner() as Button
+func _on_quit_pressed(b: Button) -> void:
 	if not _confirm_quit:
 		# tekan sekali lagi untuk benar-benar keluar
 		_confirm_quit = true
-		if b:
-			b.text = "Yakin? Run akan hilang"
-			b.add_theme_color_override("font_focus_color", WARN_COLOR)
+		b.text = "Yakin? Run akan hilang"
+		# font_color juga, karena di layar sentuh tombol belum tentu terfokus
+		b.add_theme_color_override("font_focus_color", WARN_COLOR)
+		b.add_theme_color_override("font_color", WARN_COLOR)
 		return
 	_showing = false
 	RunState.quit_to_menu()

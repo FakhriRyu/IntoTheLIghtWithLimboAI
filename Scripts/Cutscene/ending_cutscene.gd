@@ -66,8 +66,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	var adv := event.is_action_pressed("ui_accept") or event.is_action_pressed("Attack") \
 			or event.is_action_pressed("Jump")
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		adv = true
 	if event is InputEventScreenTouch and event.pressed:
 		adv = true
 	if adv:
@@ -247,7 +245,9 @@ func _show_end_card() -> void:
 			lines.append("Kesulitan   %s" % rs.difficulty_name())
 		for l in lines:
 			box.add_child(_card_label(l, FONT_BOLD, 28, PAPER))
-	var hint := _card_label("Tekan J / Space / klik untuk kembali ke menu", FONT_BODY, 22, Color(0.75, 0.78, 0.9))
+	var hint_text := "Ketuk layar untuk kembali ke menu" if Settings.touch_controls() \
+			else "Tekan J / Space / klik untuk kembali ke menu"
+	var hint := _card_label(hint_text, FONT_BODY, 22, Color(0.75, 0.78, 0.9))
 	box.add_child(hint)
 
 	var i := 0
