@@ -46,8 +46,8 @@ extends Node2D
 @export var torch_min_rows: Array[int] = [9, 26]
 
 @export var exit_scene: PackedScene = preload("res://Scenes/levels/cave_exit.tscn")
-## Scene setelah menara ini. Kosong = generate menara baru.
-@export_file("*.tscn") var next_scene: String = "res://Scenes/levels/zone_two.tscn"
+## Scene setelah menara ini (cutscene Boss Intro, lalu Zone Two). Kosong = generate menara baru.
+@export_file("*.tscn") var next_scene: String = "res://Scenes/Cutscene/boss_intro_cutscene.tscn"
 
 const TILE := 32
 const ONE_WAY_LAYER := 5
