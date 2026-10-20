@@ -9,6 +9,7 @@ const MAIN_MENU := "res://Scenes/UI/main_menu.tscn"
 const PROLOG := "res://Scenes/Cutscene/prolog_cutscene.tscn"
 const TOWER := "res://Scenes/levels/tower.tscn"
 const ZONE_TWO := "res://Scenes/levels/zone_two.tscn"
+const BOSS_INTRO := "res://Scenes/Cutscene/boss_intro_cutscene.tscn"
 const ENDING := "res://Scenes/Cutscene/ending_cutscene.tscn"
 const GOBLIN := preload("res://Scenes/Enemy/goblin/goblin.tscn")
 const PICKUP := preload("res://Scenes/Items/pickup.tscn")
@@ -260,6 +261,10 @@ func _run() -> void:
 			exit = n
 	if exit:
 		p.global_position = exit.global_position + Vector2(0, -4)
+	# Cutscene Boss Intro diputar dulu; lewati dengan menahan tombol batal
+	if await wait_until(func(): return scene_path() == BOSS_INTRO, 5.0) > 0:
+		await wait(0.5)
+		await hold(&"ui_cancel", 1.5)
 	var t11 := await wait_until(func(): return scene_path() == ZONE_TWO, 5.0)
 	record(11, "Perpindahan level", "Pemain masuk ke pintu keluar Tower",
 		"Pemain masuk ke Zone Two (arena bos)",
