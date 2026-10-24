@@ -253,7 +253,7 @@ func _build_stage() -> void:
 	_skip_bar.size = Vector2(0, 3)
 	_skip_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_stage.add_child(_skip_bar)
-	if Settings.touch_controls():
+	if Settings.touch_controls:
 		_skip_label.text = "Tahan di sini untuk lewati"
 		# area tahan lebih besar dari tulisannya supaya mudah kena jari;
 		# menahan input di sini juga mencegah dialog ikut maju

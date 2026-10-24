@@ -1,7 +1,8 @@
 extends CanvasLayer
 ## Menu jeda: dibuka dengan tombol Pause (Esc / P) atau tombol jeda di HUD.
 ## Halaman: utama (lanjut, pengaturan, kontrol, menu utama), pengaturan (volume
-## master/musik/efek suara, layar penuh) dan kontrol (ganti tombol keyboard).
+## master/musik/efek suara, layar penuh, tombol sentuh) dan kontrol (ganti
+## tombol keyboard).
 ## Isi tiap halaman dibangun dari kode; semua nilai disimpan lewat autoload Settings.
 ##
 ## Navigasi: W/S atau panah memilih, A/D menggeser slider, J / Enter memilih,
@@ -68,7 +69,7 @@ func _show_main(focus_index: int = 0) -> void:
 	_page = "main"
 	_confirm_quit = false
 	title.text = "JEDA"
-	var touch := Settings.touch_controls()
+	var touch := Settings.touch_controls
 	var quit := _button("Menu Utama", func() -> void: pass)
 	quit.pressed.connect(_on_quit_pressed.bind(quit))
 	var buttons: Array[Button] = [
@@ -110,9 +111,15 @@ func _show_settings() -> void:
 			Settings.set_fullscreen(not Settings.fullscreen)
 			fs.text = _fullscreen_text())
 		body.add_child(fs)
+	body.add_child(_section("SENTUH"))
+	var tc := _button(_touch_controls_text(), func() -> void: pass)
+	tc.pressed.connect(func() -> void:
+		Settings.set_touch_controls(not Settings.touch_controls)
+		tc.text = _touch_controls_text())
+	body.add_child(tc)
 	body.add_child(_spacer())
 	body.add_child(_button("Kembali", _show_main.bind(1)))
-	if Settings.touch_controls():
+	if Settings.touch_controls:
 		_set_hint("Geser slider untuk mengubah volume")
 	else:
 		_set_hint("%s/%s  ubah volume     Esc  kembali" % [
@@ -146,6 +153,10 @@ func _set_hint(text: String) -> void:
 
 func _fullscreen_text() -> String:
 	return "Layar penuh:  %s" % ("AKTIF" if Settings.fullscreen else "MATI")
+
+
+func _touch_controls_text() -> String:
+	return "Tombol sentuh:  %s" % ("AKTIF" if Settings.touch_controls else "MATI")
 
 
 # ---------------------------------------------------------------- komponen

@@ -1,0 +1,91 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/touch_controls.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://Assets/button/kiri.png" id="2_left"]
+[ext_resource type="Texture2D" path="res://Assets/button/kiri-press.png" id="3_left_p"]
+[ext_resource type="Texture2D" path="res://Assets/button/kanan.png" id="4_right"]
+[ext_resource type="Texture2D" path="res://Assets/button/kanan-press.png" id="5_right_p"]
+[ext_resource type="Texture2D" path="res://Assets/button/atas.png" id="6_up"]
+[ext_resource type="Texture2D" path="res://Assets/button/atas-press.png" id="7_up_p"]
+[ext_resource type="Texture2D" path="res://Assets/button/bawah.png" id="8_down"]
+[ext_resource type="Texture2D" path="res://Assets/button/bawah-press.png" id="9_down_p"]
+[ext_resource type="Texture2D" path="res://Assets/button/Jump.png" id="10_jump"]
+[ext_resource type="Texture2D" path="res://Assets/button/JumpPressed.png" id="11_jump_p"]
+[ext_resource type="Texture2D" path="res://Assets/button/Sword.png" id="12_attack"]
+[ext_resource type="Texture2D" path="res://Assets/button/SwordPressed.png" id="13_attack_p"]
+[ext_resource type="Texture2D" path="res://Assets/button/Dash.png" id="14_dash"]
+[ext_resource type="Texture2D" path="res://Assets/button/DashPressed.png" id="15_dash_p"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pad"]
+size = Vector2(32, 32)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_action"]
+radius = 19.0
+
+[node name="TouchControls" type="CanvasLayer"]
+layer = 9
+script = ExtResource("1_script")
+
+[node name="LeftPad" type="Node2D" parent="."]
+
+[node name="Left" type="TouchScreenButton" parent="LeftPad"]
+position = Vector2(0, -128)
+scale = Vector2(2, 2)
+texture_normal = ExtResource("2_left")
+texture_pressed = ExtResource("3_left_p")
+shape = SubResource("RectangleShape2D_pad")
+passby_press = true
+action = "Left"
+
+[node name="Right" type="TouchScreenButton" parent="LeftPad"]
+position = Vector2(128, -128)
+scale = Vector2(2, 2)
+texture_normal = ExtResource("4_right")
+texture_pressed = ExtResource("5_right_p")
+shape = SubResource("RectangleShape2D_pad")
+passby_press = true
+action = "Right"
+
+[node name="Up" type="TouchScreenButton" parent="LeftPad"]
+position = Vector2(64, -192)
+scale = Vector2(2, 2)
+texture_normal = ExtResource("6_up")
+texture_pressed = ExtResource("7_up_p")
+shape = SubResource("RectangleShape2D_pad")
+passby_press = true
+action = "Up"
+
+[node name="Down" type="TouchScreenButton" parent="LeftPad"]
+position = Vector2(64, -64)
+scale = Vector2(2, 2)
+texture_normal = ExtResource("8_down")
+texture_pressed = ExtResource("9_down_p")
+shape = SubResource("RectangleShape2D_pad")
+passby_press = true
+action = "Down"
+
+[node name="RightPad" type="Node2D" parent="."]
+
+[node name="Jump" type="TouchScreenButton" parent="RightPad"]
+position = Vector2(-64, -64)
+scale = Vector2(2, 2)
+texture_normal = ExtResource("10_jump")
+texture_pressed = ExtResource("11_jump_p")
+shape = SubResource("CircleShape2D_action")
+action = "Jump"
+
+[node name="Attack" type="TouchScreenButton" parent="RightPad"]
+position = Vector2(-148, -84)
+scale = Vector2(2, 2)
+texture_normal = ExtResource("12_attack")
+texture_pressed = ExtResource("13_attack_p")
+shape = SubResource("CircleShape2D_action")
+action = "Attack"
+
+[node name="Dash" type="TouchScreenButton" parent="RightPad"]
+position = Vector2(-84, -148)
+scale = Vector2(2, 2)
+texture_normal = ExtResource("14_dash")
+texture_pressed = ExtResource("15_dash_p")
+shape = SubResource("CircleShape2D_action")
+action = "Dash"

@@ -1,13 +1,13 @@
-[gd_resource type="Theme" format=3]
+[gd_resource type="Theme" format=3 uid="uid://ck0cr36gflcv8"]
 
-[ext_resource type="FontFile" path="res://Assets/fonts/Jersey10-Regular.ttf" id="1_font"]
-[ext_resource type="Texture2D" path="res://Assets/ui/button.png" id="2_btn"]
-[ext_resource type="Texture2D" path="res://Assets/ui/button_focus.png" id="3_btnf"]
-[ext_resource type="Texture2D" path="res://Assets/ui/panel.png" id="4_panel"]
-[ext_resource type="Texture2D" path="res://Assets/ui/slider_track.png" id="5_track"]
-[ext_resource type="Texture2D" path="res://Assets/ui/slider_fill.png" id="6_fill"]
-[ext_resource type="Texture2D" path="res://Assets/ui/slider_grabber.png" id="7_grab"]
-[ext_resource type="Texture2D" path="res://Assets/ui/slider_grabber_hl.png" id="8_grabhl"]
+[ext_resource type="FontFile" uid="uid://chge0bcmf4ej7" path="res://Assets/fonts/Jersey10-Regular.ttf" id="1_font"]
+[ext_resource type="Texture2D" uid="uid://c3r73hpwgyeya" path="res://Assets/ui/button.png" id="2_btn"]
+[ext_resource type="Texture2D" uid="uid://3vwv2xo2h0mq" path="res://Assets/ui/button_focus.png" id="3_btnf"]
+[ext_resource type="Texture2D" uid="uid://c4o6ualuk7c1" path="res://Assets/ui/panel.png" id="4_panel"]
+[ext_resource type="Texture2D" uid="uid://0cdcilk5hoih" path="res://Assets/ui/slider_track.png" id="5_track"]
+[ext_resource type="Texture2D" uid="uid://bcwqxd8ahvkb4" path="res://Assets/ui/slider_fill.png" id="6_fill"]
+[ext_resource type="Texture2D" uid="uid://bsgos6x5v7kjc" path="res://Assets/ui/slider_grabber.png" id="7_grab"]
+[ext_resource type="Texture2D" uid="uid://dv4ytyfdqq5x2" path="res://Assets/ui/slider_grabber_hl.png" id="8_grabhl"]
 
 [sub_resource type="StyleBoxTexture" id="Style_button"]
 content_margin_left = 12.0
@@ -31,6 +31,22 @@ texture_margin_top = 5.0
 texture_margin_right = 5.0
 texture_margin_bottom = 5.0
 
+[sub_resource type="StyleBoxEmpty" id="Style_empty"]
+
+[sub_resource type="StyleBoxTexture" id="Style_fill"]
+texture = ExtResource("6_fill")
+texture_margin_left = 4.0
+texture_margin_top = 4.0
+texture_margin_right = 4.0
+texture_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxTexture" id="Style_track"]
+texture = ExtResource("5_track")
+texture_margin_left = 4.0
+texture_margin_top = 4.0
+texture_margin_right = 4.0
+texture_margin_bottom = 4.0
+
 [sub_resource type="StyleBoxTexture" id="Style_panel"]
 content_margin_left = 18.0
 content_margin_top = 14.0
@@ -41,22 +57,6 @@ texture_margin_left = 10.0
 texture_margin_top = 10.0
 texture_margin_right = 10.0
 texture_margin_bottom = 10.0
-
-[sub_resource type="StyleBoxTexture" id="Style_track"]
-texture = ExtResource("5_track")
-texture_margin_left = 4.0
-texture_margin_top = 4.0
-texture_margin_right = 4.0
-texture_margin_bottom = 4.0
-
-[sub_resource type="StyleBoxTexture" id="Style_fill"]
-texture = ExtResource("6_fill")
-texture_margin_left = 4.0
-texture_margin_top = 4.0
-texture_margin_right = 4.0
-texture_margin_bottom = 4.0
-
-[sub_resource type="StyleBoxEmpty" id="Style_empty"]
 
 [resource]
 default_font = ExtResource("1_font")

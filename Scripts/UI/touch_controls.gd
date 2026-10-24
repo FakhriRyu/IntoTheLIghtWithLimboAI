@@ -5,7 +5,7 @@ extends CanvasLayer
 ## Down, Attack, Jump, Dash), jadi kode player tidak perlu tahu sumber inputnya.
 ## Jeda memakai tombol jeda HUD yang sudah ada.
 ##
-## Dipasang oleh PlayerHUD hanya kalau Settings.touch_controls() true.
+## Dipasang oleh PlayerHUD hanya kalau Settings.touch_controls true.
 ## Disembunyikan saat game di-pause (menu jeda, pilih upgrade, akhir run);
 ## tombol yang sedang ditahan otomatis dilepas oleh TouchScreenButton saat pause.
 

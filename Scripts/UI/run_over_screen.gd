@@ -41,7 +41,7 @@ func _on_run_ended() -> void:
 	level_value.text = str(RunState.level)
 	kills_value.text = str(RunState.kills)
 	_build_upgrades()
-	if Settings.touch_controls():
+	if Settings.touch_controls:
 		hint.text = "Ketuk tombol untuk memilih"
 	else:
 		hint.text = "%s / Space  pilih     %s / %s  ganti" % [

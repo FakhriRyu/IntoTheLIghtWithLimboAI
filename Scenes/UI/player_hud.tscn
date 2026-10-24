@@ -19,6 +19,7 @@
 [ext_resource type="Texture2D" path="res://Assets/ui/btn_pause.png" id="17_pause"]
 [ext_resource type="Texture2D" path="res://Assets/ui/btn_pause_hover.png" id="18_pauseh"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/pause_menu.tscn" id="19_pmenu"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/touch_controls.tscn" id="20_touch"]
 
 [node name="PlayerHUD" type="CanvasLayer" unique_id=1332670053]
 layer = 10
@@ -232,3 +233,5 @@ texture_hover = ExtResource("18_pauseh")
 [node name="RunOverScreen" parent="." unique_id=1400200306 instance=ExtResource("4_over")]
 
 [node name="PauseMenu" parent="." instance=ExtResource("19_pmenu")]
+
+[node name="TouchControls" parent="." instance=ExtResource("20_touch")]

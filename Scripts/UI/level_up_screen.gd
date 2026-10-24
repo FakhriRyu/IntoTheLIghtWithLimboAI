@@ -87,7 +87,7 @@ func _show_next() -> void:
 		title.text = "NAIK LEVEL!"
 		subtitle.text = "Lv %d  -  pilih satu upgrade" % RunState.level
 
-	if Settings.touch_controls():
+	if Settings.touch_controls:
 		hint.text = "Ketuk kartu untuk mengambil"
 	else:
 		hint.text = "%s / %s  pilih     %s / Space  ambil" % [

@@ -245,7 +245,7 @@ func _show_end_card() -> void:
 			lines.append("Kesulitan   %s" % rs.difficulty_name())
 		for l in lines:
 			box.add_child(_card_label(l, FONT_BOLD, 28, PAPER))
-	var hint_text := "Ketuk layar untuk kembali ke menu" if Settings.touch_controls() \
+	var hint_text := "Ketuk layar untuk kembali ke menu" if Settings.touch_controls \
 			else "Tekan J / Space / klik untuk kembali ke menu"
 	var hint := _card_label(hint_text, FONT_BODY, 22, Color(0.75, 0.78, 0.9))
 	box.add_child(hint)

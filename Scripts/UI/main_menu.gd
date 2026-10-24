@@ -104,7 +104,7 @@ func _ready() -> void:
 			if difficulty_panel.visible and not b.has_focus():
 				b.grab_focus())
 	_refresh_key_labels()
-	if Settings.touch_controls():
+	if Settings.touch_controls:
 		_setup_touch_labels()
 
 	warrior.play(&"idle")
@@ -294,7 +294,7 @@ func _on_difficulty_chosen(i: int) -> void:
 		return
 	# di HP ketukan pertama hanya memilih (penjelasan kesulitan tampil),
 	# ketukan kedua pada pilihan yang sama baru memulai run
-	if Settings.touch_controls() and _armed_difficulty != i:
+	if Settings.touch_controls and _armed_difficulty != i:
 		_armed_difficulty = i
 		_difficulty_buttons[i].grab_focus()
 		return

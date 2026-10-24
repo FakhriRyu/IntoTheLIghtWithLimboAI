@@ -1,6 +1,7 @@
 extends Node
 ## Pengaturan pemain yang disimpan di user://settings.cfg: volume (master, musik,
-## efek suara), layar penuh, tombol keyboard tiap aksi, dan kesulitan terakhir.
+## efek suara), layar penuh, tombol sentuh, tombol keyboard tiap aksi, dan
+## kesulitan terakhir.
 ## Didaftarkan sebagai autoload "Settings" setelah Audio, supaya volume musik
 ## diteruskan lewat Audio (yang juga meredam musik saat game di-pause).
 
@@ -22,6 +23,8 @@ const VOLUME_BUSES := {"master": &"Master", "music": &"Music", "sfx": &"SFX"}
 ## 0..1 per bus
 var volumes := {"master": 1.0, "music": 1.0, "sfx": 1.0}
 var fullscreen := false
+## Tombol sentuh di layar (TouchControls); bawaan aktif karena game ini utamanya untuk HP
+var touch_controls := true
 ## RunState.Difficulty terakhir yang dipilih di main menu
 var difficulty: int = RunState.Difficulty.NORMAL
 
@@ -87,15 +90,12 @@ func _apply_fullscreen() -> void:
 		DisplayServer.window_set_mode(mode)
 
 
-# ---------------------------------------------------------------- layar sentuh
+# ---------------------------------------------------------------- tombol sentuh
 
-## Tombol sentuh di layar dipakai di Android/iOS (termasuk browser di HP).
-## Untuk mencobanya di PC: jalankan game dengan argumen `-- --touch`.
-## Tidak memakai DisplayServer.is_touchscreen_available() karena project
-## mengaktifkan emulate_touch_from_mouse, sehingga PC pun dianggap layar sentuh.
-func touch_controls() -> bool:
-	return OS.has_feature("mobile") or OS.has_feature("web_android") \
-			or OS.has_feature("web_ios") or "--touch" in OS.get_cmdline_user_args()
+func set_touch_controls(on: bool) -> void:
+	touch_controls = on
+	save()
+	changed.emit()
 
 
 # ---------------------------------------------------------------- kesulitan
@@ -162,6 +162,7 @@ func save() -> void:
 	for key in volumes:
 		cfg.set_value("audio", key, volumes[key])
 	cfg.set_value("video", "fullscreen", fullscreen)
+	cfg.set_value("video", "touch_controls", touch_controls)
 	cfg.set_value("game", "difficulty", difficulty)
 	for a in REBINDABLE:
 		cfg.set_value("keys", String(a["action"]), int(_key_of(a["action"])))
@@ -175,6 +176,7 @@ func _load() -> void:
 	for key in volumes:
 		volumes[key] = clampf(float(cfg.get_value("audio", key, volumes[key])), 0.0, 1.0)
 	fullscreen = bool(cfg.get_value("video", "fullscreen", fullscreen))
+	touch_controls = bool(cfg.get_value("video", "touch_controls", touch_controls))
 	difficulty = clampi(int(cfg.get_value("game", "difficulty", difficulty)), 0, RunState.DIFFICULTY_NAMES.size() - 1)
 	for a in REBINDABLE:
 		var code := int(cfg.get_value("keys", String(a["action"]), KEY_NONE))
