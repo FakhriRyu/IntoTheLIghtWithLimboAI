@@ -25,6 +25,8 @@ var volumes := {"master": 1.0, "music": 1.0, "sfx": 1.0}
 var fullscreen := false
 ## Tombol sentuh di layar (TouchControls); bawaan aktif karena game ini utamanya untuk HP
 var touch_controls := true
+## Dialog cutscene maju sendiri (tombol AUTO di cutscene)
+var cutscene_autoplay := false
 ## RunState.Difficulty terakhir yang dipilih di main menu
 var difficulty: int = RunState.Difficulty.NORMAL
 
@@ -98,6 +100,12 @@ func set_touch_controls(on: bool) -> void:
 	changed.emit()
 
 
+func set_cutscene_autoplay(on: bool) -> void:
+	cutscene_autoplay = on
+	save()
+	changed.emit()
+
+
 # ---------------------------------------------------------------- kesulitan
 
 func set_difficulty(d: int) -> void:
@@ -163,6 +171,7 @@ func save() -> void:
 		cfg.set_value("audio", key, volumes[key])
 	cfg.set_value("video", "fullscreen", fullscreen)
 	cfg.set_value("video", "touch_controls", touch_controls)
+	cfg.set_value("game", "cutscene_autoplay", cutscene_autoplay)
 	cfg.set_value("game", "difficulty", difficulty)
 	for a in REBINDABLE:
 		cfg.set_value("keys", String(a["action"]), int(_key_of(a["action"])))
@@ -177,6 +186,7 @@ func _load() -> void:
 		volumes[key] = clampf(float(cfg.get_value("audio", key, volumes[key])), 0.0, 1.0)
 	fullscreen = bool(cfg.get_value("video", "fullscreen", fullscreen))
 	touch_controls = bool(cfg.get_value("video", "touch_controls", touch_controls))
+	cutscene_autoplay = bool(cfg.get_value("game", "cutscene_autoplay", cutscene_autoplay))
 	difficulty = clampi(int(cfg.get_value("game", "difficulty", difficulty)), 0, RunState.DIFFICULTY_NAMES.size() - 1)
 	for a in REBINDABLE:
 		var code := int(cfg.get_value("keys", String(a["action"]), KEY_NONE))

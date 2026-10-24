@@ -16,8 +16,8 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 config/name="Into the Light"
 config/version="1.0.0"
-config/quit_on_go_back=false
 run/main_scene="res://Scenes/UI/main_menu.tscn"
+config/quit_on_go_back=false
 config/features=PackedStringArray("4.7", "Mobile")
 config/icon="uid://lakgrdr4mj7k"
 

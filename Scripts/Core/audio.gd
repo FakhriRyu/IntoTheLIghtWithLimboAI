@@ -14,7 +14,14 @@ const BOSS_TRACK := "res://Assets/audio/music/heavy_dungeon.ogg"
 ## Nama -> daftar putar. Lagu diputar bergantian (acak, tanpa mengulang lagu
 ## yang baru saja main) dan disambung crossfade, jadi loop pendek satu lagu
 ## tidak terasa. Lagu pertama adalah ciri khas levelnya.
+const CUTSCENE_PROLOG_TRACK := "res://Assets/audio/music/cutscene/prolog_cold_silence.mp3"
+const CUTSCENE_BOSS_TRACK := "res://Assets/audio/music/cutscene/boss_ambient_horror.mp3"
+const CUTSCENE_ENDING_TRACK := "res://Assets/audio/music/cutscene/ending_emotional_piano.mp3"
+
 const MUSIC := {
+	&"cutscene_prolog": [CUTSCENE_PROLOG_TRACK],
+	&"cutscene_boss": [CUTSCENE_BOSS_TRACK],
+	&"cutscene_ending": [CUTSCENE_ENDING_TRACK],
 	&"castle": [CASTLE_TRACK, CAVE_TRACK],
 	&"cave": [CAVE_TRACK, CASTLE_TRACK],
 	&"boss": [BOSS_TRACK, CAVE_TRACK],

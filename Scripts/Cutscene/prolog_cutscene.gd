@@ -96,6 +96,7 @@ var _title: Control
 var _dlg: DialogBox
 var _skip_label: Label
 var _skip_bar: ColorRect
+var _auto_btn: Button
 var _p := {}
 var _done: bool = false
 var _skip_time: float = 0.0
@@ -112,7 +113,7 @@ var _old_scale := {}
 # ================================================================ setup
 
 func _ready() -> void:
-	if "--auto" in OS.get_cmdline_user_args():
+	if "--auto" in OS.get_cmdline_user_args() or Settings.cutscene_autoplay:
 		auto_advance = true
 	get_tree().paused = false
 	# Cutscene digambar di resolusi layar asli (bukan 640x480 piksel game)
@@ -129,7 +130,9 @@ func _ready() -> void:
 	_build_stage()
 	_build_audio()
 	var audio := get_node_or_null("/root/Audio")
-	if audio and audio.has_method("stop_music"):
+	if audio and _music_track() != &"":
+		audio.play_music(_music_track(), 2.5)
+	elif audio and audio.has_method("stop_music"):
 		audio.stop_music(1.2)
 	get_viewport().size_changed.connect(_layout)
 	_layout()
@@ -253,6 +256,7 @@ func _build_stage() -> void:
 	_skip_bar.size = Vector2(0, 3)
 	_skip_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_stage.add_child(_skip_bar)
+	_build_auto_button()
 	if Settings.touch_controls:
 		_skip_label.text = "Tahan di sini untuk lewati"
 		# area tahan lebih besar dari tulisannya supaya mudah kena jari;
@@ -265,6 +269,43 @@ func _build_stage() -> void:
 				_skip_touch = event.pressed)
 		hold.mouse_exited.connect(func() -> void: _skip_touch = false)
 		_stage.add_child(hold)
+
+
+## Tombol AUTO di pojok kiri atas (kanan atas dipakai area lewati)
+func _build_auto_button() -> void:
+	_auto_btn = Button.new()
+	_auto_btn.focus_mode = Control.FOCUS_NONE
+	_auto_btn.position = Vector2(14, 10)
+	_auto_btn.size = Vector2(150, 46)
+	_auto_btn.add_theme_font_override("font", FONT_BOLD)
+	_auto_btn.add_theme_font_size_override("font_size", 22)
+	for st in ["normal", "hover", "pressed"]:
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color(0.04, 0.05, 0.1, 0.65)
+		sb.set_border_width_all(2)
+		sb.border_color = Color(0.75, 0.78, 0.9, 0.5)
+		sb.set_corner_radius_all(6)
+		_auto_btn.add_theme_stylebox_override(st, sb)
+	_auto_btn.pressed.connect(func() -> void: _set_auto(not auto_advance))
+	_stage.add_child(_auto_btn)
+	_refresh_auto_button()
+
+
+func _set_auto(on: bool) -> void:
+	auto_advance = on
+	Settings.set_cutscene_autoplay(on)
+	_dlg.set_auto(on)
+	_refresh_auto_button()
+
+
+func _refresh_auto_button() -> void:
+	_auto_btn.text = "▶ AUTO: %s" % ("ON" if auto_advance else "OFF")
+	var col := Color(1.0, 0.79, 0.29) if auto_advance else Color(0.75, 0.78, 0.9, 0.85)
+	for c in ["font_color", "font_hover_color", "font_pressed_color"]:
+		_auto_btn.add_theme_color_override(c, col)
+	var sb := _auto_btn.get_theme_stylebox("normal") as StyleBoxFlat
+	if sb:
+		sb.border_color = col
 
 
 func _layer_control() -> Control:
@@ -337,6 +378,11 @@ func _loop_to(p: AudioStreamPlayer, v: float, fade: float) -> void:
 # Cutscene lain (mis. ending_cutscene.gd) mewarisi script ini dan menimpa
 # fungsi-fungsi berikut untuk memakai gambar, panel, dan pembicara sendiri.
 
+## Musik latar cutscene (kunci di Audio.MUSIC); kosong = musik dimatikan
+func _music_track() -> StringName:
+	return &"cutscene_prolog"
+
+
 func _image_names() -> Array:
 	return IMAGES
 
@@ -362,6 +408,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			or event.is_action_pressed("Jump")
 	# klik mouse di PC juga datang sebagai sentuhan (emulate_touch_from_mouse),
 	# jadi cukup sentuhan saja supaya satu klik tidak maju dua kali
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_A:
+		_set_auto(not auto_advance)
+		get_viewport().set_input_as_handled()
+		return
 	if event is InputEventScreenTouch and event.pressed:
 		adv = true
 	if adv:
@@ -1151,6 +1201,11 @@ class DialogBox extends Control:
 			position.y = 572
 			t.tween_property(self, "modulate:a", 1.0, 0.18)
 			t.tween_property(self, "position:y", 556.0, 0.18)
+
+	## Ubah mode auto di tengah baris; hitungan tunggu mulai dari nol
+	func set_auto(on: bool) -> void:
+		_auto = on
+		_auto_t = 0.0
 
 	func hide_box() -> void:
 		if not _shown:

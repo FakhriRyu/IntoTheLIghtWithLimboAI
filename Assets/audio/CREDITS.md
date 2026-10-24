@@ -38,3 +38,18 @@ Diolah dengan `tools/build_sfx.py` (trim, geser nada, layering, normalisasi) dar
 | [3 dark magic spells](https://opengameart.org/content/3-dark-magic-spells) | qubodup | Norc'Thex: menghilang, hancur saat mati |
 | [Battle Sound Effects](https://opengameart.org/content/battle-sound-effects) (Bow.wav, opsi lisensi CC0) | artisticdude | Norc'Thex: tembakan crossbow |
 | [Fantasy Sound Effects (Tinysized)](https://opengameart.org/content/fantasy-sound-effects-tinysized-sfx) | Vehicle | Norc'Thex: mengokang crossbow |
+
+## Audio cutscene (`sfx/cutscene/`, `music/cutscene/`)
+Diolah dengan `tools/build_cutscene_audio.py` (potong, geser nada, gema, normalisasi) dari sampel CC0 berikut:
+| Sumber | Pembuat | Dipakai untuk |
+|---|---|---|
+| [AMB Rain Loop 1](https://opengameart.org/content/amb-rain-loop-1) | Kresiek The Furry | `rain_loop` |
+| [Dungeon Ambience](https://opengameart.org/content/dungeon-ambience) | yd | `drone_loop` |
+| [Dripping water loop](https://opengameart.org/content/dripping-water-loop) | qubodup | `drip` |
+| [rumble fx](https://opengameart.org/content/rumble-fx) | cinameng | `rumble` |
+| [100 CC0 Metal and Wood SFX](https://opengameart.org/content/100-cc0-metal-and-wood-sfx) | rubberduck | `clink`, `crack` |
+| [75 CC0 breaking / falling / hit SFX](https://opengameart.org/content/75-cc0-breaking-falling-hit-sfx) | rubberduck | `thump` |
+| Kenney Interface & Impact Sounds | Kenney | `sting`, `shimmer`, `beep`, `blip_*` |
+| [Cold Silence](https://opengameart.org/content/cold-silence) | Eponasoft | musik prolog |
+| [Ambient Horror Track 01](https://opengameart.org/content/ambient-horror-track-01) | CleytonKauffman | musik boss intro |
+| [Emotional Piano](https://opengameart.org/content/emotional-piano-0) | Centurion_of_war | musik ending |

@@ -43,6 +43,10 @@ func _speaker(who: String) -> Dictionary:
 	return END_SPEAKERS[who]
 
 
+func _music_track() -> StringName:
+	return &"cutscene_ending"
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if not _card_ready:
 		super(event)

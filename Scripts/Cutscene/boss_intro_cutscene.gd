@@ -41,6 +41,10 @@ func _speaker(who: String) -> Dictionary:
 	return BI_SPEAKERS[who]
 
 
+func _music_track() -> StringName:
+	return &"cutscene_boss"
+
+
 ## Gambar diam (PixelShot); video sebelumnya ikut memudar
 func _img(img: String, a: Vector3, b: Vector3, dur: float, o: Dictionary = {}) -> PixelShot:
 	_drop_video()

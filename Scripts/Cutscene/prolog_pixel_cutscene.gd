@@ -61,6 +61,8 @@ func _build_stage() -> void:
 	_dlg._por.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_skip_label.label_settings.font = FONT_PIXEL
 	_skip_label.label_settings.font_size = 24
+	_auto_btn.add_theme_font_override("font", FONT_PIXEL)
+	_auto_btn.add_theme_font_size_override("font_size", 28)
 
 
 ## Monitor jantung di layar hitam: cukup bunyi, tanpa teks efek komik
