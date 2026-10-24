@@ -1,8 +1,8 @@
 extends CanvasLayer
-## Tombol sentuh di layar untuk Android: kiri/kanan dan atas/bawah di pojok kiri
-## bawah, serang/lompat/dash di pojok kanan bawah. Tiap tombol adalah
-## TouchScreenButton yang menekan aksi input yang sudah ada (Left, Right, Up,
-## Down, Attack, Jump, Dash), jadi kode player tidak perlu tahu sumber inputnya.
+## Tombol sentuh di layar untuk Android: kiri/kanan di pojok kiri bawah,
+## serang/lompat/dash di pojok kanan bawah. Tiap tombol adalah
+## TouchScreenButton yang menekan aksi input yang sudah ada (Left, Right, Attack,
+## Jump, Dash), jadi kode player tidak perlu tahu sumber inputnya.
 ## Jeda memakai tombol jeda HUD yang sudah ada.
 ##
 ## Dipasang oleh PlayerHUD hanya kalau Settings.touch_controls true.
@@ -12,8 +12,6 @@ extends CanvasLayer
 const DIR := "res://Assets/button/"
 ## Tekstur 32x32 digambar 2x supaya cukup besar untuk jari
 const BUTTON_SCALE := 2.0
-## Tombol atas/bawah lebih kecil, jarang dipakai
-const SMALL_SCALE := 1.5
 const TEX_SIZE := 32.0
 ## Jarak dari tepi layar dan antar tombol, dalam piksel viewport
 const MARGIN := 14.0
@@ -28,8 +26,6 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_add(&"Left", "kiri", "kiri-press", BUTTON_SCALE, true)
 	_add(&"Right", "kanan", "kanan-press", BUTTON_SCALE, true)
-	_add(&"Up", "atas", "atas-press", SMALL_SCALE)
-	_add(&"Down", "bawah", "bawah-press", SMALL_SCALE)
 	_add(&"Attack", "Sword", "SwordPressed", BUTTON_SCALE)
 	_add(&"Jump", "Jump", "JumpPressed", BUTTON_SCALE)
 	_add(&"Dash", "Dash", "DashPressed", BUTTON_SCALE)
@@ -63,17 +59,13 @@ func _layout() -> void:
 	var view := get_viewport().get_visible_rect().size
 	var inset := _safe_insets(view)
 	var big := TEX_SIZE * BUTTON_SCALE
-	var small := TEX_SIZE * SMALL_SCALE
 	var left := MARGIN + inset.x
 	var right := view.x - MARGIN - inset.z
 	var bottom := view.y - MARGIN - inset.w
 
-	# kiri: [kiri][kanan], di atasnya [atas][bawah] di tengah
+	# kiri: [kiri][kanan]
 	_place(&"Left", Vector2(left, bottom - big))
 	_place(&"Right", Vector2(left + big + GAP, bottom - big))
-	var pad_center := left + big + GAP / 2.0
-	_place(&"Up", Vector2(pad_center - GAP / 2.0 - small, bottom - big - GAP - small))
-	_place(&"Down", Vector2(pad_center + GAP / 2.0, bottom - big - GAP - small))
 
 	# kanan: [serang][lompat], dash di atas lompat
 	_place(&"Jump", Vector2(right - big, bottom - big))
