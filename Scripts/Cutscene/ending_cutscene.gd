@@ -1,42 +1,27 @@
-extends "res://Scripts/Cutscene/prolog_cutscene.gd"
-## Cutscene 2 — Ending "Ke Dalam Cahaya". Diputar setelah Norc'Thex dikalahkan
-## di Zone Two (lihat BossVictory), lalu kembali ke main menu.
+extends "res://Scripts/Cutscene/boss_intro_cutscene.gd"
+## Cutscene 3 — Ending "Ke Dalam Cahaya", versi pixel art pendek (± 30 detik).
+## Diputar setelah Norc'Thex dikalahkan di Zone Two (lihat BossVictory), lalu
+## kembali ke main menu.
 ##
-## Memakai gaya dan sistem yang sama dengan prolog (panel komik, kotak dialog,
-## teks efek suara, judul emas). Bagian kastil memakai gambar dari
-## Assets/cutscene/prolog/ dengan kamera dan efek baru (tengkorak Norc'Thex
-## retak lalu luruh, kabut mundur, cahaya menara melebar). Selama di kastil
-## Elian hanya berupa suara tanpa wajah. Jati dirinya baru terungkap saat
-## Fiora bangun sendirian di rumah sakit dan melihat foto masa kecilnya
-## bersama ayahnya yang sudah lama meninggal: Elian adalah ayahnya
-## (gambar baru di Assets/cutscene/ending/).
+## Ringkasan naskah revisi E-01 s.d. E-25: tengkorak Norc'Thex hancur, lelaki tua
+## muncul tanpa tudung dan bangga pada Fiora, Fiora melayang dan tangan lelaki
+## tua pecah jadi cahaya saat hendak dipegang. Fiora terbangun dari koma di rumah
+## sakit, kursi di samping ranjang kosong, lalu foto di meja mengungkap bahwa
+## lelaki tua itu ayahnya. Kata "Ayah" tetap tidak diucapkan; fotonya yang bicara.
+##
+## Gambar 640x360 dan video Theora 640x360 (tanpa suara) dari Google Flow ada di
+## Assets/cutscene/ending_pixel/. Potret lelaki tua tanpa tudung diambil dari
+## character sheet prolog. Sistem gambar, video, dan efek memakai boss intro.
 ##
 ## Kontrol sama dengan prolog. Jalankan dengan "-- --auto" untuk dialog otomatis.
 
 const MENU_SCENE := "res://Scenes/UI/main_menu.tscn"
-const END_DIR := "res://Assets/cutscene/ending/"
-## Gambar rumah sakit (dibuat khusus untuk ending), sisanya dari folder prolog
-const HOSPITAL_IMAGES := ["h01_room", "h02_wake", "h03_photo", "h04_hold"]
-const END_IMAGES := ["p07", "p09", "p12", "p13_plate", "p14", "por_fiora", "por_elian",
-		"h01_room", "h02_wake", "h03_photo", "h04_hold"]
-
-const END_SCN := {
-	&"end_skull": {"img": "p09", "cam_a": Vector3(0.54, 0.36, 1.18), "cam_b": Vector3(0.5, 0.45, 1.0), "dur": 6.0},
-	&"end_fog": {"img": "p13_plate", "cam_a": Vector3(0.42, 0.55, 1.5), "cam_b": Vector3(0.45, 0.5, 1.15), "dur": 7.0},
-	&"end_tower": {"img": "p07", "cam_a": Vector3(0.5, 0.62, 1.75), "cam_b": Vector3(0.5, 0.1, 1.75), "dur": 6.0},
-	&"alone": {"img": "p13_plate", "cam_a": Vector3(0.6, 0.5, 1.3), "cam_b": Vector3(0.66, 0.5, 1.12), "dur": 10.0},
-	&"end_hands": {"img": "p12", "cam_a": Vector3(0.5, 0.6, 1.02), "cam_b": Vector3(0.5, 0.58, 1.2), "dur": 6.0},
-	&"end_light": {"img": "p14", "cam_a": Vector3(0.5, 0.5, 1.0), "cam_b": Vector3(0.5, 0.62, 1.35), "dur": 9.0},
-	&"room": {"img": "h01_room", "cam_a": Vector3(0.5, 0.5, 1.0), "cam_b": Vector3(0.58, 0.6, 1.2), "dur": 8.0},
-	&"wake": {"img": "h02_wake", "cam_a": Vector3(0.5, 0.45, 1.25), "cam_b": Vector3(0.5, 0.5, 1.05), "dur": 6.0},
-	&"photo": {"img": "h03_photo", "cam_a": Vector3(0.4, 0.5, 1.0), "cam_b": Vector3(0.52, 0.42, 1.25), "dur": 7.0},
-	&"hold": {"img": "h04_hold", "cam_a": Vector3(0.5, 0.5, 1.0), "cam_b": Vector3(0.62, 0.42, 1.2), "dur": 8.0},
-}
+const END_DIR := "res://Assets/cutscene/ending_pixel/"
+const END_IMAGES := ["e1", "e2", "e4", "e5", "e6", "por_fiora", "por_tua_open"]
 
 const END_SPEAKERS := {
 	"Fiora": {"name": "FIORA", "por": "por_fiora", "col": Color(1.0, 0.79, 0.29), "side": 0, "blip": "blip_fiora"},
-	# di kastil Elian hanya suara: potretnya siluet dengan tanda tanya
-	"Elian (suara)": {"name": "ELIAN?", "por": "por_elian", "col": Color(0.6, 0.63, 0.75), "side": 1, "blip": "blip_elian", "sil": true},
+	"Lelaki Tua": {"name": "LELAKI TUA", "por": "por_tua_open", "col": Color(1.0, 0.62, 0.24), "side": 1, "blip": "blip_elian"},
 }
 
 var _card_ready: bool = false
@@ -47,11 +32,11 @@ func _image_names() -> Array:
 
 
 func _image_path(n: String) -> String:
-	return (END_DIR + n + ".jpg") if n in HOSPITAL_IMAGES else super(n)
+	return (PX_DIR if n == "por_fiora" else END_DIR) + n + ".png"
 
 
-func _scene_def(id: StringName) -> Dictionary:
-	return END_SCN[id]
+func _video_path(n: String) -> String:
+	return END_DIR + n + ".ogv"
 
 
 func _speaker(who: String) -> Dictionary:
@@ -87,130 +72,73 @@ func _go_next() -> void:
 
 func _run() -> void:
 	await get_tree().process_frame
-	# --- tengkorak Norc'Thex retak dan luruh
-	_amb.mode = &"smoke"
-	_loop_to(_drone, 0.5, 0.6)
-	if await _wait(0.6): return
-	_p["A"] = _panel(&"end_skull", Rect2(190, 40, 900, 490))
-	_play("rumble", -2.0)
-	if await _wait(0.5): return
+
+	# 1 — tengkorak Norc'Thex hancur, cahaya pagi menembus awan
+	var s := _img("e1", Vector3(0.6, 0.6, 1.25), Vector3(0.5, 0.45, 1.0), 4.0, {"embers": true})
+	_loop_to(_drone, 0.35, 0.4)
 	_play("crack")
-	_sfx("KRRAAK!", Vector2(60, 60), {"size": 120.0, "color": Color(0.71, 0.49, 1.0), "shadow": Color(0.23, 0.08, 0.37), "rot": -8.0, "dur": 1.6})
-	_shake(_p["A"], 0.8, 14.0)
-	if await _wait(1.4): return
-	_play("crack", -3.0)
-	_shake(_p["A"], 0.5, 8.0)
-	if await _wait(0.9): return
-	_play("whoosh")
-	_loop_to(_drone, 0.0, 3.0)
-	_sfx("sssshhh...", Vector2(780, 400), {"size": 74.0, "color": Color(0.71, 0.49, 1.0), "shadow": Color(0.23, 0.08, 0.37), "rot": 4.0, "dur": 2.6, "taper": 0.06, "wobble": true})
-	if await _wait(3.0): return
-	if await _say("Fiora", "Sudah... berakhir?"): return
+	_play("rumble", -4.0)
+	_quake(s, 1.0, 10.0)
+	if await _wait(1.6): return
+	_play("whoosh", -4.0)
+	_loop_to(_drone, 0.0, 2.0)
+	if await _wait(1.6): return
 
-	# --- kegelapan mundur
-	_dlg.hide_box()
-	_exit_panel("A", "down")
-	_amb.mode = &"dust"
-	if await _wait(0.2): return
-	_p["B"] = _panel(&"end_fog", Rect2(40, 26, 1200, 510))
-	if await _wait(2.2): return
-	if await _say("Fiora", "Kabutnya pergi. Lenteranya... makin terang."): return
+	# 2 — lelaki tua tanpa tudung, berhadapan dengan Fiora
+	_img("e2", Vector3(0.52, 0.5, 1.15), Vector3(0.55, 0.52, 1.3), 7.0,
+			{"lamp": Vector2(0.637, 0.63), "lamp_r": 60.0, "dust": true})
+	if await _wait(1.0): return
+	if await _say("Lelaki Tua", "Kau berhasil, Fiora. Aku bangga padamu."): return
 
-	# --- cahaya di puncak menara
+	# 3 — Fiora melayang, tangan lelaki tua pecah jadi cahaya, lalu putih
 	_dlg.hide_box()
-	_exit_panel("B", "up")
-	_amb.mode = &"light"
-	if await _wait(0.2): return
-	_p["C"] = _panel(&"end_tower", Rect2(465, 14, 350, 522), "down")
-	var shimmer := create_tween()
-	shimmer.tween_interval(4.6)
-	shimmer.tween_callback(func() -> void:
-		if not _done and _p.has("C"):
-			_play("shimmer")
-			_sfx("SHIIING", Vector2(830, 40), {"size": 70.0, "color": Color(1.0, 0.96, 0.8), "shadow": Color(0.72, 0.54, 0.16), "rot": -10.0, "dur": 1.8, "taper": 0.06}))
+	_video("e3", 0.5)
+	_play("shimmer", -6.0)
+	if await _wait(1.6): return
+	if await _say("Lelaki Tua", "Jalanku berakhir di sini. Pulanglah."): return
+	_dlg.hide_box()
 	if await _wait(2.4): return
-	if await _say("Elian (suara)", "Kau berhasil, Fiora. Kau tidak menoleh ke bawah."): return
-
-	# --- Fiora sendirian, hanya suara Elian
-	_dlg.hide_box()
-	_exit_panel("C", "up")
-	if await _wait(0.2): return
-	_p["D"] = _panel(&"alone", Rect2(40, 26, 1200, 510), "right")
-	if await _wait(1.0): return
-	if await _say("Fiora", "Elian? Aku masih bisa mendengarmu... tapi di mana kau?"): return
-	if await _say("Elian (suara)", "Di tempat yang sama seperti dulu. Di dalam cahaya yang kau bawa."): return
-	if await _say("Fiora", "Siapa kau sebenarnya, Elian? Kenapa kau tahu namaku?"): return
-	if await _say("Elian (suara)", "Kau akan tahu saat kau membuka mata. Waktunya kau pulang."): return
-
-	# --- ingatan: lentera yang dulu diserahkan Elian kini menyala penuh
-	_dlg.hide_box()
-	_exit_panel("D", "left")
-	if await _wait(0.2): return
-	_p["E"] = _panel(&"end_hands", Rect2(280, 60, 720, 404))
-	if await _wait(1.0): return
-	_play("clink")
-	_sfx("KLINK", Vector2(900, 40), {"size": 84.0, "color": Color(1.0, 0.83, 0.3), "shadow": Color(0.7, 0.31, 0.05), "rot": 8.0, "dur": 1.5})
-	if await _wait(1.0): return
-	_play("whoosh")
-	_flash(Color(1.0, 0.85, 0.54), 0.6)
-	_sfx("FWOOSH", Vector2(820, 300), {"size": 100.0, "color": Color(1.0, 0.89, 0.66), "shadow": Color(0.63, 0.35, 0.1), "rot": -6.0, "dur": 2.4, "taper": 0.05, "stagger": 0.07})
-	if await _wait(1.8): return
-
-	# --- melangkah ke dalam cahaya
-	_exit_panel("E", "up")
-	_loop_to(_rain, 0.12, 2.0)
-	if await _wait(0.2): return
-	_p["F"] = _panel(&"end_light", Rect2(40, 26, 1200, 510))
-	if await _wait(1.6): return
-	if await _say("Fiora", "Terima kasih, Elian. Untuk tidak membiarkanku sendirian."): return
-	if await _say("Elian (suara)", "Pergilah. Ke dalam cahaya."): return
-	_dlg.hide_box()
-	if await _wait(1.2): return
-	_exit_panel("F", "up")
-	_flash(LIGHT_WHITE, 2.4)
 	_play("sting", -4.0)
-	_loop_to(_rain, 0.0, 1.5)
-	if await _wait(2.2): return
+	_flash(LIGHT_WHITE, 2.4)
+	_drop_video()
+	if await _wait(2.0): return
 
-	# --- rumah sakit: monitor jantung, Fiora terbaring sendirian
+	# monitor jantung di layar hitam
 	_ecg.start()
-	if await _wait(2.6): return
+	_loop_to(_rain, 0.12, 2.0)
+	if await _wait(2.4): return
 	_ecg.stop()
-	_amb.mode = &"dust"
-	if await _wait(0.9): return
-	# gambar kamar berbentuk persegi, jadi panelnya juga hampir persegi
-	_p["G"] = _panel(&"room", Rect2(355, 20, 570, 520))
-	if await _wait(3.0): return
 
-	# --- mata terbuka, pandangan masih buram
-	_exit_panel("G", "up")
-	if await _wait(0.2): return
-	_p["H"] = _panel(&"wake", Rect2(190, 60, 900, 440))
-	if await _wait(3.6): return
-	if await _say("Fiora", "...Elian?"): return
-	if await _say("Fiora", "(tidak ada siapa-siapa di kamar itu)"): return
-
-	# --- foto di meja samping ranjang: Fiora kecil bersama ayahnya
-	_dlg.hide_box()
-	_exit_panel("H", "up")
-	_amb.mode = &"light"
-	if await _wait(0.2): return
-	_p["I"] = _panel(&"photo", Rect2(40, 26, 1200, 510))
+	# 4 — bangun di rumah sakit, kursi di samping ranjang kosong
+	s = _img("e4", Vector3(0.6, 0.45, 1.2), Vector3(0.52, 0.5, 1.05), 6.0,
+			{"lamp": Vector2(0.32, 0.6), "lamp_r": 70.0, "dust": true})
+	s.lids = 1.0
+	var lt := s.create_tween()
+	lt.tween_property(s, "lids", 0.0, 1.2).set_trans(Tween.TRANS_SINE)
 	if await _wait(1.6): return
-	if await _say("Fiora", "Ayah..."): return
+	if await _say("Fiora", "...Di mana dia?"): return
 
-	# --- Fiora memeluk foto
+	# 5 — foto di meja dan lentera yang sama
 	_dlg.hide_box()
-	_exit_panel("I", "left")
-	if await _wait(0.2): return
-	_p["J"] = _panel(&"hold", Rect2(40, 26, 1200, 510))
-	if await _wait(1.6): return
-	if await _say("Fiora", "...Aku pulang."): return
-	_exit_panel("J", "up")
+	_loop_to(_rain, 0.0, 3.0)
+	_img("e5", Vector3(0.45, 0.5, 1.0), Vector3(0.4, 0.42, 1.35), 5.0,
+			{"lamp": Vector2(0.88, 0.6), "lamp_r": 160.0, "dust": true})
+	_play("shimmer", -10.0)
+	if await _wait(4.0): return
 
-	# --- judul dan ringkasan run
+	# 6 — Fiora memeluk foto, cahaya pagi
+	_img("e6", Vector3(0.55, 0.45, 1.25), Vector3(0.52, 0.45, 1.1), 6.0,
+			{"lamp": Vector2(0.323, 0.59), "lamp_r": 70.0, "dust": true})
+	if await _wait(1.2): return
+	if await _say("Fiora", "...Terima kasih."): return
+
+	# judul dan ringkasan run
 	_dlg.hide_box()
-	if await _wait(0.3): return
+	_drop_video()
+	if _cur != null and is_instance_valid(_cur):
+		_fade_out(_cur)
+		_cur = null
+	if await _wait(0.6): return
 	_play("sting")
 	_show_title()
 	if await _wait(2.2): return
@@ -232,7 +160,7 @@ func _show_end_card() -> void:
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_title.add_child(box)
 
-	box.add_child(_card_label("TAMAT", FONT_FX, 64, Color(1.0, 0.83, 0.3)))
+	box.add_child(_card_label("TAMAT", FONT_PIXEL, 72, Color(1.0, 0.83, 0.3)))
 	var rs := get_node_or_null("/root/RunState")
 	if rs:
 		var t := int(rs.run_time)
@@ -244,10 +172,10 @@ func _show_end_card() -> void:
 		if rs.has_method("difficulty_name"):
 			lines.append("Kesulitan   %s" % rs.difficulty_name())
 		for l in lines:
-			box.add_child(_card_label(l, FONT_BOLD, 28, PAPER))
+			box.add_child(_card_label(l, FONT_PIXEL, 34, PAPER))
 	var hint_text := "Ketuk layar untuk kembali ke menu" if Settings.touch_controls \
 			else "Tekan J / Space / klik untuk kembali ke menu"
-	var hint := _card_label(hint_text, FONT_BODY, 22, Color(0.75, 0.78, 0.9))
+	var hint := _card_label(hint_text, FONT_PIXEL, 26, Color(0.75, 0.78, 0.9))
 	box.add_child(hint)
 
 	var i := 0
