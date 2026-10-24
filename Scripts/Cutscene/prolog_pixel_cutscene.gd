@@ -2,8 +2,8 @@ extends "res://Scripts/Cutscene/prolog_cutscene.gd"
 ## Cutscene 1 — Prolog "Dasar Kastil", versi pixel art. Menggantikan prolog
 ## gaya komik di Scenes/Cutscene/prolog_cutscene.tscn.
 ##
-## Mengikuti naskah revisi (P-01 s.d. P-15): Fiora bangun tanpa ingatan di dasar
-## kastil, lelaki tua tanpa nama memberinya lentera dan menyuruhnya naik ke
+## Versi singkat (±30 detik) dari naskah revisi P-01 s.d. P-15: Fiora bangun
+## tanpa ingatan di dasar kastil, lelaki tua tanpa nama memberinya lentera dan menyuruhnya naik ke
 ## cahaya di puncak menara. Aturan misteri: tidak ada petunjuk bahwa lelaki tua
 ## adalah ayah Fiora, dan ia baru menyebut nama Fiora setelah Fiora sendiri
 ## menyebutnya.
@@ -18,8 +18,9 @@ extends "res://Scripts/Cutscene/prolog_cutscene.gd"
 ## Jalankan dengan argumen "-- --auto" untuk memutar dialog otomatis.
 
 const PX_DIR := "res://Assets/cutscene/prolog_pixel/"
-const PX_IMAGES := ["p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p13",
-		"p14", "p15", "por_fiora", "por_tua"]
+## Gambar yang dipakai versi singkat. p04, p07, p09, p10, dan p14 tetap ada
+## di folder untuk versi panjang.
+const PX_IMAGES := ["p03", "p05", "p06", "p08", "p11", "p13", "p15", "por_fiora", "por_tua"]
 ## Area gambar layar lebar; kotak dialog ada di bawahnya
 const SHOT_SIZE := Vector2(1280, 540)
 const FONT_PIXEL := preload("res://Assets/fonts/Jersey10-Regular.ttf")
@@ -99,136 +100,88 @@ func _steps(n: int, gap: float, db: float) -> void:
 
 # ================================================================ naskah
 
+## Versi singkat (±30 detik): bangun, lelaki tua datang, Fiora menyebut
+## namanya, cahaya di puncak menara, lentera berpindah tangan, judul.
 func _run() -> void:
 	await get_tree().process_frame
-	# P-01 — layar hitam, monitor jantung, hujan samar, lalu satu tetes air
-	_loop_to(_rain, 0.3, 1.2)
+	# P-01 — layar hitam, monitor jantung, satu tetes air
+	_loop_to(_rain, 0.3, 0.8)
 	_ecg.start()
-	if await _wait(4.4): return
+	if await _wait(2.0): return
 	_ecg.stop()
-	_loop_to(_rain, 0.0, 1.5)
-	if await _wait(0.9): return
+	_loop_to(_rain, 0.0, 1.2)
 	_play("drip")
-	if await _wait(1.2): return
+	if await _wait(0.4): return
 
 	# P-03 — mata Fiora terbuka
-	var s := _shot("p03", Vector3(0.6, 0.5, 1.0), Vector3(0.6, 0.5, 1.12), 6.0)
+	var s := _shot("p03", Vector3(0.6, 0.5, 1.0), Vector3(0.6, 0.5, 1.1), 4.0)
 	s.lids = 1.0
 	s.dark = 0.5
 	var lt := s.create_tween()
-	lt.tween_property(s, "lids", 0.25, 1.4).set_trans(Tween.TRANS_SINE)
-	lt.tween_property(s, "lids", 0.6, 0.35)
-	lt.tween_property(s, "lids", 0.0, 1.1).set_trans(Tween.TRANS_SINE)
-	lt.tween_interval(0.6)
-	lt.tween_property(s, "lids", 1.0, 0.09)
-	lt.tween_property(s, "lids", 0.0, 0.12)
-	s.create_tween().tween_property(s, "dark", 0.0, 3.0)
-	_loop_to(_drone, 0.3, 3.0)
-	if await _wait(4.6): return
-
-	# P-04 — terbaring di lantai batu, kamera turun pelan
-	_shot("p04", Vector3(0.5, 0.25, 1.15), Vector3(0.5, 0.7, 1.15), 7.0, {"dust": true})
-	if await _wait(2.0): return
-	_play("drip", -8.0)
-	if await _say("Fiora", "Ngh... dingin sekali..."): return
+	lt.tween_property(s, "lids", 0.3, 0.8).set_trans(Tween.TRANS_SINE)
+	lt.tween_property(s, "lids", 0.6, 0.25)
+	lt.tween_property(s, "lids", 0.0, 0.7).set_trans(Tween.TRANS_SINE)
+	s.create_tween().tween_property(s, "dark", 0.0, 2.0)
+	_loop_to(_drone, 0.3, 2.0)
+	if await _wait(2.4): return
 
 	# P-05 — duduk, bingung
-	_dlg.hide_box()
-	_shot("p05", Vector3(0.5, 0.55, 1.0), Vector3(0.47, 0.48, 1.1), 7.0, {"dust": true, "sway": true})
-	if await _wait(0.8): return
-	if await _say("Fiora", "Di mana aku? Kenapa... aku tidak bisa mengingat apa pun?"): return
+	_shot("p05", Vector3(0.5, 0.55, 1.0), Vector3(0.47, 0.48, 1.1), 5.0, {"dust": true, "sway": true})
+	if await _wait(0.4): return
+	if await _say("Fiora", "Di mana aku...? Aku tidak ingat apa pun."): return
 
-	# P-06 — langkah kaki dulu, lalu cahaya lentera dari pintu lengkung
+	# P-06 — langkah kaki, lalu cahaya lentera dari pintu lengkung
 	_dlg.hide_box()
-	s = _shot("p06", Vector3(0.54, 0.55, 1.14), Vector3(0.54, 0.55, 1.0), 7.0,
+	s = _shot("p06", Vector3(0.54, 0.55, 1.14), Vector3(0.54, 0.55, 1.0), 5.0,
 			{"lamp": Vector2(0.541, 0.585), "lamp_r": 150.0, "dust": true})
 	s.dark = 0.85
 	s.lamp_k = 0.0
-	_steps(4, 0.55, -6.0)
-	if await _wait(2.2): return
+	_steps(3, 0.4, -6.0)
+	if await _wait(1.0): return
 	_play("clink", -4.0)
 	var lw := s.create_tween().set_parallel(true)
-	lw.tween_property(s, "dark", 0.0, 1.4).set_trans(Tween.TRANS_SINE)
-	lw.tween_property(s, "lamp_k", 1.0, 1.0)
-	if await _wait(1.2): return
+	lw.tween_property(s, "dark", 0.0, 0.9).set_trans(Tween.TRANS_SINE)
+	lw.tween_property(s, "lamp_k", 1.0, 0.7)
+	if await _wait(0.5): return
 	if await _say("???", "Jadi, kau sudah bangun."): return
 
-	# P-07 — berhadapan, hanya diterangi lentera
-	_dlg.hide_box()
-	_shot("p07", Vector3(0.5, 0.55, 1.0), Vector3(0.52, 0.55, 1.08), 12.0,
-			{"lamp": Vector2(0.595, 0.565), "lamp_r": 150.0, "dust": true})
-	if await _wait(0.6): return
-	if await _say("Fiora", "Siapa kau?"): return
-	if await _say("Lelaki Tua", "Hanya orang tua yang sudah terlalu lama berjaga di tempat ini."): return
-
-	# P-08 — close-up Fiora
-	_shot("p08", Vector3(0.5, 0.42, 1.0), Vector3(0.5, 0.4, 1.08), 9.0,
+	# P-08 — close-up Fiora menyebut namanya
+	_shot("p08", Vector3(0.5, 0.42, 1.0), Vector3(0.5, 0.4, 1.08), 5.0,
 			{"lamp": Vector2(0.94, 0.95), "lamp_r": 120.0, "dust": true})
-	if await _wait(0.5): return
-	if await _say("Fiora", "Aku hanya ingat namaku... Fiora. Selebihnya kosong."): return
-
-	# P-09 — close-up lelaki tua, menatap kegelapan
-	_shot("p09", Vector3(0.45, 0.5, 1.0), Vector3(0.4, 0.5, 1.08), 9.0,
-			{"lamp": Vector2(0.5, 0.94), "lamp_r": 130.0})
-	if await _wait(0.5): return
-	if await _say("Lelaki Tua", "Dasar kastil ini selalu begitu. Ia mengambil ingatan siapa pun yang jatuh terlalu dalam."): return
-
-	# P-10 — menunjuk ke atas
-	_shot("p10", Vector3(0.5, 0.62, 1.08), Vector3(0.55, 0.35, 1.0), 8.0,
-			{"lamp": Vector2(0.475, 0.45), "lamp_r": 120.0, "dust": true})
-	if await _wait(0.5): return
-	if await _say("Fiora", "Lalu bagaimana aku mendapatkannya kembali?"): return
-	if await _say("Lelaki Tua", "Naik."): return
+	if await _wait(0.3): return
+	if await _say("Fiora", "Aku hanya ingat namaku... Fiora."): return
 
 	# P-11 — kamera naik menyusuri menara sampai cahaya di puncak
 	_dlg.hide_box()
-	_shot("p11", Vector3(0.5, 0.95, 1.0), Vector3(0.5, 0.06, 1.0), 9.0,
+	_shot("p11", Vector3(0.5, 0.95, 1.0), Vector3(0.5, 0.06, 1.0), 5.5,
 			{"lamp": Vector2(0.5, 0.11), "lamp_r": 260.0, "dust": true})
 	var sh := create_tween()
-	sh.tween_interval(8.0)
+	sh.tween_interval(4.6)
 	sh.tween_callback(func() -> void:
 		if not _done:
 			_play("shimmer", -4.0))
-	if await _wait(1.6): return
-	if await _say("Lelaki Tua (suara)", "Di puncak menara itu ada cahaya. Sentuhlah, dan kau akan tahu kenapa kau terbangun di sini tanpa ingatan."): return
-
-	# P-12 — kembali berhadapan
-	_dlg.hide_box()
-	_shot("p07", Vector3(0.45, 0.55, 1.1), Vector3(0.5, 0.55, 1.0), 10.0,
-			{"lamp": Vector2(0.595, 0.565), "lamp_r": 150.0, "dust": true})
-	if await _wait(0.5): return
-	if await _say("Fiora", "Kau tidak ikut denganku?"): return
-	if await _say("Lelaki Tua", "Jalan itu hanya untukmu."): return
+	if await _wait(0.6): return
+	if await _say("Lelaki Tua (suara)", "Naiklah ke cahaya di puncak menara. Di sana ada jawabanmu."): return
 
 	# P-13 — lentera berpindah tangan
 	_dlg.hide_box()
-	_shot("p13", Vector3(0.5, 0.55, 1.12), Vector3(0.5, 0.58, 1.0), 6.0,
+	_shot("p13", Vector3(0.5, 0.55, 1.12), Vector3(0.5, 0.58, 1.0), 4.0,
 			{"lamp": Vector2(0.505, 0.62), "lamp_r": 170.0, "embers": true})
-	if await _wait(1.0): return
+	if await _wait(0.5): return
 	_play("clink")
-	if await _wait(0.4): return
-	if await _say("Lelaki Tua", "Bawa lentera ini. Tempat ini membenci cahaya."): return
-
-	# P-14 — lelaki tua mundur ke dalam gelap, Fiora sendirian
-	_dlg.hide_box()
-	s = _shot("p14", Vector3(0.5, 0.55, 1.0), Vector3(0.44, 0.55, 1.08), 9.0,
-			{"lamp": Vector2(0.432, 0.52), "lamp_r": 150.0, "dust": true})
-	s.create_tween().tween_property(s, "fade_right", 1.0, 5.0).set_delay(0.8).set_trans(Tween.TRANS_SINE)
-	_steps(4, 0.7, -10.0)
-	if await _wait(1.6): return
-	if await _say("Lelaki Tua (memudar)", "Naiklah, Fiora. Dan jangan menoleh ke bawah."): return
+	if await _say("Lelaki Tua", "Bawa lentera ini."): return
 
 	# P-15 — Fiora mengangkat lentera ke arah cahaya, judul
 	_dlg.hide_box()
-	_loop_to(_drone, 0.0, 3.0)
-	_loop_to(_rain, 0.25, 2.0)
-	_shot("p15", Vector3(0.42, 0.75, 1.15), Vector3(0.5, 0.42, 1.0), 7.0,
+	_loop_to(_drone, 0.0, 2.0)
+	_loop_to(_rain, 0.25, 1.5)
+	_shot("p15", Vector3(0.42, 0.75, 1.15), Vector3(0.5, 0.42, 1.0), 5.0,
 			{"lamp": Vector2(0.375, 0.45), "lamp_r": 130.0, "rain": true})
-	if await _wait(3.0): return
+	if await _wait(1.0): return
 	_play("sting")
 	_show_title()
-	if await _wait(5.6): return
-	_finish(1.4)
+	if await _wait(3.2): return
+	_finish(1.2)
 
 
 # ================================================================ kelas bantu
