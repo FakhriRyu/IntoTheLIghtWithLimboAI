@@ -55,7 +55,7 @@ func _video(n: String, y: float = 0.5) -> VideoStreamPlayer:
 	box.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var v := VideoStreamPlayer.new()
-	v.stream = load(BI_DIR + n + ".ogv")
+	v.stream = load(_video_path(n))
 	v.expand = true
 	v.size = Vector2(SHOT_SIZE.x, SHOT_SIZE.x * 9.0 / 16.0)
 	v.position.y = -(v.size.y - SHOT_SIZE.y) * y
@@ -71,6 +71,10 @@ func _video(n: String, y: float = 0.5) -> VideoStreamPlayer:
 	_vid = box
 	v.play()
 	return v
+
+
+func _video_path(n: String) -> String:
+	return BI_DIR + n + ".ogv"
 
 
 func _drop_video() -> void:
