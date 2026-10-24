@@ -30,6 +30,42 @@ static func hit_stop(node: Node, duration: float = 0.07, scale: float = 0.0) -> 
 	_stopping = false
 
 
+## Tween goyangan yang sedang berjalan dan kekuatannya, supaya goyangan baru
+## yang lebih lemah tidak memotong goyangan yang lebih kuat.
+static var _shake_tween: Tween = null
+static var _shake_camera: Camera2D = null
+static var _shake_strength: float = 0.0
+
+
+## Menggoyang kamera aktif sesaat. strength dalam piksel dunia, meluruh ke nol
+## selama duration. Memakai offset kamera, jadi tidak bentrok dengan smoothing
+## maupun limit kamera. Tetap jalan saat hit_stop membekukan waktu game.
+static func shake(node: Node, strength: float = 3.0, duration: float = 0.2) -> void:
+	if node == null or not node.is_inside_tree():
+		return
+	var cam := node.get_viewport().get_camera_2d()
+	if cam == null:
+		return
+
+	if _shake_tween and _shake_tween.is_valid() and _shake_camera == cam:
+		if _shake_strength > strength:
+			return
+		_shake_tween.kill()
+	if is_instance_valid(_shake_camera):
+		_shake_camera.offset = Vector2.ZERO
+
+	_shake_camera = cam
+	_shake_strength = strength
+	_shake_tween = cam.create_tween().set_ignore_time_scale(true)
+	_shake_tween.tween_method(func(t: float):
+		_shake_strength = strength * t
+		cam.offset = Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * strength * t,
+		1.0, 0.0, duration)
+	_shake_tween.tween_callback(func():
+		cam.offset = Vector2.ZERO
+		_shake_strength = 0.0)
+
+
 ## Memunculkan satu scene partikel di posisi global tertentu.
 ## Partikelnya menghapus diri sendiri setelah selesai.
 static func burst(node: Node, scene: PackedScene, global_pos: Vector2,

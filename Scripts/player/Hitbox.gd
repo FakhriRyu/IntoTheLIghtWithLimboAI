@@ -8,12 +8,15 @@ extends Area2D
 ## Per indeks combo (0,1,2). Pukulan ke-3 adalah pamungkas.
 @export var combo_damage: Array[int] = [1, 1, 2]
 @export var combo_knockback: Array[float] = [100.0, 120.0, 260.0]
-@export var combo_hit_stop: Array[float] = [0.05, 0.05, 0.12]
+@export var combo_hit_stop: Array[float] = [0.08, 0.08, 0.15]
+## Goyangan kamera per indeks combo: kekuatan (piksel dunia) dan lamanya
+@export var combo_shake: Array[float] = [2.0, 2.5, 4.5]
+@export var combo_shake_time: Array[float] = [0.12, 0.12, 0.22]
 
 ## Efek saat pukulan mendarat
 @export var hit_spark: PackedScene = preload("res://Scenes/FX/hit_spark.tscn")
 ## Dipakai kalau indeks combo tidak diketahui
-@export var hit_stop_duration: float = 0.06
+@export var hit_stop_duration: float = 0.08
 
 signal hit_target(target)
 
@@ -156,7 +159,7 @@ func _contact_point(area: Area2D) -> Vector2:
 
 
 func _impact(at: Vector2) -> void:
-	"""Percikan + freeze frame. Pamungkas membeku lebih lama."""
+	"""Percikan + freeze frame + goyangan kamera. Pamungkas lebih lama dan lebih keras."""
 	var idx := _combo_index()
 	var dir := Vector2(signf(global_position.x - _player_x()), -0.35)
 	if dir.x == 0.0:
@@ -164,6 +167,7 @@ func _impact(at: Vector2) -> void:
 
 	GameFx.burst(self, hit_spark, at, dir)
 	GameFx.hit_stop(self, _pick(combo_hit_stop, idx, hit_stop_duration))
+	GameFx.shake(self, _pick(combo_shake, idx, 2.0), _pick(combo_shake_time, idx, 0.12))
 	# pamungkas terdengar lebih berat (nada lebih rendah)
 	if idx == 2 and not _is_dash_attacking():
 		Audio.play_sfx(&"sword_hit_heavy", 0.0, 0.05)

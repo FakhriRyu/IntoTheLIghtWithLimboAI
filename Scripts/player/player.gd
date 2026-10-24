@@ -24,7 +24,11 @@ const ATTACK_BUFFER_TIME := 0.15
 const COMBO_WINDOW := 0.35
 ## Jeda setelah pukulan pamungkas sebelum rantai baru boleh dimulai.
 ## Tanpa ini, mashing tombol bisa menyerang tanpa henti.
-const COMBO_LOCKOUT := 0.28
+const COMBO_LOCKOUT := 0.45
+## Jarak minimal antar awal tebasan, per indeks combo (detik).
+## Membatasi laju serangan: spam tombol tidak bisa lebih cepat dari ritme ini.
+## Nilai pamungkas juga menahan serangan baru kalau Attack3 dibatalkan ke dash.
+const ATTACK_INTERVALS: Array[float] = [0.4, 0.4, 1.0]
 
 # --- Papan one-way ---
 ## Layer fisika papan/jembatan one-way. Down+Jump di atasnya = turun menembus.
@@ -52,6 +56,10 @@ const DROP_THROUGH_TIME := 0.35
 @export var respawn_delay: float = 2.0
 
 # --- Efek ---
+## Freeze frame dan goyangan kamera saat player terkena pukulan
+@export var hurt_hit_stop: float = 0.1
+@export var hurt_shake_strength: float = 5.0
+@export var hurt_shake_time: float = 0.3
 ## Debu saat mendarat dari lompatan/jatuh
 @export var land_dust: PackedScene = preload("res://Scenes/FX/land_dust.tscn")
 ## Debu saat dash
@@ -96,6 +104,8 @@ var combo_index: int = 0
 var combo_window: float = 0.0
 ## Sisa jeda setelah pamungkas
 var combo_lockout: float = 0.0
+## Sisa jeda sebelum tebasan berikutnya boleh dimulai (lihat ATTACK_INTERVALS)
+var attack_cooldown: float = 0.0
 ## True setelah end_attack dipanggil: serangan boleh dibatalkan ke dash/lompat
 var attack_recovery: bool = false
 ## Satu serangan udara per lompatan
@@ -247,7 +257,9 @@ func update_facing() -> void:
 func check_attack_input() -> void:
 	"""Mencatat tekanan Attack ke buffer, lalu memakainya saat state mengizinkan."""
 	if Input.is_action_just_pressed("Attack"):
-		attack_buffer_timer = ATTACK_BUFFER_TIME
+		# Tekanan selama jeda serangan ditahan sampai jedanya habis. Kalau tidak,
+		# tekanan itu hilang, jendela combo keburu tutup, dan rantai mengulang dari Attack1.
+		attack_buffer_timer = ATTACK_BUFFER_TIME + maxf(attack_cooldown, 0.0)
 
 	if attack_buffer_timer <= 0.0:
 		return
@@ -258,6 +270,12 @@ func check_attack_input() -> void:
 	if active == dash_state:
 		attack_buffer_timer = 0.0
 		state_machine.dispatch(TRANSITION_DASH_ATTACK)
+		return
+
+	# Laju serangan dibatasi. Tekanan yang datang terlalu cepat tetap tersimpan
+	# di buffer dan baru dipakai begitu jedanya habis, jadi tetap responsif
+	# tapi spam tidak menambah kecepatan.
+	if attack_cooldown > 0.0:
 		return
 
 	# menyambung rantai combo saat recovery
@@ -395,10 +413,12 @@ func _physics_process(delta: float) -> void:
 		attack_buffer_timer -= delta
 	if combo_lockout > 0.0:
 		combo_lockout -= delta
+	if attack_cooldown > 0.0:
+		attack_cooldown -= delta
 
-	# Jendela hanya meluruh saat TIDAK sedang menyerang, supaya combo_index
-	# tidak ter-reset di tengah animasi dan bikin urutan mundur sendiri.
-	if combo_window > 0.0 and state_machine.get_active_state() != attack_state:
+	# Jendela hanya meluruh saat TIDAK sedang menyerang dan jeda serangan sudah
+	# habis, supaya combo_index tidak ter-reset sebelum pemain sempat menyambung.
+	if combo_window > 0.0 and attack_cooldown <= 0.0 and state_machine.get_active_state() != attack_state:
 		combo_window -= delta
 		if combo_window <= 0.0:
 			combo_index = 0
@@ -482,6 +502,9 @@ func _on_damaged(amount: int, source_position: Vector2) -> void:
 
 	if OS.is_debug_build():
 		print("Player took ", amount, " damage!")
+
+	GameFx.hit_stop(self, hurt_hit_stop)
+	GameFx.shake(self, hurt_shake_strength, hurt_shake_time)
 
 	knockback_direction = (global_position - source_position).normalized()
 	_enter_hurt()
