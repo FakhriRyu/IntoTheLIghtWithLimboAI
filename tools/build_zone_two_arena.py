@@ -4,7 +4,7 @@ Scenes/levels/zone_two.tscn memakai CastleTiles (tower_tile_set.tres).
 
 Tata letak (tile 16 px, grid 54 x 30, arena 864 x 480 px):
   - dinding kastil kiri/kanan (kolom 0-1 dan 52-53) + merlon
-  - lantai utama rata (baris 27-29), tanpa jurang
+  - lantai utama rata (baris 27-LIFT s/d 29), tanpa jurang
   - dais kiri/kanan +2 tile (32 px), di bawah batas langkah blink bos (40 px)
   - papan one-way A/B +5 tile (80 px), papan C +8 tile (128 px)
     -> tiap tingkat 48 px, masih terjangkau lompatan Fiora (~57 px)
@@ -22,6 +22,9 @@ from pathlib import Path
 SCENE = Path(__file__).resolve().parent.parent / "Scenes/levels/zone_two.tscn"
 T = 16
 W, H = 54, 30
+## Seluruh arena dinaikkan LIFT tile supaya lantai tidak tertutup bar HP bos
+## dan tombol sentuh di bawah layar; lantai ditebalkan mengisi sisa bawah.
+LIFT = 4
 
 SOLID, ONEWAY = "#", "="
 
@@ -30,13 +33,14 @@ def build_grid():
     grid = [[" "] * W for _ in range(H)]
 
     def fill(c0, c1, r0, r1, ch):
+        r0, r1 = r0 - LIFT, min(r1 - LIFT, H - 1)
         for r in range(r0, r1 + 1):
             for c in range(c0, c1 + 1):
                 grid[r][c] = ch
 
-    fill(0, 1, 8, 29, SOLID)       # dinding kiri
-    fill(52, 53, 8, 29, SOLID)     # dinding kanan
-    fill(2, 51, 27, 29, SOLID)     # lantai utama
+    fill(0, 1, 8, 29 + LIFT, SOLID)       # dinding kiri
+    fill(52, 53, 8, 29 + LIFT, SOLID)     # dinding kanan
+    fill(2, 51, 27, 29 + LIFT, SOLID)     # lantai utama (ditebalkan sampai dasar)
     fill(2, 10, 25, 26, SOLID)     # dais kiri
     fill(43, 51, 25, 26, SOLID)    # dais kanan
     fill(12, 19, 22, 22, ONEWAY)   # papan A
@@ -84,20 +88,20 @@ def platform_cells(grid):
 def back_cells():
     """Tembok belakang (tanpa collision): bata gelap, merlon, jendela, pintu."""
     cells = {}
-    for r in range(15, H):
+    for r in range(15 - LIFT, H):
         for c in range(W):
             cells[(c, r)] = (c % 6, 6 + (r % 2))
     for c in range(0, W, 3):          # merlon tembok belakang
         for r in (13, 14):
             for cc in (c, c + 1):
                 if cc < W:
-                    cells[(cc, r)] = (cc % 6, 6 + (r % 2))
+                    cells[(cc, r - LIFT)] = (cc % 6, 6 + (r % 2))
 
     def frame(c0, r0):
         """Bingkai jendela 4x3 (atlas 1-4, 8-10). Bagian tengahnya kosong."""
         for dy in range(3):
             for dx in range(4):
-                key = (c0 + dx, r0 + dy)
+                key = (c0 + dx, r0 - LIFT + dy)
                 ax, ay = 1 + dx, 8 + dy
                 if ay in (8, 9) and ax in (2, 3):
                     cells.pop(key, None)    # lubang: langit / pintu gelap
@@ -116,7 +120,7 @@ def decor_cells():
     def put(ax, ay, w, h, c0, r0):
         for dy in range(h):
             for dx in range(w):
-                cells[(c0 + dx, r0 + dy)] = (ax + dx, ay + dy)
+                cells[(c0 + dx, r0 - LIFT + dy)] = (ax + dx, ay + dy)
 
     for c0 in (0, 52):                # merlon di atas dinding samping
         put(6, 12, 2, 2, c0, 6)
@@ -182,9 +186,9 @@ texture = ExtResource("sky_tex")
 [node name="StairDoor" type="ColorRect" parent="." unique_id=1730550103]
 z_index = -11
 offset_left = {5 * T}.0
-offset_top = {22 * T}.0
+offset_top = {(22 - LIFT) * T}.0
 offset_right = {7 * T}.0
-offset_bottom = {24 * T}.0
+offset_bottom = {(24 - LIFT) * T}.0
 mouse_filter = 2
 color = Color(0.03, 0.025, 0.04, 1)
 
@@ -213,7 +217,7 @@ tile_set = ExtResource("tower_tiles")
 
 [node name="Player" parent="." unique_id=1226008961 instance=ExtResource("3_dkyar")]
 z_index = 5
-position = Vector2(80, {25 * T - 16})
+position = Vector2(80, {(25 - LIFT) * T - 16})
 
 [node name="Camera2D" type="Camera2D" parent="Player" unique_id=1072977564]
 limit_left = 0
@@ -225,16 +229,16 @@ editor_draw_limits = true
 
 [node name="NorchThex" parent="." unique_id=1163414465 instance=ExtResource("4_e6e8q")]
 z_index = 6
-position = Vector2(752, {25 * T - 41})
+position = Vector2(752, {(25 - LIFT) * T - 41})
 
 {keep["PlayerHUD"]}
 {keep["BossHealthBar"]}
 {keep["CanvasModulate"]}
 [node name="LightBrazier" parent="." unique_id=937118767 instance=ExtResource("brazier_1")]
-position = Vector2(128, {25 * T})
+position = Vector2(128, {(25 - LIFT) * T})
 
 [node name="LightBrazier2" parent="." unique_id=856170534 instance=ExtResource("brazier_1")]
-position = Vector2(432, {19 * T})
+position = Vector2(432, {(19 - LIFT) * T})
 
 {keep["LevelMusic"]}
 {keep["BossVictory"]}'''
