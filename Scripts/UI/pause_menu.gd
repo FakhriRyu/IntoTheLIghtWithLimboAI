@@ -1,8 +1,8 @@
 extends CanvasLayer
 ## Menu jeda: dibuka dengan tombol Pause (Esc / P) atau tombol jeda di HUD.
-## Halaman: utama (lanjut, pengaturan, kontrol, menu utama), pengaturan (volume
-## master/musik/efek suara, layar penuh, tombol sentuh) dan kontrol (ganti
-## tombol keyboard).
+## Halaman: utama (lanjut, pengaturan, tips, kontrol, menu utama), pengaturan (volume
+## master/musik/efek suara, layar penuh, tombol sentuh + editor letak/ukurannya)
+## dan kontrol (ganti tombol keyboard).
 ## Isi tiap halaman dibangun dari kode; semua nilai disimpan lewat autoload Settings.
 ##
 ## Navigasi: W/S atau panah memilih, A/D menggeser slider, J / Enter memilih,
@@ -14,6 +14,12 @@ const KEY_COLOR := Color(1.0, 0.78, 0.4)
 const WARN_COLOR := Color(1.0, 0.45, 0.35)
 const ROW_SIZE := Vector2(280, 24)
 const VOLUME_STEP := 10.0
+const TouchLayoutEditor := preload("res://Scripts/UI/touch_layout_editor.gd")
+const TipsScreen := preload("res://Scripts/UI/tips_screen.gd")
+## Urutan tombol di halaman utama, untuk mengembalikan fokus saat kembali
+const MAIN_SETTINGS := 1
+const MAIN_TIPS := 2
+const MAIN_CONTROLS := 3
 
 @onready var root: Control = $Root
 @onready var title: Label = $Root/Title
@@ -21,7 +27,7 @@ const VOLUME_STEP := 10.0
 @onready var hint: Label = $Root/Hint
 
 var _showing: bool = false
-## Halaman yang sedang tampil: "main", "settings", "controls"
+## Halaman yang sedang tampil: "main", "settings", "controls", "touch_edit", "tips"
 var _page: String = ""
 ## Aksi yang sedang menunggu tombol baru (halaman kontrol)
 var _waiting_action: StringName = &""
@@ -75,6 +81,7 @@ func _show_main(focus_index: int = 0) -> void:
 	var buttons: Array[Button] = [
 		_button("Lanjutkan", close),
 		_button("Pengaturan", _show_settings),
+		_button("Tips bermain", _open_tips),
 	]
 	# ganti tombol keyboard tidak berguna di HP
 	if not touch:
@@ -117,8 +124,11 @@ func _show_settings() -> void:
 		Settings.set_touch_controls(not Settings.touch_controls)
 		tc.text = _touch_controls_text())
 	body.add_child(tc)
+	var touch_node := get_tree().get_first_node_in_group("touch_controls")
+	if Settings.touch_controls and touch_node != null:
+		body.add_child(_button("Atur tombol sentuh", _open_touch_editor.bind(touch_node)))
 	body.add_child(_spacer())
-	body.add_child(_button("Kembali", _show_main.bind(1)))
+	body.add_child(_button("Kembali", _show_main.bind(MAIN_SETTINGS)))
 	if Settings.touch_controls:
 		_set_hint("Geser slider untuk mengubah volume")
 	else:
@@ -142,9 +152,33 @@ func _show_controls() -> void:
 		Settings.reset_keys()
 		Audio.play_sfx(&"card_pick", -6.0, 0.0)
 		_show_controls()))
-	body.add_child(_button("Kembali", _show_main.bind(2)))
+	body.add_child(_button("Kembali", _show_main.bind(MAIN_CONTROLS)))
 	_set_hint("Pilih aksi, lalu tekan tombol baru     Esc  kembali")
 	first.grab_focus.call_deferred()
+
+
+## Sembunyikan menu, tampilkan Tips Bermain; game tetap ter-pause
+func _open_tips() -> void:
+	_page = "tips"
+	root.visible = false
+	var tips := TipsScreen.new()
+	add_child(tips)
+	tips.closed.connect(func() -> void:
+		root.visible = true
+		_show_main(MAIN_TIPS))
+	tips.open(true)
+
+
+## Sembunyikan menu, atur letak/ukuran tombol sentuh di atas game yang ter-pause
+func _open_touch_editor(touch_node: Node) -> void:
+	_page = "touch_edit"
+	root.visible = false
+	var editor := TouchLayoutEditor.new()
+	add_child(editor)
+	editor.closed.connect(func() -> void:
+		root.visible = true
+		_show_settings())
+	editor.open(touch_node)
 
 
 func _set_hint(text: String) -> void:
@@ -316,12 +350,15 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			open()
 		return
+	# editor tombol sentuh & layar tips menangani inputnya sendiri
+	if _page == "touch_edit" or _page == "tips":
+		return
 
 	if event.is_action_pressed("Pause") or event.is_action_pressed("ui_cancel"):
 		if _page == "main":
 			close()
 		else:
-			_show_main(1 if _page == "settings" else 2)
+			_show_main(MAIN_SETTINGS if _page == "settings" else MAIN_CONTROLS)
 	elif event.is_action_pressed("Up") or event.is_action_pressed("Down"):
 		var items := _focusables()
 		var step := -1 if event.is_action_pressed("Up") else 1
