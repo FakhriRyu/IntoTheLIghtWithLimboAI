@@ -20,6 +20,8 @@ var results: Array[Dictionary] = []
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	# layar tips pertama kali akan menahan alur uji
+	Settings.tips_seen = true
 	await _run()
 	_write_results()
 	get_tree().quit()

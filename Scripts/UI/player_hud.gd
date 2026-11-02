@@ -5,8 +5,12 @@ extends CanvasLayer
 ## Tekstur dibuat oleh tools/build_ui_art.py.
 ## Dipasang sebagai anak dari scene level; player dicari otomatis lewat group "player".
 ## Di HP, HUD juga memasang tombol sentuh (TouchControls) dan memperbesar tombol jeda.
+## Pertama kali main (setelah prolog), HUD membuka layar Tips Bermain sekali.
 
 const TouchControls := preload("res://Scripts/UI/touch_controls.gd")
+const TipsScreen := preload("res://Scripts/UI/tips_screen.gd")
+## Jeda sebelum tips pertama muncul, supaya fade putih dari prolog selesai dulu
+const FIRST_TIPS_DELAY := 1.2
 ## Pembesaran tombol jeda di layar sentuh supaya mudah diketuk
 const TOUCH_PAUSE_SCALE := 2.0
 
@@ -54,6 +58,19 @@ func _ready() -> void:
 		pause_button.scale = Vector2.ONE * TOUCH_PAUSE_SCALE
 		add_child(TouchControls.new())
 	_find_player()
+	if not Settings.tips_seen:
+		_show_first_tips()
+
+
+func _show_first_tips() -> void:
+	# timer ikut berhenti saat pause, jadi tidak menimpa layar lain
+	await get_tree().create_timer(FIRST_TIPS_DELAY, false).timeout
+	if Settings.tips_seen or get_tree().paused:
+		return
+	var tips := TipsScreen.new()
+	add_child(tips)
+	tips.closed.connect(Settings.set_tips_seen.bind(true))
+	tips.open()
 
 
 func _find_player() -> void:
