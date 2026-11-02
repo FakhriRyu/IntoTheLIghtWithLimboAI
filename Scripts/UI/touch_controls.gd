@@ -13,9 +13,12 @@ const DIR := "res://Assets/button/"
 ## Tekstur 32x32 digambar 2x supaya cukup besar untuk jari
 const BUTTON_SCALE := 2.0
 const TEX_SIZE := 32.0
-## Jarak dari tepi layar dan antar tombol, dalam piksel viewport
-const MARGIN := 14.0
-const GAP := 8.0
+## Jarak dari tepi layar dan antar tombol, dalam piksel viewport.
+## Dibuat lega supaya tombol tidak mepet pojok layar HP (sudut membulat,
+## gesture bar) dan mudah dijangkau jempol.
+const MARGIN_X := 40.0
+const MARGIN_BOTTOM := 28.0
+const GAP := 10.0
 const OPACITY := 0.6
 
 var _buttons := {}
@@ -59,9 +62,9 @@ func _layout() -> void:
 	var view := get_viewport().get_visible_rect().size
 	var inset := _safe_insets(view)
 	var big := TEX_SIZE * BUTTON_SCALE
-	var left := MARGIN + inset.x
-	var right := view.x - MARGIN - inset.z
-	var bottom := view.y - MARGIN - inset.w
+	var left := MARGIN_X + inset.x
+	var right := view.x - MARGIN_X - inset.z
+	var bottom := view.y - MARGIN_BOTTOM - inset.w
 
 	# kiri: [kiri][kanan]
 	_place(&"Left", Vector2(left, bottom - big))
