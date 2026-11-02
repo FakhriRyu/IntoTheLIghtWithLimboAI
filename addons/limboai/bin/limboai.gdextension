@@ -31,6 +31,8 @@ ios.debug.simulator = "res://addons/limboai/bin/liblimboai.ios.editor.universal.
 ios.release.simulator = "res://addons/limboai/bin/liblimboai.ios.template_release.universal.dylib"
 web.debug.wasm32 = "res://addons/limboai/bin/liblimboai.web.editor.wasm32.wasm"
 web.release.wasm32 = "res://addons/limboai/bin/liblimboai.web.template_release.wasm32.wasm"
+web.debug.wasm32.nothreads = "res://addons/limboai/bin/liblimboai.web.editor.wasm32.nothreads.wasm"
+web.release.wasm32.nothreads = "res://addons/limboai/bin/liblimboai.web.template_release.wasm32.nothreads.wasm"
 
 [icons]
 
