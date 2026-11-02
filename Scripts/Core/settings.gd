@@ -1,7 +1,7 @@
 extends Node
 ## Pengaturan pemain yang disimpan di user://settings.cfg: volume (master, musik,
-## efek suara), layar penuh, tombol sentuh, tombol keyboard tiap aksi, dan
-## kesulitan terakhir.
+## efek suara), layar penuh, tombol sentuh (aktif, transparansi, letak & ukuran
+## tiap tombol), tombol keyboard tiap aksi, dan kesulitan terakhir.
 ## Didaftarkan sebagai autoload "Settings" setelah Audio, supaya volume musik
 ## diteruskan lewat Audio (yang juga meredam musik saat game di-pause).
 
@@ -19,14 +19,31 @@ const REBINDABLE: Array[Dictionary] = [
 	{"action": &"Dash", "label": "Dash"},
 ]
 const VOLUME_BUSES := {"master": &"Master", "music": &"Music", "sfx": &"SFX"}
+## Aksi yang punya tombol sentuh di layar (TouchControls)
+const TOUCH_ACTIONS: Array[StringName] = [&"Left", &"Right", &"Attack", &"Jump", &"Dash"]
+## Batas ukuran (kali ukuran bawaan) dan transparansi tombol sentuh
+const TOUCH_SCALE_MIN := 0.6
+const TOUCH_SCALE_MAX := 2.0
+const TOUCH_OPACITY_MIN := 0.2
+const TOUCH_OPACITY_MAX := 1.0
 
 ## 0..1 per bus
 var volumes := {"master": 1.0, "music": 1.0, "sfx": 1.0}
 var fullscreen := false
 ## Tombol sentuh di layar (TouchControls); bawaan aktif karena game ini utamanya untuk HP
 var touch_controls := true
+## Transparansi tombol sentuh, 0..1 (1 = pekat)
+var touch_opacity := 0.6
+## Letak & ukuran tombol sentuh yang diatur pemain, per aksi:
+## {"side": 0 kiri / 1 kanan, "x": jarak tepi itu ke tengah tombol,
+##  "y": jarak tepi bawah ke tengah tombol, "scale": kali ukuran bawaan}.
+## Relatif ke tepi (bukan persen) supaya di layar lebar tombol tetap di sisinya.
+## Kosong / aksi tidak ada = pakai letak bawaan TouchControls.
+var touch_layout := {}
 ## Dialog cutscene maju sendiri (tombol AUTO di cutscene)
 var cutscene_autoplay := false
+## Layar tips bermain sudah pernah tampil (muncul otomatis sekali setelah prolog)
+var tips_seen := false
 ## RunState.Difficulty terakhir yang dipilih di main menu
 var difficulty: int = RunState.Difficulty.NORMAL
 
@@ -100,6 +117,51 @@ func set_touch_controls(on: bool) -> void:
 	changed.emit()
 
 
+func set_touch_opacity(v: float) -> void:
+	touch_opacity = clampf(v, TOUCH_OPACITY_MIN, TOUCH_OPACITY_MAX)
+	save()
+	changed.emit()
+
+
+func set_touch_layout(layout: Dictionary) -> void:
+	touch_layout = _clean_touch_layout(layout)
+	save()
+	changed.emit()
+
+
+func reset_touch_layout() -> void:
+	touch_layout = {}
+	touch_opacity = 0.6
+	save()
+	changed.emit()
+
+
+## Buang aksi tak dikenal / data rusak, batasi ukuran
+func _clean_touch_layout(layout: Variant) -> Dictionary:
+	var out := {}
+	if not (layout is Dictionary):
+		return out
+	for key in layout:
+		var action := StringName(str(key))
+		var e: Variant = layout[key]
+		if not TOUCH_ACTIONS.has(action) or not (e is Dictionary):
+			continue
+		if not (e.has("side") and e.has("x") and e.has("y")):
+			continue
+		out[action] = {
+			"side": 1 if int(e["side"]) == 1 else 0,
+			"x": maxf(float(e["x"]), 0.0),
+			"y": maxf(float(e["y"]), 0.0),
+			"scale": clampf(float(e.get("scale", 1.0)), TOUCH_SCALE_MIN, TOUCH_SCALE_MAX),
+		}
+	return out
+
+
+func set_tips_seen(on: bool) -> void:
+	tips_seen = on
+	save()
+
+
 func set_cutscene_autoplay(on: bool) -> void:
 	cutscene_autoplay = on
 	save()
@@ -171,7 +233,13 @@ func save() -> void:
 		cfg.set_value("audio", key, volumes[key])
 	cfg.set_value("video", "fullscreen", fullscreen)
 	cfg.set_value("video", "touch_controls", touch_controls)
+	cfg.set_value("touch", "opacity", touch_opacity)
+	var layout := {}
+	for action in touch_layout:
+		layout[String(action)] = touch_layout[action]
+	cfg.set_value("touch", "layout", layout)
 	cfg.set_value("game", "cutscene_autoplay", cutscene_autoplay)
+	cfg.set_value("game", "tips_seen", tips_seen)
 	cfg.set_value("game", "difficulty", difficulty)
 	for a in REBINDABLE:
 		cfg.set_value("keys", String(a["action"]), int(_key_of(a["action"])))
@@ -186,7 +254,11 @@ func _load() -> void:
 		volumes[key] = clampf(float(cfg.get_value("audio", key, volumes[key])), 0.0, 1.0)
 	fullscreen = bool(cfg.get_value("video", "fullscreen", fullscreen))
 	touch_controls = bool(cfg.get_value("video", "touch_controls", touch_controls))
+	touch_opacity = clampf(float(cfg.get_value("touch", "opacity", touch_opacity)),
+		TOUCH_OPACITY_MIN, TOUCH_OPACITY_MAX)
+	touch_layout = _clean_touch_layout(cfg.get_value("touch", "layout", {}))
 	cutscene_autoplay = bool(cfg.get_value("game", "cutscene_autoplay", cutscene_autoplay))
+	tips_seen = bool(cfg.get_value("game", "tips_seen", tips_seen))
 	difficulty = clampi(int(cfg.get_value("game", "difficulty", difficulty)), 0, RunState.DIFFICULTY_NAMES.size() - 1)
 	for a in REBINDABLE:
 		var code := int(cfg.get_value("keys", String(a["action"]), KEY_NONE))
