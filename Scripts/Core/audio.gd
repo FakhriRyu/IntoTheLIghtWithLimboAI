@@ -127,6 +127,11 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_music_a = _make_player(MUSIC_BUS)
 	_music_b = _make_player(MUSIC_BUS)
+	# di web default-nya Sample: lagu di-decode utuh jadi PCM (lagu kastil
+	# ±180 MB) dan membuat tab browser HP kehabisan memori. Stream decode
+	# sedikit-sedikit, sama seperti di desktop/Android.
+	_music_a.playback_type = AudioServer.PLAYBACK_TYPE_STREAM
+	_music_b.playback_type = AudioServer.PLAYBACK_TYPE_STREAM
 	_music_current = _music_a
 	var idx := AudioServer.get_bus_index(MUSIC_BUS)
 	if idx != -1:
