@@ -53,8 +53,8 @@ animation_name = &"Hop"
 
 [sub_resource type="BTAction" id="BTAction_8aegp"]
 script = ExtResource("3_it4os")
-attack_area_path = NodePath("Hitbox")
 speed = 60.0
+attack_area_path = NodePath("Hitbox")
 
 [sub_resource type="BTSequence" id="BTSequence_0ll3w"]
 custom_name = "Chase"
