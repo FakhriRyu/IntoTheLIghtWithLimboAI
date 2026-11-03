@@ -17,6 +17,8 @@ concurrency:
 
 jobs:
   deploy:
+    # Manual runs from other branches must not replace the live site
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
