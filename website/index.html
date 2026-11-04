@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Into the Light</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Into the Light: platformer roguelite pixel art 2D untuk Android. Panjat menara, jaga lenteramu tetap menyala, dan hadapi Norc'Thex.">
+<meta property="og:title" content="Into the Light">
+<meta property="og:description" content="Sebelum cahayamu padam... Platformer roguelite pixel art untuk Android.">
+<meta property="og:image" content="assets/img/prolog-4.jpg">
+<link rel="icon" href="assets/ui/icon-lentera.png">
+<style>
+@font-face { font-family: "Jacquard 24"; src: url("assets/fonts/Jacquard24-Regular.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Jersey 10"; src: url("assets/fonts/Jersey10-Regular.ttf") format("truetype"); font-display: swap; }
+
+/* Layout: satu kolom sempit seperti layar game 640x480, tiap bagian adalah "lantai" menara yang dipanjat dari dasar (prolog) ke puncak (unduh). */
+:root {
+  color-scheme: dark;
+  --night: #0a0d12;      /* latar, sama dengan panel menu game */
+  --stone: #141a24;      /* panel batu */
+  --stone-2: #1d2532;
+  --line: #2c3646;
+  --cream: #faedcc;      /* warna judul game */
+  --amber: #ffb861;      /* cahaya lentera */
+  --gold: #ffd25a;       /* sorotan di teks tips */
+  --muted: #c7a875;      /* subjudul menu */
+  --steel: #9aa3a8;      /* teks tombol menu */
+  --void: #9b5cf0;       /* kabut ungu Norc'Thex */
+  --cyan: #66f2ff;       /* orb XP */
+  --red: #ff6a55;        /* orb HP / bahaya */
+  --font-display: "Jacquard 24", "Jersey 10", ui-monospace, monospace;
+  --font-body: "Jersey 10", ui-monospace, "Courier New", monospace;
+  --px: 3px;             /* satu piksel game di layar */
+  --gutter-l: max(16px, env(safe-area-inset-left, 0px));
+  --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+}
+
+* { box-sizing: border-box; }
+html { background: var(--night); scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--night);
+  color: var(--cream);
+  font-family: var(--font-body);
+  font-size: 22px;
+  line-height: 1.3;
+  -webkit-font-smoothing: none;
+}
+img, video { max-width: 100%; display: block; }
+.px { image-rendering: pixelated; image-rendering: crisp-edges; }
+a { color: var(--gold); }
+a:focus-visible, button:focus-visible, .btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance; }
+p { margin: 0; }
+
+.wrap {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-left: var(--gutter-l);
+  padding-right: var(--gutter-r);
+}
+
+/* ---------- sprite animasi (lembar sprite horizontal) ---------- */
+.spr {
+  --s: 3;
+  width: calc(var(--fw) * var(--s) * 1px);
+  height: calc(var(--fh) * var(--s) * 1px);
+  background-image: var(--img);
+  background-repeat: no-repeat;
+  background-size: calc(var(--fw) * var(--n) * var(--s) * 1px) 100%;
+  image-rendering: pixelated;
+  animation: play calc(var(--n) * var(--spd, 110ms)) steps(var(--n)) infinite;
+  flex: none;
+}
+.spr.flip { transform: scaleX(-1); }
+@keyframes play { from { background-position: 0 0; } to { background-position: calc(var(--fw) * var(--n) * var(--s) * -1px) 0; } }
+
+/* ---------- tombol pixel (pakai button.png dari game) ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: 12px;
+  font-family: var(--font-body); font-size: 30px; line-height: 1;
+  color: var(--cream); text-decoration: none; text-transform: uppercase; letter-spacing: 1px;
+  padding: 0 6px 2px;
+  border: 18px solid transparent;
+  border-image: url("assets/ui/button.png") 6 fill / 18px stretch;
+  image-rendering: pixelated;
+  text-shadow: 0 3px 0 #000;
+  cursor: pointer; background: none;
+}
+.btn img { width: 32px; height: 32px; image-rendering: pixelated; }
+.btn:hover, .btn:focus-visible { border-image-source: url("assets/ui/button_focus.png"); color: #fff6dc; }
+.btn:active { transform: translateY(3px); }
+.btn.ghost { color: var(--steel); }
+.btn-row { display: flex; flex-wrap: wrap; gap: 16px 20px; }
+
+/* ---------- HERO ---------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  min-height: clamp(540px, 82vh, 760px);
+  display: flex; align-items: flex-end;
+  background: #2c6a86;
+  isolation: isolate;
+}
+.layer {
+  position: absolute; inset: 0;
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+  background-position: 0 100%;
+  image-rendering: pixelated;
+  z-index: -5;
+}
+.l1 { background-image: url("assets/img/bg1.png"); }
+.l2 { background-image: url("assets/img/bg2.png"); animation: drift 160s linear infinite; }
+.l3 { background-image: url("assets/img/bg3.png"); animation: drift 260s linear infinite; }
+.l4 { background-image: url("assets/img/bg4B.png"); animation: drift 120s linear infinite; }
+.l5 { background-image: url("assets/img/bg4C.png"); animation: drift 70s linear infinite; }
+@keyframes drift { to { background-position: -1920px 100%; } }
+.hero-dim {
+  position: absolute; inset: 0; z-index: -4;
+  background:
+    radial-gradient(ellipse 60% 55% at 72% 78%, rgba(255,184,97,.30), transparent 70%),
+    linear-gradient(180deg, rgba(10,13,18,.15) 0%, rgba(10,13,18,.35) 55%, var(--night) 100%);
+}
+.rays {
+  position: absolute; z-index: -3; top: -10%; left: 50%; width: 900px; max-width: none; height: 120%;
+  transform: translateX(-10%);
+  background: url("assets/ui/rays.png") center / 100% 100% no-repeat;
+  mix-blend-mode: screen; opacity: .45;
+  animation: rays 7s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes rays { from { opacity: .25; } to { opacity: .55; } }
+
+.hero-inner {
+  position: relative; width: 100%;
+  display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 24px; align-items: end;
+  padding-block: 120px 56px;
+}
+.hero-copy { display: grid; gap: 18px; min-width: 0; }
+.kicker { color: var(--muted); font-size: 22px; letter-spacing: 3px; text-transform: uppercase; }
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(76px, 13vw, 150px);
+  line-height: .82;
+  color: var(--cream);
+  text-shadow:
+    0 0 28px rgba(255,184,97,.55),
+    -4px 0 0 #07080b, 4px 0 0 #07080b, 0 -4px 0 #07080b, 0 4px 0 #07080b,
+    -4px -4px 0 #07080b, 4px 4px 0 #07080b, -4px 4px 0 #07080b, 4px -4px 0 #07080b;
+}
+.tagline { font-size: 30px; color: var(--muted); text-shadow: 0 3px 0 #000; }
+.hero-lede { max-width: 30ch; font-size: 24px; color: #e8dcc0; text-shadow: 0 2px 0 #000; }
+
+.hero-stage { position: relative; height: 260px; min-width: 0; }
+.fiora { position: absolute; bottom: 18px; left: 42%; --s: 5; filter: drop-shadow(0 0 18px rgba(255,184,97,.55)); }
+.torch { position: absolute; bottom: 40px; left: 12%; --s: 4; --spd: 90ms; }
+.torch-glow, .lantern-glow {
+  position: absolute; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(255,184,97,.55), rgba(255,184,97,0) 65%);
+  animation: flicker 2.4s steps(6) infinite;
+}
+.torch-glow { width: 220px; height: 220px; left: calc(12% - 86px); bottom: -10px; }
+.lantern-glow { width: 300px; height: 300px; left: calc(42% - 100px); bottom: -60px; }
+@keyframes flicker { 0%,100% { opacity: .9; } 30% { opacity: .7; } 55% { opacity: 1; } 80% { opacity: .78; } }
+
+/* HUD tiruan di pojok hero */
+.hud {
+  position: absolute; z-index: 2;
+  top: calc(18px + env(safe-area-inset-top, 0px)); left: var(--gutter-l);
+  display: grid; gap: 6px;
+  font-size: 18px; color: var(--steel); text-shadow: 0 2px 0 #000;
+}
+.bar { position: relative; width: calc(var(--w) * 2px); height: calc(var(--h) * 2px); image-rendering: pixelated;
+  background: var(--frame) 0 0 / 100% 100% no-repeat; }
+.bar i { position: absolute; left: calc(var(--ox) * 2px); top: calc(var(--oy) * 2px); height: calc(var(--fh) * 2px);
+  width: calc(var(--fw) * 2px * var(--v, 1)); background: var(--fill) 0 0 / calc(var(--fw) * 2px) 100% no-repeat; image-rendering: pixelated; }
+.bar.hp i, .boss-bar .bar i { filter: sepia(1) saturate(7) hue-rotate(-45deg) brightness(.95); }
+.bar.light i { filter: sepia(1) saturate(6) hue-rotate(-8deg) brightness(1.15); animation: drain 14s steps(28) infinite; }
+.bar.xp i { filter: sepia(1) saturate(8) hue-rotate(140deg) brightness(1.3); }
+@keyframes drain { 0% { width: calc(var(--fw) * 2px); } 85% { width: calc(var(--fw) * 2px * .18); } 100% { width: calc(var(--fw) * 2px); } }
+.hud-row { display: flex; align-items: center; gap: 8px; }
+.hud-row span { width: 54px; }
+
+/* ---------- bagian umum ---------- */
+section { padding-block: 88px; }
+.floor {
+  display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  color: var(--muted); font-size: 20px; letter-spacing: 3px; text-transform: uppercase;
+}
+.floor b { color: var(--amber); font-weight: 400; }
+.h2 {
+  font-family: var(--font-display);
+  font-size: clamp(52px, 8vw, 84px);
+  line-height: .9;
+  color: var(--cream);
+  text-shadow: 0 0 22px rgba(255,184,97,.25), 0 4px 0 #000;
+}
+.lede { max-width: 58ch; color: #d9ccb0; font-size: 24px; }
+.sec-head { display: grid; gap: 14px; margin-bottom: 44px; }
+.hl { color: var(--gold); }
+.hl-c { color: var(--cyan); }
+.hl-r { color: var(--red); }
+.hl-v { color: var(--void); }
+
+/* bingkai pixel dua langkah */
+.frame {
+  position: relative;
+  background: var(--stone);
+  box-shadow:
+    0 0 0 3px #05070a,
+    0 0 0 6px var(--line),
+    0 0 0 9px #05070a;
+  margin: 9px;
+}
+
+/* ---------- KISAH (komik) ---------- */
+.story { background: linear-gradient(180deg, var(--night), #0d1118 40%, var(--night)); }
+.comic { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 34px; }
+.panel { overflow: hidden; display: grid; }
+.panel img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; image-rendering: pixelated; }
+.say {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 14px 16px 16px; background: #080a0e; border-top: 3px solid var(--line);
+  font-size: 22px; min-height: 92px;
+}
+.say img { width: 48px; height: 48px; image-rendering: pixelated; flex: none; box-shadow: 0 0 0 3px var(--line); }
+.say .who { color: var(--amber); display: block; font-size: 18px; letter-spacing: 2px; text-transform: uppercase; }
+.say p { min-width: 0; }
+
+/* ---------- CARA BERTAHAN ---------- */
+.mech { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 34px; }
+.mech .frame { padding: 24px 24px 26px; display: grid; gap: 12px; align-content: start; }
+.mech h3 { font-size: 34px; color: var(--amber); line-height: 1; }
+.mech p { color: #d9ccb0; }
+.keys { display: flex; flex-wrap: wrap; gap: 10px; }
+.key {
+  font-size: 20px; color: var(--cream); padding: 2px 10px 4px;
+  background: var(--stone-2); box-shadow: 0 0 0 3px #05070a, inset 0 -4px 0 #0b0f15;
+}
+.cards { display: flex; gap: 14px; flex-wrap: wrap; }
+.upg {
+  width: 92px; padding: 14px 6px 10px; display: grid; justify-items: center; gap: 8px;
+  border: 10px solid transparent;
+  border-image: url("assets/ui/card_panel.png") 14 fill / 10px stretch;
+  image-rendering: pixelated; font-size: 17px; color: var(--steel); text-align: center;
+  transition: transform .15s steps(3);
+}
+.upg img { width: 40px; height: 40px; image-rendering: pixelated; }
+.upg:hover { transform: translateY(-6px); color: var(--gold); }
+.wide { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 24px; align-items: center; }
+.wide figure { margin: 0; }
+.wide figure img { width: 100%; image-rendering: pixelated; box-shadow: 0 0 0 3px #05070a; }
+figcaption { font-size: 18px; color: var(--steel); margin-top: 10px; }
+
+/* ---------- PENGHUNI MENARA (AI musuh) ---------- */
+.bestiary { background:
+  radial-gradient(ellipse 50% 40% at 85% 85%, rgba(155,92,240,.16), transparent 70%),
+  linear-gradient(180deg, var(--night), #0e0c16 70%, var(--night)); }
+.foes { display: grid; gap: 40px; }
+.foe {
+  display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 0;
+  overflow: hidden;
+}
+.foe-stage {
+  position: relative; display: grid; place-items: end center; padding-bottom: 40px; min-height: 280px;
+  background:
+    linear-gradient(0deg, #1a2130 0 40px, #0b0f15 40px 46px, transparent 46px),
+    radial-gradient(circle at 50% 70%, var(--aura, rgba(255,184,97,.18)), transparent 60%),
+    #0c1018;
+  border-right: 3px solid var(--line);
+  cursor: pointer;
+}
+.foe-stage .spr { position: relative; z-index: 1; }
+.foe-stage .alt { display: none; }
+.foe-stage:hover .base, .foe-stage.attacking .base { display: none; }
+.foe-stage:hover .alt, .foe-stage.attacking .alt { display: block; }
+.foe-stage .hint { position: absolute; top: 12px; left: 0; right: 0; text-align: center; font-size: 16px; color: var(--steel); letter-spacing: 2px; text-transform: uppercase; }
+.foe-body { padding: 26px 28px 28px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+.foe-top { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: baseline; }
+.foe h3 { font-family: var(--font-display); font-size: 58px; line-height: .9; color: var(--cream); }
+.tag {
+  font-size: 18px; letter-spacing: 2px; text-transform: uppercase; padding: 2px 10px 4px;
+  color: #05070a; background: var(--tagc, var(--amber));
+}
+.foe p { color: #d9ccb0; max-width: 60ch; }
+.method-label { font-size: 17px; color: var(--steel); letter-spacing: 2px; text-transform: uppercase; }
+
+/* rantai state FSM */
+.states { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 6px; }
+.st {
+  font-size: 19px; padding: 2px 10px 4px; background: var(--stone-2); color: var(--cream);
+  box-shadow: 0 0 0 3px #05070a;
+}
+.st.on { background: var(--amber); color: #0a0d12; }
+.arrow { width: 0; height: 0; border-left: 8px solid var(--muted); border-top: 6px solid transparent; border-bottom: 6px solid transparent; }
+/* daftar prioritas BT */
+.bt { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.bt li { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px; align-items: baseline; font-size: 20px; }
+.bt li b { font-weight: 400; color: var(--cyan); font-variant-numeric: tabular-nums; }
+.bt li span { color: var(--steel); }
+.bt li strong { font-weight: 400; color: var(--cream); }
+.phase { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.phase > div { background: #0b0f15; box-shadow: 0 0 0 3px #05070a; padding: 12px 14px; display: grid; gap: 6px; }
+.phase h4 { margin: 0; font-weight: 400; font-size: 22px; color: var(--void); }
+.phase p { font-size: 19px; color: var(--steel); }
+.boss-bar { display: grid; gap: 4px; justify-items: start; }
+.foe-shot { margin: 0; }
+.foe-shot img { width: 100%; image-rendering: pixelated; box-shadow: 0 0 0 3px #05070a; }
+
+/* ---------- CUPLIKAN ---------- */
+.film { display: grid; gap: 34px; }
+.film video { width: 100%; aspect-ratio: 16 / 9; background: #000; }
+.gallery { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+.gallery figure { margin: 0; }
+.gallery img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; image-rendering: pixelated; box-shadow: 0 0 0 3px #05070a, 0 0 0 6px var(--line); }
+
+/* ---------- UNDUH ---------- */
+.dl { position: relative; overflow: hidden; background:
+  radial-gradient(ellipse 50% 60% at 50% 0%, rgba(255,210,90,.22), transparent 70%), #0d1016; }
+.dl-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 40px; align-items: center; }
+.spec { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 22px; font-size: 22px; margin: 0; }
+.spec dt { color: var(--muted); }
+.spec dd { margin: 0; color: var(--cream); }
+.dl .frame { padding: 26px; display: grid; gap: 18px; }
+.note { font-size: 18px; color: var(--steel); }
+
+footer { padding-block: 40px calc(40px + env(safe-area-inset-bottom, 0px)); border-top: 3px solid var(--line); color: var(--steel); font-size: 19px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 32px; justify-content: space-between; align-items: center; }
+footer .sig { display: flex; align-items: center; gap: 14px; }
+
+/* ---------- responsif ---------- */
+@media (max-width: 860px) {
+  .hero-inner { grid-template-columns: minmax(0, 1fr); padding-block: 130px 40px; }
+  .hero-stage { height: 200px; order: -1; }
+  .comic, .mech, .gallery { grid-template-columns: minmax(0, 1fr); }
+  .wide { grid-template-columns: minmax(0, 1fr); }
+  .foe { grid-template-columns: minmax(0, 1fr); }
+  .foe-stage { border-right: 0; border-bottom: 3px solid var(--line); min-height: 230px; }
+  .dl-grid { grid-template-columns: minmax(0, 1fr); }
+  section { padding-block: 64px; }
+}
+@media (max-width: 480px) {
+  body { font-size: 20px; }
+  .btn { font-size: 26px; }
+  .phase { grid-template-columns: minmax(0, 1fr); }
+  .foe-body { padding: 20px 18px 22px; }
+  .fiora { --s: 4; }
+  .foe-stage .spr { --s: 2.5; }
+  .foe-stage .spr.big { --s: 2.4; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0s !important; animation-iteration-count: 1 !important; transition: none !important; }
+  html { scroll-behavior: auto; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero" id="top">
+  <div class="layer l1" aria-hidden="true"></div>
+  <div class="layer l2" aria-hidden="true"></div>
+  <div class="layer l3" aria-hidden="true"></div>
+  <div class="layer l4" aria-hidden="true"></div>
+  <div class="layer l5" aria-hidden="true"></div>
+  <div class="rays" aria-hidden="true"></div>
+  <div class="hero-dim" aria-hidden="true"></div>
+
+  <div class="hud" aria-hidden="true">
+    <div class="hud-row"><span>HP</span>
+      <div class="bar hp" style="--w:168;--h:16;--frame:url(assets/ui/hud_bar_hp.png);--fill:url(assets/ui/hud_bar_hp_fill.png);--ox:3;--oy:2;--fw:162;--fh:12;--v:.82"><i></i></div></div>
+    <div class="hud-row"><span>Cahaya</span>
+      <div class="bar light" style="--w:132;--h:11;--frame:url(assets/ui/hud_bar_light.png);--fill:url(assets/ui/hud_bar_light_fill.png);--ox:3;--oy:2;--fw:126;--fh:7"><i></i></div></div>
+    <div class="hud-row"><span>XP</span>
+      <div class="bar xp" style="--w:104;--h:5;--frame:url(assets/ui/hud_bar_xp.png);--fill:url(assets/ui/hud_bar_xp_fill.png);--ox:1;--oy:1;--fw:101;--fh:3;--v:.45"><i></i></div></div>
+  </div>
+
+  <div class="wrap hero-inner">
+    <div class="hero-copy">
+      <p class="kicker">Platformer roguelite pixel art · Android</p>
+      <h1 class="title">Into the Light</h1>
+      <p class="tagline">Sebelum cahayamu padam...</p>
+      <p class="hero-lede">Fiora terbangun di dasar kastil tanpa ingatan. Satu-satunya jalan pulang ada di puncak menara, dan lentera di tangannya terus meredup.</p>
+      <div class="btn-row">
+        <a class="btn" href="#unduh"><img src="assets/ui/icon-lentera.png" alt="">Unduh APK</a>
+        <a class="btn ghost" href="#cuplikan">Tonton cuplikan</a>
+      </div>
+    </div>
+    <div class="hero-stage" aria-hidden="true">
+      <div class="torch-glow"></div>
+      <div class="spr torch" style="--img:url(assets/sprites/torch.png);--fw:12;--fh:31;--n:6"></div>
+      <div class="lantern-glow"></div>
+      <div class="spr fiora" style="--img:url(assets/sprites/warrior-idle.png);--fw:20;--fh:33;--n:6;--spd:150ms"></div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- LANTAI 1: KISAH -->
+<section class="story" id="kisah">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="floor"><b>Lantai 1</b> Dasar kastil</p>
+      <h2 class="h2">Tempat ini membenci cahaya</h2>
+      <p class="lede">Dasar kastil mengambil ingatan siapa pun yang jatuh terlalu dalam. Seorang lelaki tua bertudung memberi Fiora sebuah lentera dan satu perintah: naik. Di puncak menara ada cahaya yang menyimpan jawaban kenapa ia terbangun di sini.</p>
+    </div>
+    <div class="comic">
+      <figure class="frame panel" style="margin:9px">
+        <img src="assets/img/prolog-1.jpg" alt="Fiora terbaring di lantai batu dasar kastil yang lembap" loading="lazy">
+        <figcaption class="say"><img src="assets/img/por-fiora.png" alt=""><p><span class="who">Fiora</span>Di mana aku? Kenapa... aku tidak bisa mengingat apa pun?</p></figcaption>
+      </figure>
+      <figure class="frame panel" style="margin:9px">
+        <img src="assets/img/prolog-2.jpg" alt="Fiora berhadapan dengan lelaki tua bertudung yang membawa lentera" loading="lazy">
+        <figcaption class="say"><p><span class="who">Lelaki tua</span>Hanya orang tua yang sudah terlalu lama berjaga di tempat ini.</p></figcaption>
+      </figure>
+      <figure class="frame panel" style="margin:9px">
+        <img src="assets/img/prolog-3.jpg" alt="Tangan lelaki tua menyerahkan lentera kuningan ke sarung tangan zirah Fiora" loading="lazy">
+        <figcaption class="say"><p><span class="who">Lelaki tua</span>Bawa lentera ini. Tempat ini membenci cahaya.</p></figcaption>
+      </figure>
+      <figure class="frame panel" style="margin:9px">
+        <img src="assets/img/prolog-4.jpg" alt="Fiora mengangkat lentera ke arah pilar cahaya jauh di atas menara" loading="lazy">
+        <figcaption class="say"><p><span class="who">Lelaki tua</span>Naiklah, Fiora. Dan jangan menoleh ke bawah.</p></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- LANTAI 2: CARA BERTAHAN -->
+<section id="fitur">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="floor"><b>Lantai 2</b> Menara</p>
+      <h2 class="h2">Cara bertahan di menara</h2>
+      <p class="lede">Setiap perjalanan dimulai dari nol. Menara disusun ulang, upgrade hilang saat kamu kalah, dan cahaya tidak pernah menunggu.</p>
+    </div>
+    <div class="mech">
+      <div class="frame">
+        <h3>Bergerak &amp; bertarung</h3>
+        <p>Lari, lompat, tebas, lalu dash untuk menghindar. Di HP tersedia tombol sentuh yang letak, ukuran, dan transparansinya bisa kamu atur sendiri.</p>
+        <div class="keys"><span class="key">Kiri / Kanan</span><span class="key">Lompat</span><span class="key">Serang</span><span class="key">Dash</span></div>
+      </div>
+      <div class="frame">
+        <h3>Jangan biarkan padam</h3>
+        <p>Cahaya Fiora <span class="hl">meredup</span> setiap detik. Kalau habis, Fiora <span class="hl-r">padam</span> dan perjalanan berakhir. Isi lagi dengan kepingan cahaya dari musuh, atau berdiri dekat obor dan anglo.</p>
+        <div class="bar light" style="--w:132;--h:11;--frame:url(assets/ui/hud_bar_light.png);--fill:url(assets/ui/hud_bar_light_fill.png);--ox:3;--oy:2;--fw:126;--fh:7" aria-hidden="true"><i></i></div>
+      </div>
+      <div class="frame">
+        <h3>Naik level, pilih kekuatan</h3>
+        <p>Kumpulkan <span class="hl-c">orb XP</span> sampai bar penuh, lalu pilih 1 dari 3 kartu upgrade. Upgrade bertahan sampai perjalanan berakhir.</p>
+        <div class="cards">
+          <div class="upg"><img src="assets/ui/icon-tajam.png" alt="">Tajam</div>
+          <div class="upg"><img src="assets/ui/icon-sinar.png" alt="">Sinar</div>
+          <div class="upg"><img src="assets/ui/icon-angin.png" alt="">Angin</div>
+        </div>
+      </div>
+      <div class="frame">
+        <h3>Peti &amp; bahaya</h3>
+        <p>Pukul peti untuk membukanya. Isinya bisa cahaya, ramuan, relik, atau minyak lentera, tapi awas <span class="hl-r">peti terkutuk</span>. Duri di lantai juga melukai Fiora.</p>
+        <div class="cards">
+          <div class="upg"><img src="assets/ui/icon-jantung.png" alt="">Ramuan</div>
+          <div class="upg"><img src="assets/ui/icon-lentera.png" alt="">Minyak</div>
+          <div class="upg"><img src="assets/ui/icon-bayang.png" alt="">Kutukan</div>
+        </div>
+      </div>
+      <div class="frame wide" style="padding:24px">
+        <div style="display:grid;gap:12px;min-width:0">
+          <h3>Menara yang selalu berubah</h3>
+          <p>Lantai Tower dibangkitkan secara prosedural dari sebuah <span class="hl">seed</span>, jadi susunan platform, musuh, peti, dan obor berbeda di setiap perjalanan. Cari pilar cahaya di puncaknya untuk naik ke area berikutnya.</p>
+        </div>
+        <figure>
+          <img src="assets/img/shot-tower.jpg" alt="Tiga hasil generate menara dengan seed 101, 202, dan 303" loading="lazy">
+          <figcaption>Tiga menara dari seed 101, 202, dan 303.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LANTAI 3: PENGHUNI MENARA -->
+<section class="bestiary" id="musuh">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="floor"><b>Lantai 3</b> Penghuni menara</p>
+      <h2 class="h2">Tiga musuh, tiga cara berpikir</h2>
+      <p class="lede">Kecerdasan musuh dibangun dengan addon <span class="hl">LimboAI</span> di Godot. Goblin memakai Finite State Machine, Skull Wolf memakai Behavior Tree, dan bos Norc'Thex menggabungkan keduanya. Arahkan kursor atau ketuk sprite untuk melihat serangannya.</p>
+    </div>
+
+    <div class="foes">
+      <!-- GOBLIN -->
+      <article class="frame foe">
+        <div class="foe-stage" tabindex="0" role="button" aria-label="Lihat serangan Goblin">
+          <span class="hint">ketuk untuk menyerang</span>
+          <div class="spr base flip" style="--img:url(assets/sprites/goblin-run.png);--fw:38;--fh:38;--n:8;--s:4" aria-hidden="true"></div>
+          <div class="spr alt flip" style="--img:url(assets/sprites/goblin-attack.png);--fw:88;--fh:46;--n:8;--s:3;--spd:90ms" aria-hidden="true"></div>
+        </div>
+        <div class="foe-body">
+          <div class="foe-top"><h3>Goblin</h3><span class="tag">FSM</span></div>
+          <p>Penjaga lorong yang mudah ditebak tapi tidak kenal lelah. Goblin hanya berada di satu state pada satu waktu, dan berpindah state saat kondisinya terpenuhi: melihat Fiora, masuk jarak serang, terkena pukulan, atau HP habis.</p>
+          <p class="method-label">State di LimboHSM</p>
+          <div class="states">
+            <span class="st">Idle</span><span class="arrow" aria-hidden="true"></span>
+            <span class="st">Patrol</span><span class="arrow" aria-hidden="true"></span>
+            <span class="st on">Chase</span><span class="arrow" aria-hidden="true"></span>
+            <span class="st">Attack</span><span class="arrow" aria-hidden="true"></span>
+            <span class="st">Hurt</span><span class="arrow" aria-hidden="true"></span>
+            <span class="st">Dead</span>
+          </div>
+          <figure class="foe-shot"><img src="assets/img/shot-goblin.jpg" alt="Goblin mengayunkan pedang dengan zona peringatan merah di depan Fiora" loading="lazy"><figcaption>State Attack: zona merah muncul sebelum tebasan.</figcaption></figure>
+        </div>
+      </article>
+
+      <!-- SKULL WOLF -->
+      <article class="frame foe">
+        <div class="foe-stage" style="--aura:rgba(102,242,255,.14)" tabindex="0" role="button" aria-label="Lihat serangan Skull Wolf">
+          <span class="hint">ketuk untuk menyerang</span>
+          <div class="spr base" style="--img:url(assets/sprites/wolf-run.png);--fw:61;--fh:25;--n:6;--s:4;--spd:90ms" aria-hidden="true"></div>
+          <div class="spr alt" style="--img:url(assets/sprites/wolf-attack.png);--fw:62;--fh:41;--n:5;--s:4;--spd:120ms" aria-hidden="true"></div>
+        </div>
+        <div class="foe-body">
+          <div class="foe-top"><h3>Skull Wolf</h3><span class="tag" style="--tagc:var(--cyan)">Behavior Tree</span></div>
+          <p>Pemburu yang menimbang ulang pilihannya di setiap tick. Behavior tree-nya memakai <span class="hl-c">BTDynamicSelector</span>: cabang dengan prioritas tertinggi yang syaratnya terpenuhi langsung mengambil alih, bahkan di tengah aksi lain.</p>
+          <p class="method-label">Urutan prioritas</p>
+          <ol class="bt">
+            <li><b>1</b><p><strong>Flee</strong> <span>kabur saat HP di bawah 30%</span></p></li>
+            <li><b>2</b><p><strong>Attack</strong> <span>ancang-ancang lalu menerjang</span></p></li>
+            <li><b>3</b><p><strong>Chase</strong> <span>mengejar Fiora di area pandang</span></p></li>
+            <li><b>4</b><p><strong>Hold</strong> <span>menunggu sambil menatap target</span></p></li>
+            <li><b>5</b><p><strong>Chill</strong> <span>bersantai saat tidak ada siapa pun</span></p></li>
+          </ol>
+          <figure class="foe-shot"><img src="assets/img/shot-wolf.jpg" alt="Skull Wolf bersiap menerjang dengan garis peringatan merah ke arah Fiora" loading="lazy"><figcaption>Cabang Attack: garis peringatan sebelum menerjang.</figcaption></figure>
+        </div>
+      </article>
+
+      <!-- NORC'THEX -->
+      <article class="frame foe">
+        <div class="foe-stage" style="--aura:rgba(155,92,240,.28)" tabindex="0" role="button" aria-label="Lihat serangan Norc'Thex">
+          <span class="hint">ketuk untuk menembak</span>
+          <div class="spr base big" style="--img:url(assets/sprites/norc-idle.png);--fw:66;--fh:60;--n:8;--s:3.4;--spd:130ms" aria-hidden="true"></div>
+          <div class="spr alt big" style="--img:url(assets/sprites/norc-cast.png);--fw:92;--fh:58;--n:6;--s:3;--spd:130ms" aria-hidden="true"></div>
+        </div>
+        <div class="foe-body">
+          <div class="foe-top"><h3>Norc'Thex</h3><span class="tag" style="--tagc:var(--void)">Hibrida FSM + BT</span></div>
+          <div class="boss-bar" aria-hidden="true">
+            <div class="bar" style="--w:312;--h:27;--frame:url(assets/ui/boss_bar_frame.png);--fill:url(assets/ui/boss_bar_fill.png);--ox:9;--oy:8;--fw:294;--fh:11;--v:.62;max-width:100%"><i></i></div>
+          </div>
+          <p>Penguasa puncak menara di arena Zone Two. State machine mengatur fase pertarungan (Dormant, Phase1, PhaseShift, Phase2, Stagger, Dead), dan di dalam tiap fase sebuah behavior tree memilih serangan.</p>
+          <div class="phase">
+            <div><h4>Fase 1</h4><p>Aimed Shot dengan garis bidik, Trap di dekat Fiora, Panic Blink saat terdesak, lalu menjaga jarak.</p></div>
+            <div><h4>Fase 2</h4><p>Menambah Blink Ambush dan Volley tiga panah, dengan pilihan serangan acak berbobot.</p></div>
+          </div>
+          <figure class="foe-shot"><img src="assets/img/shot-norc.jpg" alt="Norc'Thex menembakkan tiga panah sekaligus ke arah Fiora di fase 2" loading="lazy"><figcaption>Fase 2: Volley tiga panah.</figcaption></figure>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- LANTAI 4: CUPLIKAN -->
+<section id="cuplikan">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="floor"><b>Lantai 4</b> Cuplikan</p>
+      <h2 class="h2">Lihat sebelum naik</h2>
+      <p class="lede">Potongan cutscene prolog dan kemunculan Norc'Thex, dirender dalam gaya pixel yang sama dengan game.</p>
+    </div>
+    <div class="film">
+      <div class="frame" style="padding:0">
+        <video controls preload="none" playsinline poster="assets/img/prolog-4.jpg">
+          <source src="assets/media/trailer.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="gallery">
+        <figure><img src="assets/img/shot-arena.jpg" alt="Arena Zone Two di atas benteng kastil dengan Norc'Thex di sisi kanan" loading="lazy"><figcaption>Arena Zone Two</figcaption></figure>
+        <figure><img src="assets/img/boss-1.jpg" alt="Norc'Thex muncul dari kabut ungu di samping pilar cahaya" loading="lazy"><figcaption>Norc'Thex bangkit</figcaption></figure>
+        <figure><img src="assets/img/boss-2.jpg" alt="Fiora menghunus pedang dengan lentera di tengah kabut ungu" loading="lazy"><figcaption>Pertarungan di puncak</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PUNCAK: UNDUH -->
+<section class="dl" id="unduh">
+  <div class="wrap dl-grid">
+    <div class="sec-head" style="margin:0">
+      <p class="floor"><b>Puncak</b> Pilar cahaya</p>
+      <h2 class="h2">Bawa lenteranya pulang</h2>
+      <p class="lede">Into the Light tersedia untuk Android sebagai versi beta. Unduh APK, izinkan instalasi dari sumber tidak dikenal, lalu mulai memanjat.</p>
+      <div class="btn-row">
+        <a class="btn" href="https://github.com/FakhriRyu/IntoTheLIghtWithLimboAI/releases/latest"><img src="assets/ui/icon-lentera.png" alt="">Unduh APK</a>
+      </div>
+    </div>
+    <div class="frame">
+      <dl class="spec">
+        <dt>Versi</dt><dd>0.2.0-beta</dd>
+        <dt>Platform</dt><dd>Android (APK)</dd>
+        <dt>Ukuran</dt><dd>± 114 MB</dd>
+        <dt>Kontrol</dt><dd>Tombol sentuh atau keyboard</dd>
+        <dt>Mesin</dt><dd>Godot 4 + LimboAI</dd>
+        <dt>Bahasa</dt><dd>Indonesia</dd>
+      </dl>
+      <p class="note">APK diunggah di halaman Releases GitHub. Android mungkin menampilkan peringatan karena aplikasi tidak dipasang dari Play Store.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="sig">
+      <div class="spr" style="--img:url(assets/sprites/warrior-run.png);--fw:30;--fh:31;--n:8;--s:2;--spd:90ms" aria-hidden="true"></div>
+      <p>Into the Light · Proyek skripsi Fakhri Alwan</p>
+    </div>
+    <p><a href="https://github.com/FakhriRyu/IntoTheLIghtWithLimboAI">Kode sumber di GitHub</a></p>
+  </div>
+</footer>
+
+<script>
+  // Ketuk sprite musuh di layar sentuh untuk memutar animasi serangan
+  document.querySelectorAll('.foe-stage').forEach(function (el) {
+    function toggle() { el.classList.toggle('attacking'); }
+    el.addEventListener('click', toggle);
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
+  });
+</script>
+</body>
+</html>
