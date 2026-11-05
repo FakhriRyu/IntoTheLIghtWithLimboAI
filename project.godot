@@ -19,7 +19,12 @@ config/version="1.0.0"
 run/main_scene="res://Scenes/UI/main_menu.tscn"
 config/quit_on_go_back=false
 config/features=PackedStringArray("4.7", "Mobile")
-config/icon="uid://lakgrdr4mj7k"
+boot_splash/bg_color=Color(0.039, 0.051, 0.071, 1)
+boot_splash/stretch_mode=4
+boot_splash/use_filter=false
+boot_splash/image="res://Assets/menu/boot_splash.png"
+config/icon="res://Assets/menu/game_logo.png"
+boot_splash/minimum_display_time=1500
 
 [autoload]
 

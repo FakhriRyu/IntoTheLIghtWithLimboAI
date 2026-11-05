@@ -52,6 +52,9 @@ const DEFAULT_STATS := {
 	"last_light": 0,
 }
 
+## Game baru dibuka: main menu pertama menyambung dari gambar boot splash.
+## Disimpan di autoload karena scene menu dibuat ulang tiap kembali dari run.
+var boot_splash_pending: bool = true
 ## Dipilih di main menu; tidak di-reset antar run (lihat Settings)
 var difficulty: Difficulty = Difficulty.NORMAL
 ## Lama bermain di run ini. Hanya bertambah saat player hidup dan game tidak di-pause.

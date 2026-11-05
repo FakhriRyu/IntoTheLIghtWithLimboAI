@@ -11,6 +11,9 @@ extends Node2D
 const LIGHT_WHITE := Color(1.0, 0.96, 0.86)
 const INTRO_TIME := 1.4
 const START_RUN_TIME := 1.7
+## Gambar boot splash (dibuat tools/build_splash.gd) dan lama pudarnya saat game dibuka
+const BOOT_SPLASH := "res://Assets/menu/boot_splash.png"
+const BOOT_SPLASH_FADE_TIME := 0.6
 ## Cutscene pembuka (Prolog) yang diputar sebelum level pertama run baru.
 ## Prolog sendiri lalu membuka RunState.run_start_scene.
 const PROLOG_SCENE := "res://Scenes/Cutscene/prolog_cutscene.tscn"
@@ -136,6 +139,10 @@ func _play_intro() -> void:
 	marker.visible = false
 	for b in _buttons:
 		b.modulate.a = 0.0
+	if RunState.boot_splash_pending:
+		RunState.boot_splash_pending = false
+		fade.modulate.a = 0.0
+		_dissolve_boot_splash()
 
 	var t := create_tween()
 	t.tween_property(fade, "modulate:a", 0.0, INTRO_TIME).set_trans(Tween.TRANS_SINE)
@@ -148,6 +155,21 @@ func _play_intro() -> void:
 		t.parallel().tween_property(_buttons[i], "modulate:a", 1.0, 0.4).set_delay(1.3 + i * 0.12)
 	t.parallel().tween_property(hint, "modulate:a", 1.0, 0.6).set_delay(1.8)
 	t.tween_callback(_on_intro_done)
+
+
+## Gambar boot splash adalah scene ini sendiri, jadi cukup dipudarkan di atas menu
+## tanpa layar hitam di antaranya.
+func _dissolve_boot_splash() -> void:
+	var splash := TextureRect.new()
+	splash.texture = load(BOOT_SPLASH)
+	splash.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	splash.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	splash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	$UI.add_child(splash)
+	splash.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var t := create_tween()
+	t.tween_property(splash, "modulate:a", 0.0, BOOT_SPLASH_FADE_TIME).set_trans(Tween.TRANS_SINE)
+	t.tween_callback(splash.queue_free)
 
 
 func _on_intro_done() -> void:
